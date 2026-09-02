@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 
 import httpx
 from fastapi import APIRouter, FastAPI, File, HTTPException, Query, Request, UploadFile
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
@@ -400,6 +400,21 @@ async def voice_speak(payload: SpeakRequest, request: Request):
     except voice.VoiceUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e))
     return Response(content=audio_bytes, media_type="audio/mpeg")
+
+
+# ------------------------- project documentation download -------------------
+# Temporary convenience route so the generated project docs can be downloaded
+# straight from the running app (no auth — internal/demo use only).
+_DOC_DIR = "/app/documentation"
+
+
+@api.get("/docs/download")
+async def download_docs(fmt: str = Query("docx", pattern="^(docx|pdf)$")):
+    path = f"{_DOC_DIR}/ORCA_Project_Documentation.{fmt}"
+    media = ("application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+             if fmt == "docx" else "application/pdf")
+    return FileResponse(path, media_type=media,
+                        filename=f"ORCA_Project_Documentation.{fmt}")
 
 
 app.include_router(api)

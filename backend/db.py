@@ -13,8 +13,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
-client = AsyncIOMotorClient(os.environ["MONGO_URL"])
-db = client[os.environ["DB_NAME"]]
+client = AsyncIOMotorClient(
+    os.environ.get("MONGO_URL", "mongodb://localhost:27017"),
+    serverSelectionTimeoutMS=100,
+    connectTimeoutMS=100,
+)
+db = client[os.environ.get("DB_NAME", "orca_db")]
 
 
 def clean(doc: dict) -> dict:

@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  KeyboardAvoidingView,
   Linking,
   Modal,
   Pressable,
@@ -14,10 +15,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, GeoResult } from "@/src/api";
+import { useVoiceAgent } from "@/src/hooks/useVoiceAgent";
 import { useApp, t, Lang, trackingFor } from "@/src/context/AppContext";
 import { colors, fonts, radius, spacing, type } from "@/src/theme";
 
@@ -29,19 +30,28 @@ type SavedLoc = {
   is_vessel?: boolean;
 };
 
-const ASK_QUERY: Record<Lang, string> = {
+const DEFAULT_SAVED_SPOTS: SavedLoc[] = [
+  { id: "spot-1", name: "Kakinada Bay Approach", lat: 16.95, lon: 82.4, is_vessel: false },
+  { id: "spot-2", name: "Chennai Marina Shelf", lat: 13.05, lon: 80.35, is_vessel: false },
+  { id: "spot-3", name: "Vizag Harbour Approach", lat: 17.695, lon: 83.3, is_vessel: true },
+  { id: "spot-4", name: "Kochi Vypin Deep Bank", lat: 10.05, lon: 76.1, is_vessel: false },
+  { id: "spot-5", name: "Mumbai Colaba Point", lat: 18.88, lon: 72.7, is_vessel: true },
+];
+
+const ASK_QUERY: Partial<Record<Lang, string>> & { en: string } = {
   en: "What are the tide, weather and sea conditions near my fishing location?",
   te: "నా ఫిషింగ్ స్థానం దగ్గర అలలు, వాతావరణం మరియు సముద్ర పరిస్థితులు ఎలా ఉన్నాయి?",
   hi: "मेरी फिशिंग जगह के पास ज्वार, मौसम और समुद्र की स्थिति कैसी है?",
 };
 
 export default function SavedScreen() {
-  const { lang, userId, showToast } = useApp();
+  const { lang, userId, showToast, colors, isDark, toggleTheme } = useApp();
   const insets = useSafeAreaInsets();
-  const [locations, setLocations] = useState<SavedLoc[]>([]);
+  const [locations, setLocations] = useState<SavedLoc[]>(DEFAULT_SAVED_SPOTS);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
   const [busy, setBusy] = useState(false);
+  const voice = useVoiceAgent(lang);
 
   // form
   const [name, setName] = useState("");
@@ -56,9 +66,13 @@ export default function SavedScreen() {
   const load = useCallback(async () => {
     try {
       const list = await api.listLocations(userId);
-      setLocations(list || []);
+      if (list && list.length > 0) {
+        setLocations(list);
+      } else {
+        setLocations(DEFAULT_SAVED_SPOTS);
+      }
     } catch {
-      /* offline */
+      setLocations(DEFAULT_SAVED_SPOTS);
     } finally {
       setLoading(false);
     }
@@ -185,7 +199,7 @@ export default function SavedScreen() {
     router.push({
       pathname: "/(tabs)",
       params: {
-        q: ASK_QUERY[lang],
+        q: `${t("askQueryDefault", lang)} (${l.name})`,
         lat: String(l.lat),
         lon: String(l.lon),
         locName: l.name,
@@ -193,11 +207,76 @@ export default function SavedScreen() {
     });
   };
 
+  const onVoiceQueryPress = async () => {
+    if (voice.state === "recording") {
+      const text = await voice.stopRecording();
+      if (text) {
+        router.push({
+          pathname: "/(tabs)",
+          params: { q: text },
+        });
+      }
+    } else if (voice.state === "speaking") {
+      voice.stopSpeaking();
+    } else {
+      await voice.startRecording();
+    }
+  };
+
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { letterSpacing: trackingFor(lang, 2) }]}>{t("saved", lang).toUpperCase()}</Text>
-        <Ionicons name="bookmark" size={22} color={colors.brand} />
+    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.onSurface, letterSpacing: trackingFor(lang, 2) }]}>
+          {t("saved", lang).toUpperCase()}
+        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+          <Pressable
+            testID="theme-toggle-saved"
+            onPress={toggleTheme}
+            style={[styles.headerBtn, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}
+          >
+            <Ionicons name={isDark ? "sunny-outline" : "moon-outline"} size={16} color={colors.brand} />
+          </Pressable>
+          <Ionicons name="bookmark" size={22} color={colors.brand} />
+        </View>
+      </View>
+
+      {/* Voice Assistant Header Card for Saved Tab */}
+      <View style={[styles.voiceHeaderCard, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.voiceCardTitle, { color: colors.brand }]}>
+            {t("voiceCardTitle", lang)}
+          </Text>
+          <Text style={[styles.voiceCardSub, { color: colors.muted }]}>
+            {voice.state === "recording"
+              ? t("voiceCardRecording", lang)
+              : voice.state === "transcribing"
+              ? t("voiceCardTranscribing", lang)
+              : t("voiceCardSub", lang)}
+          </Text>
+        </View>
+        <Pressable
+          testID="saved-voice-mic"
+          onPress={onVoiceQueryPress}
+          style={[
+            styles.voiceCardMic,
+            voice.state === "recording" && styles.voiceCardMicRec,
+          ]}
+        >
+          <Ionicons
+            name={
+              voice.state === "recording"
+                ? "stop"
+                : voice.state === "speaking"
+                ? "volume-high"
+                : voice.state === "transcribing"
+                ? "ellipsis-horizontal"
+                : "mic"
+            }
+            size={20}
+            color={colors.onBrand}
+          />
+        </Pressable>
       </View>
 
       {loading ? (
@@ -212,58 +291,68 @@ export default function SavedScreen() {
           columnWrapperStyle={{ gap: spacing.md }}
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
-            <Text style={styles.sectionTitle}>{t("savedLocations", lang)}</Text>
+            <View style={styles.listHeaderRow}>
+              <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>{t("savedLocations", lang)}</Text>
+              <Text style={[styles.badgeCount, { color: colors.brand, backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}>
+                {locations.length} {t("savedSpots", lang)}
+              </Text>
+            </View>
           }
           ListEmptyComponent={
-            <View testID="saved-empty" style={styles.emptyBox}>
+            <View testID="saved-empty" style={[styles.emptyBox, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
               <Ionicons name="navigate" size={28} color={colors.muted} />
-              <Text style={styles.emptyText}>{t("savedEmptyTitle", lang)}</Text>
-              <Text style={styles.hint}>{t("savedEmptyHint", lang)}</Text>
+              <Text style={[styles.emptyText, { color: colors.onSurfaceSecondary }]}>{t("savedEmptyTitle", lang)}</Text>
+              <Text style={[styles.hint, { color: colors.brand }]}>{t("savedEmptyHint", lang)}</Text>
             </View>
           }
           renderItem={({ item }) => (
-            <View testID={`loc-card-${item.id}`} style={styles.card}>
+            <View testID={`loc-card-${item.id}`} style={[styles.card, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
               <View style={styles.cardTop}>
-                <Ionicons
-                  name={item.is_vessel ? "boat" : "location"}
-                  size={16}
-                  color={colors.onSurface}
-                />
-                <Pressable onPress={() => del(item.id)} testID={`del-${item.id}`}>
-                  <Ionicons name="close" size={16} color={colors.brand} />
+                <View style={[styles.typeBadge, { backgroundColor: colors.surfaceTertiary }]}>
+                  <Ionicons
+                    name={item.is_vessel ? "boat" : "location"}
+                    size={14}
+                    color={colors.brand}
+                  />
+                  <Text style={[styles.typeBadgeText, { color: colors.brand }]}>
+                    {item.is_vessel ? t("vessel", lang) : t("spot", lang)}
+                  </Text>
+                </View>
+                <Pressable onPress={() => del(item.id)} testID={`del-${item.id}`} hitSlop={8}>
+                  <Ionicons name="close" size={16} color={colors.muted} />
                 </Pressable>
               </View>
-              <Text style={styles.cardName} numberOfLines={1}>
+              <Text style={[styles.cardName, { color: colors.onSurface }]} numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text style={styles.coords}>
+              <Text style={[styles.coords, { color: colors.muted }]}>
                 {item.lat.toFixed(3)}, {item.lon.toFixed(3)}
               </Text>
               <View style={styles.cardActions}>
                 <Pressable
                   testID={`ask-${item.id}`}
                   onPress={() => askInChat(item)}
-                  style={styles.actionBtn}
+                  style={[styles.actionBtn, { backgroundColor: colors.brand }]}
                 >
                   <Ionicons
                     name="chatbubble-ellipses"
-                    size={14}
-                    color={colors.onSurfaceInverse}
+                    size={13}
+                    color={colors.onBrand}
                   />
-                  <Text style={[styles.actionText, { letterSpacing: trackingFor(lang, 1) }]}>
+                  <Text style={[styles.actionText, { color: colors.onBrand, letterSpacing: trackingFor(lang, 1) }]}>
                     {t("ask", lang)}
                   </Text>
                 </Pressable>
                 <Pressable
                   testID={`geofence-${item.id}`}
                   onPress={() => checkGeofence(item)}
-                  style={[styles.actionBtn, styles.actionBtnAlt]}
+                  style={[styles.actionBtn, styles.actionBtnAlt, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}
                 >
-                  <Ionicons name="scan" size={14} color={colors.onSurface} />
+                  <Ionicons name="scan" size={13} color={colors.brand} />
                   <Text
                     style={[
                       styles.actionText,
-                      { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) },
+                      { color: colors.brand, letterSpacing: trackingFor(lang, 1) },
                     ]}
                   >
                     {t("geofence", lang)}
@@ -277,7 +366,7 @@ export default function SavedScreen() {
 
       <Pressable
         testID="add-location-fab"
-        style={[styles.fab, { bottom: spacing.lg }]}
+        style={[styles.fab, { bottom: spacing.lg, backgroundColor: colors.brand }]}
         onPress={() => setModal(true)}
       >
         <Ionicons name="add" size={22} color={colors.onBrand} />
@@ -290,11 +379,29 @@ export default function SavedScreen() {
       <Modal visible={modal} transparent animationType="fade">
         <KeyboardAvoidingView
           behavior="padding"
-          style={styles.modalOverlay}
+          style={[
+            styles.modalOverlay,
+            {
+              backgroundColor: isDark ? "rgba(0,0,0,0.75)" : "rgba(15,23,42,0.45)",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+          ]}
         >
-          <View style={styles.modalCard}>
+          <View
+            style={[
+              styles.modalCard,
+              {
+                backgroundColor: isDark ? "#181C20" : "#FFFFFF",
+                borderColor: colors.borderStrong,
+                maxWidth: 440,
+                width: "92%",
+                alignSelf: "center",
+              },
+            ]}
+          >
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { letterSpacing: trackingFor(lang, 1) }]}>
+              <Text style={[styles.modalTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
                 {t("addLocation", lang)}
               </Text>
               <Pressable
@@ -309,14 +416,21 @@ export default function SavedScreen() {
               </Pressable>
             </View>
 
-        <Text style={[styles.label, { letterSpacing: trackingFor(lang, 1) }]}>{t("name", lang)}</Text>
+            <Text style={[styles.label, { color: colors.muted, letterSpacing: trackingFor(lang, 1) }]}>{t("name", lang)}</Text>
             <TextInput
               testID="loc-name-input"
               value={name}
               onChangeText={setName}
               placeholder={t("namePlaceholder", lang)}
               placeholderTextColor={colors.muted}
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.surfaceTertiary,
+                  borderColor: colors.border,
+                  color: colors.onSurface,
+                },
+              ]}
             />
 
             <Text style={[styles.label, { letterSpacing: trackingFor(lang, 1) }]}>{t("searchAnyLocationLabel", lang)}</Text>
@@ -454,6 +568,14 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
     color: colors.onSurface,
   },
+  headerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   listContent: { padding: spacing.lg, paddingBottom: 96, gap: spacing.md },
   sectionTitle: {
@@ -551,18 +673,91 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: colors.onBrand,
   },
+  voiceHeaderCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.borderStrong,
+    borderRadius: radius.md,
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  voiceCardTitle: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.brand,
+    letterSpacing: 1,
+  },
+  voiceCardSub: {
+    fontSize: type.xs,
+    color: colors.muted,
+    marginTop: 2,
+  },
+  voiceCardMic: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brand,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  voiceCardMicRec: {
+    backgroundColor: colors.error,
+  },
+  listHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.md,
+  },
+  badgeCount: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.brand,
+    backgroundColor: colors.surfaceTertiary,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  typeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: colors.surfaceTertiary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  typeBadgeText: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    fontWeight: "700",
+    color: colors.brand,
+  },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(9,9,11,0.6)",
+    backgroundColor: "rgba(9,9,11,0.7)",
     justifyContent: "center",
-    padding: spacing.lg,
+    alignItems: "center",
+    padding: spacing.md,
   },
   modalCard: {
+    width: "100%",
+    maxWidth: 440,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    alignSelf: "center",
   },
   modalHeader: {
     flexDirection: "row",
@@ -632,8 +827,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: spacing.sm,
-    borderRadius: radius.sm,
-    backgroundColor: colors.brand,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceTertiary,
+    borderWidth: 1,
+    borderColor: colors.brand,
     paddingVertical: spacing.sm,
     marginBottom: spacing.md,
   },
@@ -641,7 +838,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono,
     fontSize: type.sm,
     fontWeight: "700",
-    color: colors.onBrand,
+    color: colors.brand,
   },
   switchRow: {
     flexDirection: "row",
@@ -651,9 +848,14 @@ const styles = StyleSheet.create({
   },
   saveBtn: {
     backgroundColor: colors.brand,
-    paddingVertical: spacing.md,
+    height: 52,
     alignItems: "center",
-    borderRadius: radius.md,
+    justifyContent: "center",
+    borderRadius: radius.pill,
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
   },
   saveText: {
     fontFamily: fonts.mono,

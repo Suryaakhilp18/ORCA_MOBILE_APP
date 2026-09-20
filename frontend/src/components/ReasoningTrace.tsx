@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Lang, trackingFor } from "@/src/context/AppContext";
+import { Lang, trackingFor, useApp } from "@/src/context/AppContext";
 import { colors, fonts, radius, spacing, type } from "@/src/theme";
 
 // Collapsible raw reasoning trace (planner -> agents -> synthesizer) in mono.
@@ -15,17 +15,18 @@ export default function ReasoningTrace({
   label: string;
   lang?: Lang;
 }) {
+  const { colors, isDark } = useApp();
   const [open, setOpen] = useState(false);
   if (!trace?.length) return null;
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, { borderColor: colors.borderGlass }]}>
       <Pressable
         testID="reasoning-toggle"
         onPress={() => setOpen((o) => !o)}
-        style={styles.header}
+        style={[styles.header, { backgroundColor: colors.surfaceTertiary }]}
       >
         <Ionicons name="git-branch" size={14} color={colors.onSurface} />
-        <Text style={[styles.headerText, { letterSpacing: trackingFor(lang, 1) }]}>
+        <Text style={[styles.headerText, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
           {label} ({trace.length})
         </Text>
         <Ionicons
@@ -35,15 +36,15 @@ export default function ReasoningTrace({
         />
       </Pressable>
       {open && (
-        <View testID="reasoning-body" style={styles.body}>
+        <View testID="reasoning-body" style={[styles.body, { backgroundColor: isDark ? "rgba(17, 20, 23, 0.8)" : "rgba(241, 245, 249, 0.9)" }]}>
           {trace.map((step, i) => (
             <View key={i} style={styles.row}>
-              <Text style={styles.step}>
+              <Text style={[styles.step, { color: colors.brand }]}>
                 {String(i + 1).padStart(2, "0")}
               </Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.agent}>{step.agent}</Text>
-                <Text style={styles.detail}>{step.detail}</Text>
+                <Text style={[styles.agent, { color: colors.onSurface }]}>{step.agent}</Text>
+                <Text style={[styles.detail, { color: colors.muted }]}>{step.detail}</Text>
               </View>
             </View>
           ))}

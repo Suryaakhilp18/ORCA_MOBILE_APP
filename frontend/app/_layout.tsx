@@ -2,45 +2,41 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { LogBox, View } from "react-native";
+import { LogBox, Platform, View } from "react-native";
 import { useFonts } from "expo-font";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { AppProvider } from "@/src/context/AppContext";
+import { AppProvider, useApp } from "@/src/context/AppContext";
 import { colors } from "@/src/theme";
 
-// Disable logbox errors etc so that users can see the app
-// and agent works as expected.
+// Disable logbox errors in dev view
 LogBox.ignoreAllLogs(true);
 
-SplashScreen.preventAutoHideAsync();
+if (Platform.OS !== "web") {
+  SplashScreen.preventAutoHideAsync().catch(() => {});
+}
 
-// Offline-tolerant boot: ORCA's users often have poor/intermittent
-// connectivity (fishermen at sea, low-end Android). We never let a slow or
-// blocked network call (e.g. a CDN font fetch) wedge the splash screen
-// forever. Local bundled fonts load almost instantly; if they somehow don't
-// settle within FAILSAFE_MS we force the app open anyway — a font hiccup
-// should never be a reason the whole app fails to open.
-const FAILSAFE_MS = 2500;
+const FAILSAFE_MS = 1500;
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const [timedOut, setTimedOut] = useState(false);
+  const [timedOut, setTimedOut] = useState(Platform.OS === "web");
 
   useEffect(() => {
-    const timer = setTimeout(() => setTimedOut(true), FAILSAFE_MS);
-    return () => clearTimeout(timer);
+    if (Platform.OS !== "web") {
+      const timer = setTimeout(() => setTimedOut(true), FAILSAFE_MS);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
-  const ready = fontsLoaded || !!fontError || timedOut;
+  const ready = Platform.OS === "web" || fontsLoaded || !!fontError || timedOut;
 
   useEffect(() => {
-    if (ready) {
-      SplashScreen.hideAsync();
+    if (ready && Platform.OS !== "web") {
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [ready]);
 
@@ -48,23 +44,48 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <StatusBar style="light" />
-      <KeyboardProvider>
-        <SafeAreaProvider>
-          <AppProvider>
-            <View style={{ flex: 1, backgroundColor: colors.bg }}>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: colors.bg },
-                }}
-              >
-                <Stack.Screen name="(tabs)" />
-              </Stack>
-            </View>
-          </AppProvider>
-        </SafeAreaProvider>
-      </KeyboardProvider>
+      <SafeAreaProvider style={{ flex: 1 }}>
+        <AppProvider>
+          <RootContent />
+        </AppProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function RootContent() {
+  const { isDark } = useApp();
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <View style={{ flex: 1, width: "100%", alignItems: "center", backgroundColor: isDark ? colors.bg : "#EEF2F6" }}>
+        <View
+          style={{
+            flex: 1,
+            width: "100%",
+            maxWidth: Platform.OS === "web" ? 480 : "100%",
+            backgroundColor: isDark ? colors.bg : "#F8FAFC",
+            ...(Platform.OS === "web"
+              ? {
+                  height: "100%" as any,
+                  borderLeftWidth: 1,
+                  borderRightWidth: 1,
+                  borderColor: isDark ? colors.border : "rgba(0,0,0,0.08)",
+                  boxShadow: "0 0 40px rgba(0,0,0,0.15)",
+                }
+              : {}),
+          }}
+        >
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: isDark ? colors.bg : "#F8FAFC" },
+            }}
+          >
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+        </View>
+      </View>
+    </>
   );
 }

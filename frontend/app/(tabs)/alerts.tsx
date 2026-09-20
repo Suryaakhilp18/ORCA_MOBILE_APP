@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -24,7 +25,7 @@ import { colors, fonts, radius, severityColor, spacing, type } from "@/src/theme
 const CACHE_KEY = "orca_alerts_cache";
 
 export default function AlertsScreen() {
-  const { lang, userId, region } = useApp();
+  const { lang, userId, region, colors, isDark, toggleTheme } = useApp();
   const insets = useSafeAreaInsets();
   const [situation, setSituation] = useState<Situation | null>(null);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
@@ -36,8 +37,8 @@ export default function AlertsScreen() {
   const load = useCallback(async () => {
     try {
       const [s, a, n] = await Promise.all([
-        api.getSituation(region.id),
-        api.getAlerts(region.id),
+        api.getSituation(region.id, lang),
+        api.getAlerts(region.id, lang),
         api.getNotifications(userId),
       ]);
       setSituation(s);
@@ -45,7 +46,7 @@ export default function AlertsScreen() {
       setNotifs(n || []);
       setStale(null);
       await storage.setItem(
-        CACHE_KEY,
+        `${CACHE_KEY}_${lang}`,
         JSON.stringify({
           situation: s,
           alerts: a.alerts || [],
@@ -54,7 +55,7 @@ export default function AlertsScreen() {
         }),
       );
     } catch {
-      const raw = (await storage.getItem(CACHE_KEY, "")) as string;
+      const raw = (await storage.getItem(`${CACHE_KEY}_${lang}`, "")) as string;
       if (raw) {
         try {
           const c = JSON.parse(raw);
@@ -70,7 +71,7 @@ export default function AlertsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [userId, region.id]);
+  }, [userId, region.id, lang]);
 
   useEffect(() => {
     load();
@@ -90,18 +91,27 @@ export default function AlertsScreen() {
   const sc = severityColor(situation?.severity);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={[styles.header, { borderBottomColor: sc.bg }]}>
+    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
+      <View style={[styles.header, { backgroundColor: colors.surfaceGlass, borderBottomColor: sc.bg }]}>
         <View>
-          <Text style={[styles.title, { letterSpacing: trackingFor(lang, 2) }]}>
+          <Text style={[styles.title, { color: colors.onSurface, letterSpacing: trackingFor(lang, 2) }]}>
             {t("alerts", lang).toUpperCase()}
           </Text>
-          <Text style={styles.regionText}>
+          <Text style={[styles.regionText, { color: colors.muted }]}>
             {region.name}, {region.state}
           </Text>
         </View>
-        <View style={[styles.headerBadge, { backgroundColor: sc.bg }]}>
-          <Ionicons name="warning" size={16} color={sc.fg} />
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+          <Pressable
+            testID="theme-toggle-alerts"
+            onPress={toggleTheme}
+            style={[styles.headerBadge, { backgroundColor: colors.surfaceTertiary, borderWidth: 1, borderColor: colors.border }]}
+          >
+            <Ionicons name={isDark ? "sunny-outline" : "moon-outline"} size={16} color={colors.brand} />
+          </Pressable>
+          <View style={[styles.headerBadge, { backgroundColor: sc.bg }]}>
+            <Ionicons name="warning" size={16} color={sc.fg} />
+          </View>
         </View>
       </View>
 
@@ -177,11 +187,11 @@ export default function AlertsScreen() {
           }
           renderItem={({ item: section }) => (
             <View style={{ marginBottom: spacing.lg }}>
-              <Text style={[styles.sectionTitle, { letterSpacing: trackingFor(lang, 1) }]}>
+              <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
                 {section.header}
               </Text>
               {section.items.length === 0 ? (
-                <View testID="no-hazards" style={styles.emptyBox}>
+                <View testID="no-hazards" style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                   <Ionicons
                     name="checkmark-circle"
                     size={18}

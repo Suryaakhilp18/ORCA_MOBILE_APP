@@ -26,7 +26,10 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from elevenlabs import ElevenLabs
+try:
+    from elevenlabs import ElevenLabs
+except ImportError:
+    ElevenLabs = None
 from emergentintegrations.llm.openai import OpenAISpeechToText, OpenAITextToSpeech
 
 load_dotenv()
@@ -35,7 +38,7 @@ logger = logging.getLogger("orca.voice")
 
 _ELEVEN_KEY = os.environ.get("ELEVENLABS_API_KEY")
 _EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
-_eleven_client: ElevenLabs | None = None
+_eleven_client = None
 
 # "Adam" — a friendly, neutral premade voice available on all ElevenLabs
 # plans (Rachel's ID is blocked for free-tier API access — "library

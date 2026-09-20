@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
 import { Situation } from "@/src/api";
-import { Lang, t } from "@/src/context/AppContext";
+import { Lang, t, useApp } from "@/src/context/AppContext";
 import { colors, fonts, radius, severityColor, spacing, type } from "@/src/theme";
 
 const SEVERITY_KEY: Record<string, string> = {
@@ -21,35 +21,36 @@ export default function SituationCard({
   situation: Situation;
   lang: Lang;
 }) {
+  const { colors, isDark } = useApp();
   const sc = severityColor(situation.severity);
   const today = situation.weather_today;
   const nextTide = situation.tide?.[0];
 
   return (
-    <View testID="situation-card" style={styles.card}>
+    <View testID="situation-card" style={[styles.card, { backgroundColor: colors.surfaceGlass, borderColor: colors.borderGlass }]}>
       <View style={styles.topRow}>
-        <Text style={styles.title}>{t("situationSummary", lang)}</Text>
+        <Text style={[styles.title, { color: colors.muted }]}>{t("situationSummary", lang)}</Text>
         <View style={[styles.badge, { backgroundColor: sc.bg }]}>
           <Text style={[styles.badgeText, { color: sc.fg }]}>
             {t(SEVERITY_KEY[situation.severity] || "severityAdvisory", lang)}
           </Text>
         </View>
       </View>
-      <Text style={styles.region}>{situation.region}</Text>
+      <Text style={[styles.region, { color: colors.onSurface }]}>{situation.region}</Text>
 
       {today.cyclone && (
-        <View style={styles.cycloneBanner}>
+        <View style={[styles.cycloneBanner, { backgroundColor: colors.error }]}>
           <Ionicons name="thunderstorm" size={16} color={colors.onError} />
-          <Text style={styles.cycloneText} numberOfLines={2}>
+          <Text style={[styles.cycloneText, { color: colors.onError }]} numberOfLines={2}>
             {t("cycloneActiveLabel", lang)}: {today.cyclone}
           </Text>
         </View>
       )}
 
       <View style={styles.metricsRow}>
-        <Metric label={t("windLabel", lang)} value={`${today.wind_kn} kn`} />
-        <Metric label={t("waveLabel", lang)} value={`${today.wave_m} m`} />
-        <Metric label={t("lightningLabel", lang)} value={`${today.lightning_pct}%`} />
+        <Metric label={t("windLabel", lang)} value={`${today.wind_kn} kn`} colors={colors} />
+        <Metric label={t("waveLabel", lang)} value={`${today.wave_m} m`} colors={colors} />
+        <Metric label={t("lightningLabel", lang)} value={`${today.lightning_pct}%`} colors={colors} />
       </View>
 
       {situation.reasons?.length > 0 && (
@@ -57,26 +58,26 @@ export default function SituationCard({
           {situation.reasons.map((r, i) => (
             <View key={i} style={styles.reasonRow}>
               <View style={[styles.reasonDot, { backgroundColor: sc.bg }]} />
-              <Text style={styles.reasonText}>{r}</Text>
+              <Text style={[styles.reasonText, { color: colors.onSurfaceSecondary }]}>{r}</Text>
             </View>
           ))}
         </View>
       )}
 
       {nextTide && (
-        <Text style={styles.tideText}>
-          {t("nextTide", lang)}: {nextTide.type} · {nextTide.time} ({nextTide.height_m} m)
+        <Text style={[styles.tideText, { color: colors.brand }]}>
+          {t("nextTide", lang)}: {nextTide.type === "HIGH TIDE" ? t("highTide", lang) : nextTide.type === "LOW TIDE" ? t("lowTide", lang) : nextTide.type} · {nextTide.time} ({nextTide.height_m} m)
         </Text>
       )}
     </View>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({ label, value, colors }: { label: string; value: string; colors: any }) {
   return (
-    <View style={styles.metric}>
-      <Text style={styles.metricLabel}>{label}</Text>
-      <Text style={styles.metricValue}>{value}</Text>
+    <View style={[styles.metric, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}>
+      <Text style={[styles.metricLabel, { color: colors.muted }]}>{label}</Text>
+      <Text style={[styles.metricValue, { color: colors.brand }]}>{value}</Text>
     </View>
   );
 }

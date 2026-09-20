@@ -8,7 +8,7 @@ import MapWidget from "@/src/components/MapWidget";
 import ReasoningTrace from "@/src/components/ReasoningTrace";
 import VerdictBadge from "@/src/components/VerdictBadge";
 import { useVoiceAgent } from "@/src/hooks/useVoiceAgent";
-import { Lang, t, trackingFor } from "@/src/context/AppContext";
+import { Lang, t, trackingFor, useApp } from "@/src/context/AppContext";
 import { colors, fonts, radius, spacing, type } from "@/src/theme";
 
 // Render **bold** markdown spans as bold Text, everything else plain.
@@ -26,13 +26,14 @@ function renderRich(text: string) {
 }
 
 function MessageBubble({ msg, lang }: { msg: ChatMessage; lang: Lang }) {
+  const { colors, isDark } = useApp();
   const isUser = msg.role === "user";
 
   if (isUser) {
     return (
       <View testID="msg-user" style={styles.userWrap}>
-        <View style={styles.userBubble}>
-          <Text style={styles.userText}>{msg.content}</Text>
+        <View style={[styles.userBubble, { backgroundColor: colors.brand }]}>
+          <Text style={[styles.userText, { color: colors.onBrand }]}>{msg.content}</Text>
         </View>
       </View>
     );
@@ -41,15 +42,24 @@ function MessageBubble({ msg, lang }: { msg: ChatMessage; lang: Lang }) {
   return (
     <View testID="msg-assistant" style={styles.aiWrap}>
       <View style={styles.aiHeaderRow}>
-        <View style={styles.aiHeader}>
-          <View style={styles.aiDot} />
-          <Text style={styles.aiTag}>ORCA</Text>
+        <View style={[styles.aiHeader, { backgroundColor: isDark ? "rgba(31, 166, 160, 0.12)" : "rgba(13, 148, 136, 0.1)" }]}>
+          <View style={[styles.aiDot, { backgroundColor: colors.brand }]} />
+          <Text style={[styles.aiTag, { color: colors.brand }]}>ORCA</Text>
         </View>
-        <ListenButton text={msg.content} lang={lang} />
+        <ListenButton text={msg.content} lang={lang} colors={colors} isDark={isDark} />
       </View>
-      <View style={styles.aiBubble}>
+      <View
+        style={[
+          styles.aiBubble,
+          {
+            backgroundColor: isDark ? "#181C20" : "#FFFFFF",
+            borderColor: isDark ? "rgba(31, 166, 160, 0.22)" : "rgba(13, 148, 136, 0.18)",
+            shadowColor: isDark ? "#000000" : "#0F171A",
+          },
+        ]}
+      >
         <VerdictBadge verdict={msg.verdict} lang={lang} />
-        <Text style={styles.aiText}>{renderRich(msg.content)}</Text>
+        <Text style={[styles.aiText, { color: colors.onSurface }]}>{renderRich(msg.content)}</Text>
 
         {(msg.widgets || []).map((w, i) =>
           w.type === "map" ? (
@@ -60,12 +70,12 @@ function MessageBubble({ msg, lang }: { msg: ChatMessage; lang: Lang }) {
         )}
 
         {!!msg.citations?.length && (
-          <View style={styles.sources}>
-            <Text style={[styles.sourcesTitle, { letterSpacing: trackingFor(lang, 1) }]}>
+          <View style={[styles.sources, { borderTopColor: colors.border }]}>
+            <Text style={[styles.sourcesTitle, { color: colors.brand, letterSpacing: trackingFor(lang, 1) }]}>
               {t("sources", lang)}
             </Text>
             {msg.citations.map((c, i) => (
-              <Text key={i} style={styles.sourceItem}>
+              <Text key={i} style={[styles.sourceItem, { color: colors.onSurfaceSecondary }]}>
                 • {c}
               </Text>
             ))}
@@ -85,7 +95,7 @@ function MessageBubble({ msg, lang }: { msg: ChatMessage; lang: Lang }) {
 // Manual "listen" replay control shown on every assistant reply — lets the
 // user hear ANY answer aloud (Marine Copilot TTS), not just voice-initiated
 // ones, which auto-play from the chat screen already.
-function ListenButton({ text, lang }: { text: string; lang: Lang }) {
+function ListenButton({ text, lang, colors, isDark }: { text: string; lang: Lang; colors: any; isDark: boolean }) {
   const voice = useVoiceAgent(lang);
   const [pressed, setPressed] = useState(false);
   const speaking = voice.state === "speaking";
@@ -100,7 +110,13 @@ function ListenButton({ text, lang }: { text: string; lang: Lang }) {
           voice.speak(text, lang).finally(() => setPressed(false));
         }
       }}
-      style={styles.listenBtn}
+      style={[
+        styles.listenBtn,
+        {
+          backgroundColor: isDark ? "rgba(24, 28, 32, 0.85)" : "#FFFFFF",
+          borderColor: colors.borderStrong,
+        },
+      ]}
     >
       {pressed && !speaking ? (
         <ActivityIndicator size="small" color={colors.brand} />
@@ -134,33 +150,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: spacing.xs,
+    marginBottom: 6,
   },
   aiHeader: {
     alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surfaceTertiary,
+    backgroundColor: "rgba(31, 166, 160, 0.12)",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(31, 166, 160, 0.3)",
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
   },
   listenBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceTertiary,
+    borderColor: "rgba(31, 166, 160, 0.25)",
+    backgroundColor: "rgba(24, 28, 32, 0.85)",
   },
   aiTag: {
     fontFamily: fonts.mono,
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: "800",
     letterSpacing: 2,
     color: colors.brand,
   },
@@ -170,20 +186,28 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: colors.brand,
     marginRight: spacing.xs,
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 4,
   },
   aiBubble: {
     width: "100%",
     backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(31, 166, 160, 0.22)",
     borderRadius: radius.lg,
     padding: spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
   },
-  aiText: { color: colors.onSurface, fontSize: type.base, lineHeight: 21 },
+  aiText: { color: colors.onSurface, fontSize: type.base, lineHeight: 22 },
 
   sources: {
     marginTop: spacing.md,
-    borderTopWidth: 2,
+    borderTopWidth: 1,
     borderColor: colors.divider,
     paddingTop: spacing.sm,
   },
@@ -192,7 +216,7 @@ const styles = StyleSheet.create({
     fontSize: type.sm,
     fontWeight: "700",
     letterSpacing: 1,
-    color: colors.onSurface,
+    color: colors.brand,
     marginBottom: spacing.xs,
   },
   sourceItem: {

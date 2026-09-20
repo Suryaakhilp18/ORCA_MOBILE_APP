@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  KeyboardAvoidingView,
   Linking,
   Modal,
   Pressable,
@@ -12,7 +13,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 import { api, GeoResult, Region } from "@/src/api";
 import { useApp, t, trackingFor } from "@/src/context/AppContext";
@@ -33,7 +33,7 @@ export default function RegionSwitcher({
     region: Region,
   ) => void;
 }) {
-  const { lang, region, regions, setRegion, showToast } = useApp();
+  const { lang, region, regions, setRegion, showToast, colors, isDark } = useApp();
   const [locating, setLocating] = useState(false);
   const [query, setQuery] = useState("");
   const [searching, setSearching] = useState(false);
@@ -126,6 +126,16 @@ export default function RegionSwitcher({
     onClose();
   };
 
+  const filteredRegions = regions.filter((r) => {
+    if (!query.trim()) return true;
+    const q = query.toLowerCase().trim();
+    return (
+      r.name.toLowerCase().includes(q) ||
+      r.state.toLowerCase().includes(q) ||
+      (r.sea && r.sea.toLowerCase().includes(q))
+    );
+  });
+
   return (
     <Modal
       visible={visible}
@@ -133,13 +143,32 @@ export default function RegionSwitcher({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView behavior="padding" style={styles.overlay}>
-        <View style={styles.card} testID="region-switcher">
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={[
+          styles.overlay,
+          { backgroundColor: isDark ? "rgba(0, 0, 0, 0.7)" : "rgba(15, 23, 42, 0.45)" },
+        ]}
+      >
+        <View
+          style={[
+            styles.card,
+            {
+              width: "92%",
+              maxWidth: 440,
+              alignSelf: "center",
+              backgroundColor: isDark ? "#181C20" : "#FFFFFF",
+              borderColor: colors.borderStrong,
+              shadowColor: isDark ? "#000000" : "#0F3D3E",
+            },
+          ]}
+          testID="region-switcher"
+        >
           <View style={styles.header}>
-            <Text style={[styles.title, { letterSpacing: trackingFor(lang, 1) }]}>
+            <Text style={[styles.title, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
               {t("selectRegion", lang)}
             </Text>
-            <Pressable testID="close-region-switcher" onPress={onClose}>
+            <Pressable testID="close-region-switcher" onPress={onClose} hitSlop={10}>
               <Ionicons name="close" size={22} color={colors.onSurface} />
             </Pressable>
           </View>
@@ -147,14 +176,14 @@ export default function RegionSwitcher({
           <Pressable
             testID="use-current-location-region"
             onPress={useCurrentLocation}
-            style={styles.gpsBtn}
+            style={[styles.gpsBtn, { backgroundColor: colors.brand }]}
           >
             {locating ? (
               <ActivityIndicator size="small" color={colors.onBrand} />
             ) : (
               <Ionicons name="locate" size={16} color={colors.onBrand} />
             )}
-            <Text style={[styles.gpsText, { letterSpacing: trackingFor(lang, 1) }]}>
+            <Text style={[styles.gpsText, { color: colors.onBrand, letterSpacing: trackingFor(lang, 1) }]}>
               {t("useCurrentLocation", lang)}
             </Text>
           </Pressable>
@@ -169,14 +198,21 @@ export default function RegionSwitcher({
               }}
               placeholder={t("searchAnyLocation", lang)}
               placeholderTextColor={colors.muted}
-              style={styles.searchInput}
+              style={[
+                styles.searchInput,
+                {
+                  backgroundColor: colors.surfaceTertiary,
+                  borderColor: colors.border,
+                  color: colors.onSurface,
+                },
+              ]}
               onSubmitEditing={runSearch}
               returnKeyType="search"
             />
             <Pressable
               testID="region-search-btn"
               onPress={runSearch}
-              style={styles.searchBtn}
+              style={[styles.searchBtn, { backgroundColor: colors.brand }]}
               disabled={searching}
             >
               {searching ? (
@@ -190,36 +226,37 @@ export default function RegionSwitcher({
           {results !== null ? (
             <FlatList
               data={results}
-              keyExtractor={(r, i) => `${r.lat}-${r.lon}-${i}`}
+              keyExtractor={(_, i) => String(i)}
               style={styles.list}
               ListHeaderComponent={
                 <Pressable onPress={resetSearch} style={styles.backRow}>
-                  <Ionicons
-                    name="arrow-back"
-                    size={14}
-                    color={colors.brand}
-                  />
-                  <Text style={styles.backText}>{t("backToRegionList", lang)}</Text>
+                  <Ionicons name="arrow-back" size={16} color={colors.brand} />
+                  <Text style={[styles.backText, { color: colors.brand }]}>{t("backToRegionList", lang)}</Text>
                 </Pressable>
+              }
+              ListEmptyComponent={
+                <Text style={{ color: colors.muted, padding: spacing.md }}>
+                  {t("noResultsFound", lang)}
+                </Text>
               }
               renderItem={({ item }) => (
                 <Pressable
-                  testID="region-search-result"
-                  style={styles.row}
+                  style={[
+                    styles.row,
+                    {
+                      backgroundColor: colors.surfaceTertiary,
+                      borderColor: colors.border,
+                    },
+                  ]}
                   onPress={() => pickSearchResult(item)}
                 >
-                  <Ionicons
-                    name="pin"
-                    size={16}
-                    color={colors.brand}
-                    style={{ marginTop: 2 }}
-                  />
+                  <Ionicons name="location" size={16} color={colors.brand} />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.rowName} numberOfLines={2}>
+                    <Text style={[styles.rowName, { color: colors.onSurface }]} numberOfLines={2}>
                       {item.display_name}
                     </Text>
-                    <Text style={styles.rowCoords}>
-                      {item.lat.toFixed(3)}, {item.lon.toFixed(3)}
+                    <Text style={[styles.rowCoords, { color: colors.muted }]}>
+                      {item.lat.toFixed(4)}, {item.lon.toFixed(4)}
                     </Text>
                   </View>
                 </Pressable>
@@ -227,7 +264,7 @@ export default function RegionSwitcher({
             />
           ) : (
             <FlatList
-              data={regions}
+              data={filteredRegions}
               keyExtractor={(r) => r.id}
               style={styles.list}
               renderItem={({ item }) => (
@@ -235,7 +272,10 @@ export default function RegionSwitcher({
                   testID={`region-row-${item.id}`}
                   style={[
                     styles.row,
-                    item.id === region.id && styles.rowActive,
+                    {
+                      backgroundColor: item.id === region.id ? (isDark ? "rgba(31,166,160,0.18)" : "rgba(13,148,136,0.12)") : colors.surfaceTertiary,
+                      borderColor: item.id === region.id ? colors.brand : colors.border,
+                    },
                   ]}
                   onPress={() => pickRegion(item)}
                 >
@@ -245,16 +285,16 @@ export default function RegionSwitcher({
                     color={item.id === region.id ? colors.brand : colors.muted}
                   />
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.rowName}>
+                    <Text style={[styles.rowName, { color: colors.onSurface }]}>
                       {item.name}, {item.state}
                     </Text>
-                    <Text style={styles.rowCoords}>{item.sea}</Text>
+                    <Text style={[styles.rowCoords, { color: colors.muted }]}>{item.sea}</Text>
                   </View>
                   {item.id === region.id && (
                     <Ionicons
                       name="checkmark-circle"
                       size={18}
-                      color={colors.success}
+                      color={colors.brand}
                     />
                   )}
                 </Pressable>
@@ -270,17 +310,21 @@ export default function RegionSwitcher({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(9,9,11,0.6)",
+    backgroundColor: "rgba(9,9,11,0.7)",
     justifyContent: "center",
-    padding: spacing.lg,
+    alignItems: "center",
+    padding: spacing.md,
   },
   card: {
+    width: "100%",
+    maxWidth: 440,
     maxHeight: "82%",
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: spacing.lg,
+    alignSelf: "center",
   },
   header: {
     flexDirection: "row",

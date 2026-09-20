@@ -13,28 +13,54 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, Region } from "@/src/api";
 import { storage } from "@/src/utils/storage";
-import { colors, fonts, radius, spacing, type } from "@/src/theme";
+import { colors, darkColors, getTheme, fonts, radius, spacing, type } from "@/src/theme";
 
-export type Lang = "en" | "te" | "hi";
-
-export const LANGUAGES: { code: Lang; label: string; native: string }[] = [
-  { code: "en", label: "English", native: "English" },
-  { code: "te", label: "Telugu", native: "తెలుగు" },
-  { code: "hi", label: "Hindi", native: "हिन्दी" },
-];
+import { Lang, LANGUAGES, STRINGS, t, trackingFor } from "@/src/i18n";
+export { Lang, LANGUAGES, STRINGS, t, trackingFor };
+export type ThemeMode = "dark" | "light";
 
 type ToastKind = "info" | "success" | "error";
 
-const DEFAULT_REGION: Region = {
-  id: "kakinada",
-  name: "Kakinada",
-  state: "Andhra Pradesh",
-  center: { lat: 16.9891, lon: 82.2475 },
-};
+const DEFAULT_REGIONS: Region[] = [
+  { id: "kakinada", name: "Kakinada", state: "Andhra Pradesh", center: { lat: 16.9891, lon: 82.2475 }, sea: "Bay of Bengal" },
+  { id: "visakhapatnam", name: "Visakhapatnam", state: "Andhra Pradesh", center: { lat: 17.6868, lon: 83.2185 }, sea: "Bay of Bengal" },
+  { id: "machilipatnam", name: "Machilipatnam", state: "Andhra Pradesh", center: { lat: 16.1800, lon: 81.1300 }, sea: "Bay of Bengal" },
+  { id: "chennai", name: "Chennai", state: "Tamil Nadu", center: { lat: 13.0827, lon: 80.2707 }, sea: "Bay of Bengal" },
+  { id: "tuticorin", name: "Tuticorin (Thoothukudi)", state: "Tamil Nadu", center: { lat: 8.7642, lon: 78.1348 }, sea: "Gulf of Mannar" },
+  { id: "rameswaram", name: "Rameswaram", state: "Tamil Nadu", center: { lat: 9.2876, lon: 79.3129 }, sea: "Palk Strait" },
+  { id: "kanyakumari", name: "Kanyakumari", state: "Tamil Nadu", center: { lat: 8.0883, lon: 77.5385 }, sea: "Indian Ocean" },
+  { id: "kochi", name: "Kochi", state: "Kerala", center: { lat: 9.9312, lon: 76.2673 }, sea: "Arabian Sea" },
+  { id: "kozhikode", name: "Kozhikode (Calicut)", state: "Kerala", center: { lat: 11.2588, lon: 75.7804 }, sea: "Arabian Sea" },
+  { id: "vizhinjam", name: "Vizhinjam (Trivandrum)", state: "Kerala", center: { lat: 8.3800, lon: 76.9900 }, sea: "Arabian Sea" },
+  { id: "mangalore", name: "Mangalore", state: "Karnataka", center: { lat: 12.9141, lon: 74.8560 }, sea: "Arabian Sea" },
+  { id: "karwar", name: "Karwar", state: "Karnataka", center: { lat: 14.8135, lon: 74.1298 }, sea: "Arabian Sea" },
+  { id: "goa", name: "Goa (Mormugao)", state: "Goa", center: { lat: 15.4100, lon: 73.7800 }, sea: "Arabian Sea" },
+  { id: "mumbai", name: "Mumbai", state: "Maharashtra", center: { lat: 18.9220, lon: 72.8347 }, sea: "Arabian Sea" },
+  { id: "ratnagiri", name: "Ratnagiri", state: "Maharashtra", center: { lat: 16.9902, lon: 73.3120 }, sea: "Arabian Sea" },
+  { id: "malvan", name: "Malvan", state: "Maharashtra", center: { lat: 16.0592, lon: 73.4682 }, sea: "Arabian Sea" },
+  { id: "veraval", name: "Veraval", state: "Gujarat", center: { lat: 20.9159, lon: 70.3629 }, sea: "Arabian Sea" },
+  { id: "porbandar", name: "Porbandar", state: "Gujarat", center: { lat: 21.6417, lon: 69.6293 }, sea: "Arabian Sea" },
+  { id: "okha", name: "Okha", state: "Gujarat", center: { lat: 22.4638, lon: 69.0717 }, sea: "Arabian Sea" },
+  { id: "kandla", name: "Kandla (Gulf of Kutch)", state: "Gujarat", center: { lat: 23.0033, lon: 70.2177 }, sea: "Gulf of Kutch" },
+  { id: "paradip", name: "Paradip", state: "Odisha", center: { lat: 20.3167, lon: 86.6167 }, sea: "Bay of Bengal" },
+  { id: "puri", name: "Puri", state: "Odisha", center: { lat: 19.8135, lon: 85.8312 }, sea: "Bay of Bengal" },
+  { id: "gopalpur", name: "Gopalpur", state: "Odisha", center: { lat: 19.2600, lon: 84.9200 }, sea: "Bay of Bengal" },
+  { id: "digha", name: "Digha", state: "West Bengal", center: { lat: 21.6266, lon: 87.5074 }, sea: "Bay of Bengal" },
+  { id: "sundarbans", name: "Sundarbans (Canning)", state: "West Bengal", center: { lat: 21.8400, lon: 88.7000 }, sea: "Bay of Bengal" },
+  { id: "portblair", name: "Port Blair", state: "Andaman & Nicobar", center: { lat: 11.6234, lon: 92.7265 }, sea: "Andaman Sea" },
+  { id: "kavaratti", name: "Kavaratti", state: "Lakshadweep", center: { lat: 10.5667, lon: 72.6417 }, sea: "Arabian Sea" },
+  { id: "puducherry", name: "Puducherry", state: "Puducherry", center: { lat: 11.9416, lon: 79.8083 }, sea: "Bay of Bengal" },
+];
+
+const DEFAULT_REGION: Region = DEFAULT_REGIONS[0];
 
 type AppState = {
   lang: Lang;
   setLang: (l: Lang) => void;
+  theme: ThemeMode;
+  isDark: boolean;
+  toggleTheme: () => void;
+  colors: typeof darkColors;
   sessionId: string;
   newSession: () => void;
   userId: string;
@@ -52,279 +78,38 @@ export const useApp = () => {
   return c;
 };
 
-// UI string table — English / Telugu / Hindi. Every user-facing string in
-// the app should live here (never hard-code translated text in a widget).
-export const STRINGS: Record<string, Record<Lang, string>> = {
-  chat: { en: "Chat", te: "చాట్", hi: "चैट" },
-  alerts: { en: "Alerts", te: "హెచ్చరికలు", hi: "अलर्ट" },
-  saved: { en: "Saved", te: "సేవ్‌లు", hi: "सेव्ड" },
-  askPlaceholder: {
-    en: "Ask about tides, safety, fishing zones…",
-    te: "అలలు, భద్రత, ఫిషింగ్ జోన్‌ల గురించి అడగండి…",
-    hi: "ज्वार, सुरक्षा, फिशिंग ज़ोन के बारे में पूछें…",
-  },
-  send: { en: "SEND", te: "పంపు", hi: "भेजें" },
-  emptyTitle: {
-    en: "ORCA MARINE INTELLIGENCE",
-    te: "ORCA సముద్ర ఇంటెలిజెన్స్",
-    hi: "ORCA समुद्री इंटेलिजेंस",
-  },
-  emptySub: {
-    en: "Ask a question to get evidence-based, explainable marine advisories.",
-    te: "ఆధారసహిత, వివరణాత్మక సముద్ర సలహాల కోసం ప్రశ్న అడగండి.",
-    hi: "प्रमाण-आधारित, समझने योग्य समुद्री सलाह पाने के लिए एक सवाल पूछें।",
-  },
-  reasoning: { en: "REASONING TRACE", te: "రీజనింగ్ ట్రేస్", hi: "रीज़निंग ट्रेस" },
-  sources: { en: "SOURCES", te: "మూలాలు", hi: "स्रोत" },
-  activeAlerts: {
-    en: "ACTIVE HAZARDS",
-    te: "సక్రియ ప్రమాదాలు",
-    hi: "सक्रिय खतरे",
-  },
-  notifications: {
-    en: "NOTIFICATIONS",
-    te: "నోటిఫికేషన్లు",
-    hi: "सूचनाएं",
-  },
-  noHazards: {
-    en: "No active hazards",
-    te: "సక్రియ ప్రమాదాలు లేవు",
-    hi: "कोई सक्रिय खतरा नहीं",
-  },
-  offline: {
-    en: "OFFLINE — showing last cached data",
-    te: "ఆఫ్‌లైన్ — చివరిగా సేవ్ చేసిన డేటా",
-    hi: "ऑफ़लाइन — पिछला सेव किया डेटा दिखा रहे हैं",
-  },
-  savedLocations: {
-    en: "SAVED LOCATIONS",
-    te: "సేవ్ చేసిన స్థానాలు",
-    hi: "सेव्ड लोकेशन",
-  },
-  addLocation: {
-    en: "SAVE A LOCATION",
-    te: "స్థానం సేవ్ చేయండి",
-    hi: "लोकेशन सेव करें",
-  },
-  selectRegion: {
-    en: "SELECT COASTAL REGION",
-    te: "తీర ప్రాంతం ఎంచుకోండి",
-    hi: "तटीय क्षेत्र चुनें",
-  },
-  useCurrentLocation: {
-    en: "USE CURRENT LOCATION",
-    te: "ప్రస్తుత స్థానం వాడండి",
-    hi: "वर्तमान लोकेशन उपयोग करें",
-  },
-  searchAnyLocation: {
-    en: "Search any location in India…",
-    te: "భారతదేశంలో ఏదైనా స్థానాన్ని వెతకండి…",
-    hi: "भारत में कोई भी लोकेशन खोजें…",
-  },
-  marineIntelligence: {
-    en: "marine intelligence",
-    te: "సముద్ర ఇంటెలిజెన్స్",
-    hi: "समुद्री इंटेलिजेंस",
-  },
-  thinking: {
-    en: "ORCA is reasoning…",
-    te: "ORCA విశ్లేషిస్తోంది…",
-    hi: "ORCA विश्लेषण कर रहा है…",
-  },
-  selectLanguage: {
-    en: "SELECT LANGUAGE",
-    te: "భాష ఎంచుకోండి",
-    hi: "भाषा चुनें",
-  },
-  backToRegionList: {
-    en: "Back to region list",
-    te: "ప్రాంతాల జాబితాకు తిరిగి వెళ్లండి",
-    hi: "क्षेत्र सूची पर वापस जाएं",
-  },
-  name: { en: "NAME", te: "పేరు", hi: "नाम" },
-  namePlaceholder: {
-    en: "e.g. Morning fishing spot",
-    te: "ఉదా. ఉదయం ఫిషింగ్ స్థలం",
-    hi: "उदा. सुबह की फिशिंग जगह",
-  },
-  searchAnyLocationLabel: {
-    en: "SEARCH ANY LOCATION IN INDIA",
-    te: "భారతదేశంలో స్థానాన్ని వెతకండి",
-    hi: "भारत में कोई भी लोकेशन खोजें",
-  },
-  lat: { en: "LAT", te: "అక్షాంశం", hi: "लैट" },
-  lon: { en: "LON", te: "రేఖాంశం", hi: "लॉन्ग" },
-  useMyLocation: {
-    en: "USE MY LOCATION",
-    te: "నా స్థానాన్ని ఉపయోగించండి",
-    hi: "मेरी लोकेशन उपयोग करें",
-  },
-  vesselProfile: {
-    en: "VESSEL PROFILE",
-    te: "నౌక ప్రొఫైల్",
-    hi: "वेसल प्रोफ़ाइल",
-  },
-  saveLocationBtn: {
-    en: "SAVE LOCATION",
-    te: "స్థానం సేవ్ చేయండి",
-    hi: "लोकेशन सेव करें",
-  },
-  ask: { en: "ASK", te: "అడుగు", hi: "पूछें" },
-  geofence: { en: "GEOFENCE", te: "జియోఫెన్స్", hi: "जियोफेंस" },
-  noResultsFound: {
-    en: "No results found",
-    te: "ఫలితాలు లేవు",
-    hi: "कोई परिणाम नहीं मिला",
-  },
-  savedEmptyTitle: {
-    en: "Save a coordinate to get quick advisories & alerts.",
-    te: "త్వరిత సలహాలు & హెచ్చరికల కోసం స్థానాన్ని సేవ్ చేయండి.",
-    hi: "त्वरित सलाह और अलर्ट पाने के लिए एक लोकेशन सेव करें।",
-  },
-  savedEmptyHint: {
-    en: "Tip: save 16.96, 82.31 to trigger a geofence-breach demo.",
-    te: "టిప్: జియోఫెన్స్ డెమో కోసం 16.96, 82.31 సేవ్ చేయండి.",
-    hi: "टिप: जियोफेंस डेमो देखने के लिए 16.96, 82.31 सेव करें।",
-  },
-  verdictSafe: { en: "SAFE", te: "సురక్షితం", hi: "सुरक्षित" },
-  verdictCaution: { en: "CAUTION", te: "జాగ్రత్త", hi: "सावधानी" },
-  verdictUnsafe: { en: "UNSAFE", te: "అసురక్షితం", hi: "असुरक्षित" },
-  source: { en: "SRC", te: "మూలం", hi: "स्रोत" },
-  toastPermissionNeeded: {
-    en: "Location permission needed. Open settings.",
-    te: "స్థాన అనుమతి అవసరం. సెట్టింగ్‌లను తెరవండి.",
-    hi: "लोकेशन अनुमति ज़रूरी है। सेटिंग्स खोलें।",
-  },
-  toastUsingCurrentLocation: {
-    en: "Using your current location",
-    te: "మీ ప్రస్తుత స్థానాన్ని ఉపయోగిస్తోంది",
-    hi: "आपकी वर्तमान लोकेशन का उपयोग किया जा रहा है",
-  },
-  toastCouldNotGetLocation: {
-    en: "Could not get location",
-    te: "స్థానాన్ని పొందలేకపోయాం",
-    hi: "लोकेशन प्राप्त नहीं हो सकी",
-  },
-  toastNoMatchingLocation: {
-    en: "No matching location found",
-    te: "సరిపోలిన స్థానం కనుగొనబడలేదు",
-    hi: "कोई मिलती-जुलती लोकेशन नहीं मिली",
-  },
-  toastSearchOffline: {
-    en: "Search unavailable (offline)",
-    te: "శోధన అందుబాటులో లేదు (ఆఫ్‌లైన్)",
-    hi: "खोज उपलब्ध नहीं (ऑफ़लाइन)",
-  },
-  toastCoordsFilledFrom: {
-    en: "Coordinates filled from",
-    te: "నుండి కోఆర్డినేట్‌లు నింపబడ్డాయి",
-    hi: "से कोऑर्डिनेट भरे गए",
-  },
-  toastEnterNameCoords: {
-    en: "Enter a name and valid coordinates",
-    te: "పేరు మరియు సరైన కోఆర్డినేట్‌లను నమోదు చేయండి",
-    hi: "नाम और सही कोऑर्डिनेट डालें",
-  },
-  toastLocationSaved: {
-    en: "Location saved",
-    te: "స్థానం సేవ్ చేయబడింది",
-    hi: "लोकेशन सेव हो गई",
-  },
-  toastCouldNotSaveOffline: {
-    en: "Could not save (offline)",
-    te: "సేవ్ చేయలేకపోయాం (ఆఫ్‌లైన్)",
-    hi: "सेव नहीं हो सका (ऑफ़लाइन)",
-  },
-  toastBreach: {
-    en: "BREACH",
-    te: "సరిహద్దు అతిక్రమణ",
-    hi: "सीमा उल्लंघन",
-  },
-  toastClearNoBreach: {
-    en: "Clear — no boundary breach",
-    te: "క్లియర్ — సరిహద్దు అతిక్రమణ లేదు",
-    hi: "साफ़ — कोई सीमा उल्लंघन नहीं",
-  },
-  toastGeofenceFailedOffline: {
-    en: "Geofence check failed (offline)",
-    te: "జియోఫెన్స్ చెక్ విఫలమైంది (ఆఫ్‌లైన్)",
-    hi: "जियोफेंस जांच विफल (ऑफ़लाइन)",
-  },
-  situationSummary: {
-    en: "MARINE SITUATION SUMMARY",
-    te: "సముద్ర పరిస్థితి సారాంశం",
-    hi: "समुद्री स्थिति सारांश",
-  },
-  severityCritical: { en: "CRITICAL", te: "అత్యవసరం", hi: "गंभीर" },
-  severityWarning: { en: "WARNING", te: "హెచ్చరిక", hi: "चेतावनी" },
-  severityAdvisory: { en: "ADVISORY", te: "సలహా", hi: "सलाह" },
-  windLabel: { en: "WIND", te: "గాలి", hi: "हवा" },
-  waveLabel: { en: "WAVE", te: "అలలు", hi: "लहर" },
-  lightningLabel: { en: "LIGHTNING", te: "పిడుగులు", hi: "बिजली" },
-  cycloneActiveLabel: {
-    en: "ACTIVE CYCLONIC SYSTEM",
-    te: "సక్రియ తుఫాను వ్యవస్థ",
-    hi: "सक्रिय चक्रवाती तंत्र",
-  },
-  nextTide: { en: "NEXT TIDE", te: "తదుపరి టైడ్", hi: "अगला ज्वार" },
-  todayLabel: { en: "TODAY", te: "ఈరోజు", hi: "आज" },
-  tomorrowLabel: { en: "TOMORROW", te: "రేపు", hi: "कल" },
-  windTrendTitle: {
-    en: "Wind Speed (7-day)",
-    te: "గాలి వేగం (7 రోజులు)",
-    hi: "हवा की गति (7 दिन)",
-  },
-  waveTrendTitle: {
-    en: "Wave Height (7-day)",
-    te: "అల ఎత్తు (7 రోజులు)",
-    hi: "लहर की ऊँचाई (7 दिन)",
-  },
-  sstTrendTitle: {
-    en: "Sea Surface Temp (7-day)",
-    te: "సముద్ర ఉష్ణోగ్రత (7 రోజులు)",
-    hi: "समुद्र सतह तापमान (7 दिन)",
-  },
-  radarScanning: {
-    en: "SCANNING COASTAL SECTOR",
-    te: "తీర ప్రాంతాన్ని స్కాన్ చేస్తోంది",
-    hi: "तटीय क्षेत्र स्कैन हो रहा है",
-  },
-  voiceListening: { en: "LISTENING… TAP TO STOP", te: "వింటోంది… ఆపడానికి నొక్కండి", hi: "सुन रहा है… रोकने के लिए टैप करें" },
-  voiceTranscribing: { en: "UNDERSTANDING…", te: "అర్థం చేసుకుంటోంది…", hi: "समझ रहा है…" },
-  voiceSpeaking: { en: "MARINE COPILOT SPEAKING…", te: "మారిన్ కోపైలట్ మాట్లాడుతోంది…", hi: "मैरीन कोपायलट बोल रहा है…" },
-};
-
-export const t = (key: string, lang: Lang) =>
-  STRINGS[key]?.[lang] ?? STRINGS[key]?.en ?? key;
-
-// Letter-spacing (tracking) on uppercase headers looks great for English but
-// visually breaks Telugu/Devanagari conjunct glyphs (matras get pushed apart
-// from their base consonant). Use this wherever a *translated* string is
-// rendered with tracking so it only applies for English.
-export const trackingFor = (lang: Lang, base: number) => (lang === "en" ? base : 0);
-
 const rid = () =>
   `sess-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
-  const [sessionId, setSessionId] = useState<string>("boot");
+  const [theme, setThemeState] = useState<ThemeMode>("dark");
+  const [sessionId, setSessionId] = useState<string>(() => rid());
   const [region, setRegionState] = useState<Region>(DEFAULT_REGION);
-  const [regions, setRegions] = useState<Region[]>([DEFAULT_REGION]);
+  const [regions, setRegions] = useState<Region[]>(DEFAULT_REGIONS);
   const userId = "demo-user";
+
+  const isDark = theme === "dark";
+  const colors = getTheme(isDark);
 
   useEffect(() => {
     (async () => {
       const savedLang = (await storage.getItem("orca_lang", "en")) as Lang;
-      setLangState(
-        savedLang === "te" || savedLang === "hi" ? savedLang : "en",
-      );
+      const validLangs: Lang[] = ["en", "te", "ta", "ml", "kn", "mr", "gu", "bn", "or", "hi"];
+      setLangState(validLangs.includes(savedLang) ? savedLang : "en");
+
+      const savedTheme = (await storage.getItem("orca_theme", "dark")) as ThemeMode;
+      if (savedTheme === "light" || savedTheme === "dark") {
+        setThemeState(savedTheme);
+      }
+
       let sid = (await storage.getItem("orca_session", "")) as string;
       if (!sid) {
-        sid = rid();
+        sid = sessionId;
         await storage.setItem("orca_session", sid);
+      } else {
+        setSessionId(sid);
       }
-      setSessionId(sid);
 
       // Load the India-wide region roster + last-selected region (offline
       // safe: falls back to the bundled default demo region on failure).
@@ -346,6 +131,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         /* offline: keep default single-region list */
       }
     })();
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      storage.setItem("orca_theme", next);
+      return next;
+    });
   }, []);
 
   const setLang = useCallback((l: Lang) => {
@@ -402,6 +195,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         lang,
         setLang,
+        theme,
+        isDark,
+        toggleTheme,
+        colors,
         sessionId,
         newSession,
         userId,
@@ -418,10 +215,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           pointerEvents="none"
           style={[
             styles.toast,
-            { top: insets.top + spacing.md, backgroundColor: toastBg, opacity },
+            {
+              top: insets.top + spacing.md,
+              backgroundColor: toastBg,
+              borderColor: colors.border,
+              opacity,
+            },
           ]}
         >
-          <Text style={styles.toastText}>{toast.msg}</Text>
+          <Text style={[styles.toastText, { color: colors.onSurfaceInverse }]}>{toast.msg}</Text>
         </Animated.View>
       )}
     </Ctx.Provider>

@@ -1,15 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from "react-native-reanimated";
+import { useEffect, useRef } from "react";
+import { Animated, Easing, Platform, StyleSheet, Text, View } from "react-native";
 
-import { Lang, t } from "@/src/context/AppContext";
+import { Lang, t, useApp } from "@/src/context/AppContext";
 import { colors, fonts, radius, severityColor, spacing } from "@/src/theme";
 
 type RegionLite = {
@@ -38,65 +31,77 @@ export default function RadarCard({
   sstC?: number;
   lang?: Lang;
 }) {
+  const { colors, isDark } = useApp();
   const lat = region?.center.lat ?? 16.9891;
   const lon = region?.center.lon ?? 82.2475;
   const sector = region
-    ? `${region.name} Sector · ${region.sea || "coastal waters"}`
-    : "Kakinada Sector · Bay of Bengal";
+    ? `${region.name} ${t("sector", lang)} · ${region.sea || "coastal waters"}`
+    : `Kakinada ${t("sector", lang)} · Bay of Bengal`;
   const sc = severityColor(severity);
   const index = severity === "critical" ? 32 : severity === "warning" ? 64 : 93;
 
-  const rotation = useSharedValue(0);
+  const rotation = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    rotation.value = withRepeat(
-      withTiming(360, { duration: 3200, easing: Easing.linear }),
-      -1,
-      false,
+    const anim = Animated.loop(
+      Animated.timing(rotation, {
+        toValue: 1,
+        duration: 3200,
+        easing: Easing.linear,
+        useNativeDriver: Platform.OS !== "web",
+      }),
     );
+    anim.start();
+    return () => anim.stop();
   }, [rotation]);
-  const sweepStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${rotation.value}deg` }],
-  }));
+
+  const rotateDeg = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  const ringBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(15,61,62,0.12)";
+  const telemetryBg = isDark ? "#111417" : "#F1F5F9";
+  const cardBg = isDark ? "#181C20" : "#FFFFFF";
 
   return (
-    <View testID="radar-card" style={styles.card}>
+    <View testID="radar-card" style={[styles.card, { backgroundColor: cardBg, borderColor: colors.borderStrong }]}>
       <View style={styles.header}>
         <View style={styles.sysRow}>
           <View style={[styles.dot, { backgroundColor: sc.bg }]} />
-          <Text style={styles.sys}>SYS://COASTAL-RADAR.01</Text>
+          <Text style={[styles.sys, { color: colors.onSurfaceSecondary }]}>{t("sysRadar", lang)}</Text>
         </View>
-        <View style={styles.livePill}>
-          <Text style={styles.liveText}>DEMO BASELINE</Text>
+        <View style={[styles.livePill, { borderColor: colors.border }]}>
+          <Text style={[styles.liveText, { color: colors.brand }]}>{t("demoBaseline", lang)}</Text>
         </View>
       </View>
 
-      <View style={styles.telemetry}>
+      <View style={[styles.telemetry, { backgroundColor: telemetryBg, borderColor: colors.border }]}>
         <View style={styles.telemetryTop}>
           <View>
             <Text style={styles.coord}>
               {lat.toFixed(4)}° N, {lon.toFixed(4)}° E
             </Text>
-            <Text style={styles.sector}>{sector}</Text>
+            <Text style={[styles.sector, { color: colors.muted }]}>{sector}</Text>
           </View>
           <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.metric}>
-              SST: <Text style={styles.metricVal}>{sstC != null ? `${sstC}°C` : "—"}</Text>
+            <Text style={[styles.metric, { color: colors.onSurfaceTertiary }]}>
+              SST: <Text style={[styles.metricVal, { color: colors.data }]}>{sstC != null ? `${sstC}°C` : "—"}</Text>
             </Text>
-            <Text style={styles.metric}>
-              {t("windLabel", lang)}: <Text style={styles.metricVal}>{windKn != null ? `${windKn} kn` : "—"}</Text>
+            <Text style={[styles.metric, { color: colors.onSurfaceTertiary }]}>
+              {t("windLabel", lang)}: <Text style={[styles.metricVal, { color: colors.data }]}>{windKn != null ? `${windKn} kn` : "—"}</Text>
             </Text>
-            <Text style={styles.metric}>
-              {t("waveLabel", lang)}: <Text style={styles.metricVal}>{waveM != null ? `${waveM} m` : "—"}</Text>
+            <Text style={[styles.metric, { color: colors.onSurfaceTertiary }]}>
+              {t("waveLabel", lang)}: <Text style={[styles.metricVal, { color: colors.data }]}>{waveM != null ? `${waveM} m` : "—"}</Text>
             </Text>
           </View>
         </View>
 
         {/* animated radar sweep */}
         <View style={styles.radarBox}>
-          <View style={[styles.ring, styles.ring1]} />
-          <View style={[styles.ring, styles.ring2]} />
+          <View style={[styles.ring, styles.ring1, { borderColor: ringBorder }]} />
+          <View style={[styles.ring, styles.ring2, { borderColor: ringBorder }]} />
           <View style={[styles.ring, styles.ring3, { borderColor: sc.bg }]} />
-          <Animated.View style={[styles.sweepPivot, sweepStyle]}>
+          <Animated.View style={[styles.sweepPivot, { transform: [{ rotate: rotateDeg }] }]}>
             <View style={[styles.sweep, { backgroundColor: sc.bg }]} />
           </Animated.View>
           <View style={[styles.centerDot, { backgroundColor: sc.bg }]} />
@@ -109,19 +114,36 @@ export default function RadarCard({
               {t("radarScanning", lang)}
             </Text>
           </View>
-          <Text style={styles.safetyIdx}>
+          <Text style={[styles.safetyIdx, { color: colors.onSurfaceTertiary }]}>
             INDEX: <Text style={[styles.metricVal, { color: sc.bg }]}>{index}/100</Text>
           </Text>
         </View>
       </View>
 
       <View style={styles.agents}>
-        <AgentChip icon="water" label="Ocean Agent" value={sstC != null ? `${sstC}°C` : "—"} />
-        <AgentChip icon="cloud" label="Weather Agent" value={windKn != null ? `${windKn} kn` : "—"} />
+        <AgentChip
+          icon="water"
+          label={t("oceanAgent", lang)}
+          value={sstC != null ? `${sstC}°C` : "—"}
+          colors={colors}
+        />
+        <AgentChip
+          icon="cloud"
+          label={t("weatherAgent", lang)}
+          value={windKn != null ? `${windKn} kn` : "—"}
+          colors={colors}
+        />
         <AgentChip
           icon="scan"
-          label="Risk Agent"
-          value={severity === "critical" ? "Elevated" : severity === "warning" ? "Watch" : "Clear"}
+          label={t("riskAgent", lang)}
+          value={
+            severity === "critical"
+              ? t("statusElevated", lang)
+              : severity === "warning"
+              ? t("statusWatch", lang)
+              : t("statusClear", lang)
+          }
+          colors={colors}
         />
       </View>
     </View>
@@ -132,16 +154,18 @@ function AgentChip({
   icon,
   label,
   value,
+  colors,
 }: {
   icon: any;
   label: string;
   value: string;
+  colors: any;
 }) {
   return (
-    <View style={styles.chip}>
+    <View style={[styles.chip, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}>
       <Ionicons name={icon} size={14} color={colors.brand} />
-      <Text style={styles.chipLabel}>{label}</Text>
-      <Text style={styles.chipValue}>{value}</Text>
+      <Text style={[styles.chipLabel, { color: colors.muted }]}>{label}</Text>
+      <Text style={[styles.chipValue, { color: colors.data }]}>{value}</Text>
     </View>
   );
 }

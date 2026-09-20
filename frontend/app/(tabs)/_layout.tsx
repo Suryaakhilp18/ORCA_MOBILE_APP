@@ -10,7 +10,7 @@ import { colors, fonts } from "@/src/theme";
 // deliberate choice over iOS liquid-glass NativeTabs to match the command-center
 // aesthetic and low-end Android target defined in the design guidelines.
 export default function TabsLayout() {
-  const { lang } = useApp();
+  const { lang, colors, isDark } = useApp();
   const insets = useSafeAreaInsets();
 
   return (
@@ -20,7 +20,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.brand,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.surfaceGlass,
           borderTopWidth: 1,
           borderTopColor: colors.border,
           paddingBottom: insets.bottom,
@@ -35,6 +35,15 @@ export default function TabsLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: t("home", lang),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="boat" size={size} color={color} />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="index"
         options={{

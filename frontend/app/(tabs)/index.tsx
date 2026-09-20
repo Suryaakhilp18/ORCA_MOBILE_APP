@@ -5,13 +5,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, ChatMessage } from "@/src/api";
@@ -46,14 +48,14 @@ const SUGGESTIONS: { en: string; te: string; hi: string }[] = [
   },
 ];
 
-const SAFE_DEFAULT: Record<Lang, string> = {
+const SAFE_DEFAULT: Partial<Record<Lang, string>> & { en: string } = {
   en: "Could not verify current conditions (offline). Do not assume it is safe — check local advisories.",
   te: "ప్రస్తుత పరిస్థితులను ధృవీకరించలేకపోయాం (ఆఫ్‌లైన్). సురక్షితమని భావించవద్దు — స్థానిక సలహాలను చూడండి.",
   hi: "मौजूदा हालात की पुष्टि नहीं हो सकी (ऑफ़लाइन)। इसे सुरक्षित न मानें — स्थानीय सलाह ज़रूर देखें।",
 };
 
 export default function ChatScreen() {
-  const { lang, sessionId, newSession, userId, region } = useApp();
+  const { lang, sessionId, newSession, userId, region, colors, isDark, toggleTheme } = useApp();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const params = useLocalSearchParams<{
@@ -99,22 +101,17 @@ export default function ChatScreen() {
   }, [sessionId, scrollEnd]);
 
   const send = useCallback(
-    async (
-      text: string,
-      loc?: { name?: string; lat: number; lon: number } | null,
-      viaVoice = false,
-    ) => {
+    async (text: string, loc?: any, viaVoice = false, queryLang?: Lang) => {
       const clean = text.trim();
       if (!clean || loading) return;
-      const now = new Date().toISOString();
+      setInput("");
       const userMsg: ChatMessage = {
         id: `u-${Date.now()}`,
         role: "user",
         content: clean,
-        created_at: now,
+        created_at: new Date().toISOString(),
       };
       setMessages((p) => [...p, userMsg]);
-      setInput("");
       setLoading(true);
       setOffline(false);
       scrollEnd();
@@ -123,18 +120,24 @@ export default function ChatScreen() {
         lat: region.center.lat,
         lon: region.center.lon,
       };
+      // Determine effective language: if spoken query was detected as native script, use that
+      const isTe = /[\u0C00-\u0C7F]/.test(clean);
+      const isHi = /[\u0900-\u097F]/.test(clean);
+      const isTa = /[\u0B80-\u0BFF]/.test(clean);
+      const effectiveLang: Lang = queryLang || (isTe ? "te" : isHi ? "hi" : isTa ? "ta" : lang);
+
       try {
         const resp = await api.chat({
           message: clean,
           session_id: sessionId,
-          language: lang,
+          language: effectiveLang,
           location: effectiveLoc,
           region_id: region.id,
           user_id: userId,
         });
         setMessages((p) => [...p, resp.assistant_message]);
         if (viaVoice && resp.assistant_message?.content) {
-          voice.speak(resp.assistant_message.content, lang);
+          voice.speak(resp.assistant_message.content, effectiveLang);
         }
       } catch {
         setOffline(true);
@@ -143,7 +146,7 @@ export default function ChatScreen() {
           {
             id: `a-${Date.now()}`,
             role: "assistant",
-            content: SAFE_DEFAULT[lang],
+            content: SAFE_DEFAULT[effectiveLang] ?? SAFE_DEFAULT.en,
             created_at: new Date().toISOString(),
             verdict: null,
           },
@@ -170,47 +173,66 @@ export default function ChatScreen() {
             }
           : null;
       if (loc) setActiveLoc(loc);
-      send(params.q, loc);
+      const isTe = /[\u0C00-\u0C7F]/.test(params.q);
+      const isHi = /[\u0900-\u097F]/.test(params.q);
+      const isTa = /[\u0B80-\u0BFF]/.test(params.q);
+      const detectedLang: Lang = isTe ? "te" : isHi ? "hi" : isTa ? "ta" : lang;
+      send(params.q, loc, true, detectedLang);
     }
-  }, [params.q, params.lat, params.lon, params.locName, sessionId, send]);
+  }, [params.q, params.lat, params.lon, params.locName, sessionId, send, lang]);
 
   const onMicPress = useCallback(async () => {
     if (voice.state === "recording") {
       const text = await voice.stopRecording();
-      if (text) send(text, undefined, true);
+      if (text) {
+        const isTe = /[\u0C00-\u0C7F]/.test(text);
+        const isHi = /[\u0900-\u097F]/.test(text);
+        const isTa = /[\u0B80-\u0BFF]/.test(text);
+        const detectedLang: Lang = isTe ? "te" : isHi ? "hi" : isTa ? "ta" : lang;
+        send(text, undefined, true, detectedLang);
+      }
     } else if (voice.state === "speaking") {
       voice.stopSpeaking();
     } else if (voice.state === "idle") {
       await voice.startRecording();
     }
-  }, [voice, send]);
+  }, [voice, send, lang]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
         <Pressable
           testID="region-selector-trigger"
           style={{ flex: 1 }}
           onPress={() => setShowRegionSwitcher(true)}
         >
-          <Text style={styles.title}>ORCA</Text>
+          <Text style={[styles.title, { color: colors.onSurface }]}>ORCA</Text>
           <View style={styles.subtitleRow}>
             <Ionicons name="location" size={11} color={colors.brand} />
-            <Text style={styles.subtitle} numberOfLines={1}>
+            <Text style={[styles.subtitle, { color: colors.muted }]} numberOfLines={1}>
               {activeLoc?.name || `${region.name}, ${region.state}`} ·{" "}
               {t("marineIntelligence", lang)}
             </Text>
             <Ionicons name="chevron-down" size={12} color={colors.muted} />
           </View>
         </Pressable>
+
+        <Pressable
+          testID="theme-toggle-chat"
+          onPress={toggleTheme}
+          style={[styles.iconBtn, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}
+        >
+          <Ionicons name={isDark ? "sunny-outline" : "moon-outline"} size={16} color={colors.brand} />
+        </Pressable>
+
         <Pressable
           testID="lang-toggle"
           onPress={() => setShowLangPicker(true)}
-          style={styles.langBtn}
+          style={[styles.langBtn, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}
         >
-          <Text style={styles.langText}>
-            {lang === "en" ? "EN" : lang === "te" ? "తె" : "हि"}
+          <Text style={[styles.langText, { color: colors.brand }]}>
+            {lang.toUpperCase()}
           </Text>
         </Pressable>
         <Pressable
@@ -219,9 +241,9 @@ export default function ChatScreen() {
             newSession();
             setMessages([]);
           }}
-          style={styles.iconBtn}
+          style={[styles.iconBtn, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}
         >
-          <Ionicons name="create-outline" size={20} color={colors.onSurface} />
+          <Ionicons name="create-outline" size={18} color={colors.onSurface} />
         </Pressable>
       </View>
 
@@ -244,7 +266,7 @@ export default function ChatScreen() {
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior="translate-with-padding"
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={tabBarHeight}
       >
         <FlatList
@@ -256,13 +278,20 @@ export default function ChatScreen() {
           keyboardShouldPersistTaps="handled"
           onContentSizeChange={scrollEnd}
           ListEmptyComponent={
-            <EmptyState lang={lang} region={region} onPick={(q) => send(q)} />
+            <EmptyState
+              lang={lang}
+              region={region}
+              onPick={(q) => send(q)}
+              onVoice={onMicPress}
+              colors={colors}
+              isDark={isDark}
+            />
           }
           ListFooterComponent={
             loading ? (
               <View testID="typing-indicator" style={styles.typing}>
                 <ActivityIndicator size="small" color={colors.brand} />
-                <Text style={styles.typingText}>{t("thinking", lang)}</Text>
+                <Text style={[styles.typingText, { color: colors.muted }]}>{t("thinking", lang)}</Text>
               </View>
             ) : null
           }
@@ -270,23 +299,27 @@ export default function ChatScreen() {
 
         {/* Voice status banner */}
         {(voice.state === "recording" || voice.state === "transcribing" || voice.state === "speaking") && (
-          <View testID="voice-status-bar" style={styles.voiceBar}>
+          <View testID="voice-status-bar" style={[styles.voiceBar, { backgroundColor: isDark ? "rgba(24, 28, 32, 0.95)" : "rgba(255, 255, 255, 0.95)", borderColor: colors.border }]}>
             {voice.state === "recording" && <View style={styles.recDot} />}
             {voice.state !== "recording" && (
               <ActivityIndicator size="small" color={colors.brand} />
             )}
-            <Text style={styles.voiceBarText}>
-              {voice.state === "recording"
-                ? t("voiceListening", lang)
-                : voice.state === "transcribing"
-                ? t("voiceTranscribing", lang)
-                : t("voiceSpeaking", lang)}
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.voiceBarText, { color: colors.onSurface }]} numberOfLines={2}>
+                {voice.state === "recording"
+                  ? voice.liveTranscript
+                    ? `🎙️ "${voice.liveTranscript}"`
+                    : t("voiceListening", lang)
+                  : voice.state === "transcribing"
+                  ? t("voiceTranscribing", lang)
+                  : t("voiceSpeaking", lang)}
+              </Text>
+            </View>
           </View>
         )}
 
         {/* Input */}
-        <View style={styles.inputBar}>
+        <View style={[styles.inputBar, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
           <Pressable
             testID="mic-button"
             onPress={onMicPress}
@@ -327,9 +360,15 @@ export default function ChatScreen() {
             onChangeText={setInput}
             placeholder={t("askPlaceholder", lang)}
             placeholderTextColor={colors.muted}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.surfaceTertiary, color: colors.onSurface, borderColor: colors.border }]}
             multiline
             onSubmitEditing={() => send(input)}
+            onKeyPress={(e: any) => {
+              if (Platform.OS === "web" && e.nativeEvent?.key === "Enter" && !e.nativeEvent?.shiftKey) {
+                e.preventDefault();
+                send(input);
+              }
+            }}
           />
           <Pressable
             testID="send-button"
@@ -337,10 +376,19 @@ export default function ChatScreen() {
             disabled={!input.trim() || loading}
             style={[
               styles.sendBtn,
-              (!input.trim() || loading) && styles.sendBtnDisabled,
+              {
+                backgroundColor: !input.trim() || loading
+                  ? (isDark ? colors.surfaceTertiary : "rgba(13, 148, 136, 0.15)")
+                  : colors.brand,
+                shadowOpacity: !input.trim() || loading ? 0 : 0.3,
+              },
             ]}
           >
-            <Ionicons name="arrow-up" size={20} color={colors.onBrand} />
+            <Ionicons
+              name="arrow-up"
+              size={20}
+              color={!input.trim() || loading ? (isDark ? colors.muted : "#94A3B8") : colors.onBrand}
+            />
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -352,32 +400,55 @@ function EmptyState({
   lang,
   region,
   onPick,
+  onVoice,
+  colors,
+  isDark,
 }: {
   lang: Lang;
   region: { name: string; state: string; center: { lat: number; lon: number }; sea?: string };
   onPick: (q: string) => void;
+  onVoice: () => void;
+  colors: any;
+  isDark: boolean;
 }) {
   return (
     <View testID="chat-empty" style={styles.empty}>
       <RadarCard region={region} />
-      <Text style={[styles.emptyTitle, { letterSpacing: trackingFor(lang, 1) }]}>
+      <Text style={[styles.emptyTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
         {t("emptyTitle", lang)}
       </Text>
-      <Text style={styles.emptySub}>{t("emptySub", lang)}</Text>
+      <Text style={[styles.emptySub, { color: colors.muted }]}>{t("emptySub", lang)}</Text>
+
+      {/* Voice Prompt Action Banner */}
+      <Pressable style={[styles.voicePromptCard, { backgroundColor: isDark ? colors.surfaceTertiary : "#FFFFFF", borderColor: colors.border }]} onPress={onVoice} testID="voice-prompt-action">
+        <View style={styles.voicePromptMic}>
+          <Ionicons name="mic" size={18} color={colors.onBrand} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.voicePromptTitle, { color: colors.onSurface }]}>
+            {t("voicePromptTitle", lang)}
+          </Text>
+          <Text style={[styles.voicePromptSub, { color: colors.muted }]}>
+            {t("voicePromptSub", lang)}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={colors.brand} />
+      </Pressable>
+
       <View style={styles.suggestions}>
-        {SUGGESTIONS.map((s, i) => (
+        {(["suggestion1", "suggestion2", "suggestion3", "suggestion4"] as const).map((key, i) => (
           <Pressable
             key={i}
             testID={`suggestion-${i}`}
-            style={styles.suggestion}
-            onPress={() => onPick(s[lang])}
+            style={[styles.suggestion, { backgroundColor: isDark ? colors.surfaceTertiary : "#FFFFFF", borderColor: colors.border }]}
+            onPress={() => onPick(t(key, lang))}
           >
             <Ionicons
               name="arrow-forward"
               size={14}
-              color={colors.onSurface}
+              color={colors.brand}
             />
-            <Text style={styles.suggestionText}>{s[lang]}</Text>
+            <Text style={[styles.suggestionText, { color: colors.onSurface }]}>{t(key, lang)}</Text>
           </Pressable>
         ))}
       </View>
@@ -426,11 +497,11 @@ const styles = StyleSheet.create({
   langBtn: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
+    borderRadius: radius.pill,
     backgroundColor: colors.surfaceTertiary,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    minWidth: 40,
+    minWidth: 44,
     alignItems: "center",
   },
   langText: {
@@ -442,9 +513,71 @@ const styles = StyleSheet.create({
   iconBtn: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
+    borderRadius: radius.pill,
     backgroundColor: colors.surfaceTertiary,
-    padding: spacing.xs,
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  telemetryBar: {
+    backgroundColor: colors.surfaceInverse,
+    borderBottomWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 6,
+  },
+  telemetryScroll: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    gap: 8,
+  },
+  telemetryBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(31, 166, 160, 0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(31, 166, 160, 0.35)",
+    borderRadius: radius.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginRight: 4,
+  },
+  telemetryDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: colors.brand,
+    marginRight: 5,
+  },
+  telemetryBadgeText: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    fontWeight: "800",
+    color: colors.brand,
+    letterSpacing: 1,
+  },
+  telemetryItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  telemetryLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.onSurfaceSecondary,
+  },
+  telemetryVal: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: "800",
+    color: colors.data,
+  },
+  telemetryDivider: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    color: colors.divider,
+    marginHorizontal: 2,
   },
   offlineBar: {
     flexDirection: "row",
@@ -453,7 +586,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.warning,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderColor: colors.border,
   },
   offlineText: {
@@ -462,7 +595,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.onWarning,
   },
-  listContent: { padding: spacing.lg, flexGrow: 1 },
+  listContent: { padding: spacing.lg, paddingBottom: spacing.xl * 2, flexGrow: 1 },
   typing: {
     flexDirection: "row",
     alignItems: "center",
@@ -482,10 +615,14 @@ const styles = StyleSheet.create({
   micBtn: {
     width: 44,
     height: 44,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     backgroundColor: colors.brand,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   micBtnRecording: {
     backgroundColor: colors.error,
@@ -524,8 +661,8 @@ const styles = StyleSheet.create({
     maxHeight: 120,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
+    borderRadius: 22,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     fontSize: type.base,
     color: colors.onSurface,
@@ -535,11 +672,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     backgroundColor: colors.brand,
-    borderRadius: radius.md,
+    borderRadius: radius.pill,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
-  sendBtnDisabled: { backgroundColor: colors.surfaceTertiary },
+  sendBtnDisabled: { backgroundColor: colors.surfaceTertiary, shadowOpacity: 0 },
   empty: { flex: 1, justifyContent: "center", paddingVertical: spacing.xl },
   radar: {
     width: 84,
@@ -565,6 +706,37 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
     paddingHorizontal: spacing.lg,
     lineHeight: 20,
+  },
+  voicePromptCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.brand,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  voicePromptMic: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.pill,
+    backgroundColor: colors.brand,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  voicePromptTitle: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: "800",
+    color: colors.brand,
+    letterSpacing: 1,
+  },
+  voicePromptSub: {
+    fontSize: type.xs,
+    color: colors.onSurfaceSecondary,
+    marginTop: 2,
   },
   suggestions: { width: "100%", gap: spacing.sm },
   suggestion: {

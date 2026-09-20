@@ -1,17 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 
-import { Lang, t } from "@/src/context/AppContext";
+import { Lang, t, useApp } from "@/src/context/AppContext";
 import { colors, fonts, radius, severityColor, spacing, type } from "@/src/theme";
 
 const CONFIG: Record<
   string,
   { bg: string; fg: string; icon: any }
 > = {
-  cyclone: { bg: colors.error, fg: colors.onError, icon: "thunderstorm" },
-  lightning: { bg: colors.warning, fg: colors.onWarning, icon: "flash" },
-  geofence: { bg: colors.error, fg: colors.onError, icon: "warning" },
-  hazard: { bg: colors.warning, fg: colors.onWarning, icon: "alert" },
+  cyclone: { bg: "#EF4444", fg: "#FFFFFF", icon: "thunderstorm" },
+  lightning: { bg: "#F59E0B", fg: "#111417", icon: "flash" },
+  geofence: { bg: "#EF4444", fg: "#FFFFFF", icon: "warning" },
+  hazard: { bg: "#F59E0B", fg: "#111417", icon: "alert" },
 };
 
 // Backend alert severity ("high"/"moderate") -> the 3-tier Alerts-tab
@@ -38,6 +38,7 @@ export type AlertItem = {
 };
 
 export default function AlertCard({ item, lang = "en" }: { item: AlertItem; lang?: Lang }) {
+  const { colors, isDark } = useApp();
   const cfg = CONFIG[item.type || ""] || {
     bg: colors.surfaceInverse,
     fg: colors.onSurfaceInverse,
@@ -47,28 +48,28 @@ export default function AlertCard({ item, lang = "en" }: { item: AlertItem; lang
   const sc = severityColor(tier);
   const ts = item.issued_at || item.created_at;
   return (
-    <View testID={`alert-card-${item.type}`} style={styles.card}>
+    <View testID={`alert-card-${item.type}`} style={[styles.card, { backgroundColor: colors.surfaceGlass, borderColor: colors.borderGlass }]}>
       <View style={[styles.iconStrip, { backgroundColor: cfg.bg }]}>
         <Ionicons name={cfg.icon} size={20} color={cfg.fg} />
       </View>
       <View style={styles.body}>
         <View style={styles.titleRow}>
-          <Text style={styles.title}>{item.title}</Text>
+          <Text style={[styles.title, { color: colors.onSurface }]}>{item.title}</Text>
           <View style={[styles.sevBadge, { backgroundColor: sc.bg }]}>
             <Text style={[styles.sevBadgeText, { color: sc.fg }]}>
               {t(SEVERITY_KEY[tier], lang)}
             </Text>
           </View>
         </View>
-        <Text style={styles.text}>{item.body}</Text>
+        <Text style={[styles.text, { color: colors.onSurfaceSecondary }]}>{item.body}</Text>
         <View style={styles.metaRow}>
           {!!item.source && (
-            <Text style={styles.meta}>
+            <Text style={[styles.meta, { color: colors.muted }]}>
               {t("source", lang)}: {item.source}
             </Text>
           )}
           {!!ts && (
-            <Text style={styles.meta}>
+            <Text style={[styles.meta, { color: colors.muted }]}>
               {new Date(ts).toLocaleString()}
             </Text>
           )}

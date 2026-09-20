@@ -1,9 +1,35 @@
-// ORCA API client. All calls hit the FastAPI backend via EXPO_PUBLIC_BACKEND_URL.
-// Every function throws on network failure so screens can fall back to cache.
-const BASE = (process.env.EXPO_PUBLIC_BACKEND_URL || "") + "/api";
+import Constants from "expo-constants";
+import { Platform } from "react-native";
+
+function getBaseUrl(): string {
+  if (Platform.OS === "web" && typeof window !== "undefined") {
+    const hostname = window.location.hostname || "localhost";
+    return `http://${hostname}:8000/api`;
+  }
+  const configured = process.env.EXPO_PUBLIC_BACKEND_URL;
+  if (configured) {
+    if (Platform.OS !== "web" && configured.includes("localhost")) {
+      const hostUri = Constants.expoConfig?.hostUri;
+      if (hostUri) {
+        const ip = hostUri.split(":")[0];
+        return `http://${ip}:8000/api`;
+      }
+    }
+    return configured.endsWith("/api") ? configured : `${configured}/api`;
+  }
+  if (Platform.OS !== "web") {
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const ip = hostUri.split(":")[0];
+      return `http://${ip}:8000/api`;
+    }
+  }
+  return "http://localhost:8000/api";
+}
 
 async function req(path: string, options?: RequestInit) {
-  const res = await fetch(BASE + path, {
+  const url = getBaseUrl() + path;
+  const res = await fetch(url, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
@@ -14,12 +40,46 @@ async function req(path: string, options?: RequestInit) {
   return res.json();
 }
 
-export type Marker = { lat: number; lon: number; label: string; kind: string };
+export type Marker = {
+  lat: number;
+  lon: number;
+  label: string;
+  kind: string;
+  name?: string;
+  speed_kn?: number;
+  type?: string;
+  status?: string;
+  vhf_channel?: string;
+  heading_deg?: number;
+  crew?: number;
+  species?: string;
+  depth_m?: number;
+  sst_c?: number;
+  chl_mg_m3?: number;
+  confidence?: number;
+  distance_km?: number;
+  [key: string]: any;
+};
+export type RouteInfo = {
+  start_name?: string;
+  end_name?: string;
+  distance_km?: number;
+  distance_nm?: number;
+  bearing_deg?: number;
+  bearing_cardinal?: string;
+  eta_str?: string;
+  unsafe_count?: number;
+  total?: number;
+};
 export type MapWidgetT = {
   type: "map";
   center: { lat: number; lon: number };
   markers: Marker[];
   layers: any[];
+  route_info?: RouteInfo;
+  fleet_info?: any;
+  pfz_info?: any;
+  [key: string]: any;
 };
 export type ChartWidgetT = {
   type: "chart";
@@ -93,16 +153,26 @@ export const api = {
   getConversation: (session_id: string) =>
     req(`/conversations/${session_id}`),
 
-  getAlerts: (region_id?: string) =>
-    req(`/alerts${region_id ? `?region_id=${region_id}` : ""}`),
+  getAlerts: (region_id?: string, language?: string) => {
+    const params = new URLSearchParams();
+    if (region_id) params.append("region_id", region_id);
+    if (language) params.append("language", language);
+    const qs = params.toString();
+    return req(`/alerts${qs ? `?${qs}` : ""}`);
+  },
   getNotifications: (user_id = "demo-user") =>
     req(`/notifications?user_id=${user_id}`),
-  getSituation: (region_id?: string): Promise<Situation> =>
-    req(`/situation${region_id ? `?region_id=${region_id}` : ""}`),
+  getSituation: (region_id?: string, language?: string): Promise<Situation> => {
+    const params = new URLSearchParams();
+    if (region_id) params.append("region_id", region_id);
+    if (language) params.append("language", language);
+    const qs = params.toString();
+    return req(`/situation${qs ? `?${qs}` : ""}`);
+  },
   voiceTranscribe: async (fileUri: string, language: string): Promise<{ text: string }> => {
     const form = new FormData();
     form.append("audio", { uri: fileUri, name: "voice.m4a", type: "audio/m4a" } as any);
-    const res = await fetch(`${BASE}/voice/transcribe?language=${language}`, {
+    const res = await fetch(`${getBaseUrl()}/voice/transcribe?language=${language}`, {
       method: "POST",
       body: form,
     });
@@ -113,7 +183,7 @@ export const api = {
     return res.json();
   },
   voiceSpeak: async (text: string, language: string): Promise<ArrayBuffer> => {
-    const res = await fetch(`${BASE}/voice/speak`, {
+    const res = await fetch(`${getBaseUrl()}/voice/speak`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, language }),
@@ -163,6 +233,10 @@ export const api = {
     q: string,
   ): Promise<{ query: string; results: GeoResult[]; attribution: string }> =>
     req(`/geocode?q=${encodeURIComponent(q)}`),
+
+  // Push notifications
+  registerPushToken: (body: { user_id?: string; token: string; region_id?: string }) =>
+    req("/notifications/register-token", { method: "POST", body: JSON.stringify(body) }),
 };
 
-export { BASE };
+export { getBaseUrl };

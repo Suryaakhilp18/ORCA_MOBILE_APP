@@ -226,8 +226,8 @@ async def route_safety(start: dict, end: dict, samples: int = 10) -> dict:
 
     d_direct = _haversine_km(s_lat, s_lon, e_lat, e_lon)
 
-    # For very short local voyages (e.g., harbor to local PFZ < 30 km), direct seaward interpolation
-    if d_direct < 30.0:
+    # For local voyages (e.g., harbor to local PFZ/offshore < 40 km), direct seaward interpolation
+    if d_direct < 40.0:
         raw_waypoints = []
         for i in range(samples + 1):
             t = i / max(samples, 1)

@@ -1,32 +1,36 @@
-# 🌊 ORCA MOBILE 2.0 — COMPLETE END-TO-END PROJECT DOCUMENTATION
+# 🌊 ORCA MOBILE 2.0 — COMPLETE END-TO-END PROJECT GUIDE
+## Ocean Risk & Coastal Advisory: Agentic AI Marine Copilot & Seaward Fairway Navigation System
 
-> **Comprehensive Master Record & Technical Manual**: System Architecture, 7-Agent Autonomous Marine Pipeline, Deterministic Safety Engine, Seaward Fairway Routing (Kanyakumari TSS), 28 Indian Coastal Ports, 10 Coastal Languages, Superfunctional Voice Marine Copilot, Interactive ECDIS Map, Dynamic Tab Synchronization, Theme Purity (100% Light & 100% Dark Mode), and Complete REST API Reference.
+> **Master Repository & Technical Reference**: System Architecture, 7-Agent Autonomous Marine Pipeline, Deterministic Safety Engine, Seaward Parabolic Fairway Routing (Kanyakumari TSS), 28 Indian Coastal Ports, 10 Coastal Languages, Hands-Free Voice Marine Copilot, Interactive ECDIS Map & Navigation HUD, 100% Theme Purity (Light & Dark), and Complete REST API Reference.
+
+**Official Repository**: [https://github.com/Suryaakhilp18/ORCA_MOBILE_APP.git](https://github.com/Suryaakhilp18/ORCA_MOBILE_APP.git)
 
 ---
 
 ## 📋 Table of Contents
 1. [Project Overview & Core Mission](#1-project-overview--core-mission)
-2. [Flagship Innovations & Technical Milestones](#2-flagship-innovations--technical-milestones)
-3. [Chronological Journey & Engineering Rectifications](#3-chronological-journey--engineering-rectifications)
-4. [System Architecture & Multi-Agent Data Flow](#4-system-architecture--multi-agent-data-flow)
-5. [Backend Multi-Agent Intelligence Engine](#5-backend-multi-agent-intelligence-engine)
-6. [Deterministic Marine Safety Engine (`rules.py`)](#6-deterministic-marine-safety-engine-rulespy)
-7. [Spatial & Maritime Fairway Routing Engine (Kanyakumari TSS)](#7-spatial--maritime-fairway-routing-engine-kanyakumari-tss)
-8. [India-Wide Coastal Registry: 28 Ports & Marine Sanctuaries](#8-india-wide-coastal-registry-28-ports--marine-sanctuaries)
-9. [Multilingual Synchronization Across All 4 Tabs](#9-multilingual-synchronization-across-all-4-tabs)
-10. [Superfunctional Voice Marine Copilot (STT & Matching TTS)](#10-superfunctional-voice-marine-copilot-stt--matching-tts)
-11. [Mobile Application Tab Architecture (Frontend)](#11-mobile-application-tab-architecture-frontend)
-12. [Dynamic Leaflet ECDIS Map & Navigation HUD](#12-dynamic-leaflet-ecdis-map--navigation-hud)
+2. [Flagship Capabilities & Technical Highlights](#2-flagship-capabilities--technical-highlights)
+3. [System Architecture & 7-Agent Multi-Agent Pipeline](#3-system-architecture--7-agent-multi-agent-pipeline)
+4. [Deterministic Marine Safety Engine (`rules.py`)](#4-deterministic-marine-safety-engine-rulespy)
+5. [Spatial & Maritime Fairway Routing Engine (Kanyakumari TSS)](#5-spatial--maritime-fairway-routing-engine-kanyakumari-tss)
+6. [India-Wide Coastal Registry: 28 Ports & Marine Protected Areas](#6-india-wide-coastal-registry-28-ports--marine-protected-areas)
+7. [Multilingual Synchronization Across All 4 Tabs (10 Languages)](#7-multilingual-synchronization-across-all-4-tabs-10-languages)
+8. [Hands-Free Voice Marine Copilot (STT & Matching Regional TTS)](#8-hands-free-voice-marine-copilot-stt--matching-regional-tts)
+9. [Mobile Application Tab Architecture (Frontend)](#9-mobile-application-tab-architecture-frontend)
+10. [Dynamic Leaflet ECDIS Map & Live Navigation HUD](#10-dynamic-leaflet-ecdis-map--live-navigation-hud)
+11. [Live AIS Fleet Tracking & VHF Radio Communication](#11-live-ais-fleet-tracking--vhf-radio-communication)
+12. [Potential Fishing Zone (PFZ) Radar & Satellite Telemetry](#12-potential-fishing-zone-pfz-radar--satellite-telemetry)
 13. [Theme Purity Architecture (100% Light & 100% Dark)](#13-theme-purity-architecture-100-light--100-dark)
 14. [Complete REST API Reference](#14-complete-rest-api-reference)
 15. [Step-by-Step Installation & Run Guide](#15-step-by-step-installation--run-guide)
 16. [Verification & Automated Test Suite](#16-verification--automated-test-suite)
+17. [Project Documentation Structure](#17-project-documentation-structure)
 
 ---
 
 ## 1. Project Overview & Core Mission
 
-**ORCA** (*Ocean Risk & Coastal Advisory*) is an AI-powered Marine Copilot engineered for Indian artisanal and mechanized fishermen, commercial trawler operators, coastal maritime agencies, and disaster response teams across all maritime regions of India (Bay of Bengal, Arabian Sea, and the Indian Ocean).
+**ORCA Mobile 2.0** (*Ocean Risk & Coastal Advisory*) is an agentic AI-powered marine copilot and spatial navigation system engineered specifically for India’s artisanal and mechanized fishing communities, commercial trawler operators, coastal maritime researchers, and disaster response teams across all maritime regions of India (Bay of Bengal, Arabian Sea, and Indian Ocean).
 
 ### Foundational Principles:
 1. **Zero-Hallucination Deterministic Safety**: Navigational safety verdicts (`SAFE`, `CAUTION`, `UNSAFE`) are calculated strictly by mathematical models and immutable rule thresholds grounded in **IMD** (India Meteorological Department) and **INCOIS** (Indian National Centre for Ocean Information Services) standards. Generative AI is used exclusively to explain, translate, and voice verified facts.
@@ -38,7 +42,7 @@
 
 ---
 
-## 2. Flagship Innovations & Technical Milestones
+## 2. Flagship Capabilities & Technical Highlights
 
 ```
 +-------------------------------------------------------------------------------+
@@ -61,24 +65,7 @@
 
 ---
 
-## 3. Chronological Journey & Engineering Rectifications
-
-| # | Challenge Encountered | Root Cause | Engineering Rectification Applied |
-| :--- | :--- | :--- | :--- |
-| **1** | Python 3.14 Windows launcher alias issues | `pip` not on system `PATH` | Standardized execution via `python -m uvicorn` and installed all project dependencies (`fastapi`, `motor`, `pymongo`, `pydantic`, `httpx`). |
-| **2** | Database Deadlock | App hung on launch when MongoDB was offline | Configured `serverSelectionTimeoutMS=100` with automated in-memory session/bookmark fallbacks. |
-| **3** | UI Viewport Scaling | Web preview stretched across wide desktop monitors | Encapsulated `app/_layout.tsx` in a centered `440px - 480px` mobile viewport container with responsive device framing. |
-| **4** | Theme Inconsistency | Light mode not applying to remaining tabs; dark cards lingering | Standardized `Colors[theme]` system across Home, Alerts, Chat, Saved, SituationCard, RadarCard, and QuickChips with 100% theme purity. |
-| **5** | Land-Crossing Routes | Straight-line chords crossed coastal bends and landmass | Implemented parabolic seaward curvature (`spatial.py`) curving outward into open sea. For cross-coast voyages (e.g. Kakinada to Mumbai), routes pass through Kanyakumari TSS (Cape Comorin, 8.04° N, 77.58° E), never crossing the Indian subcontinent landmass. |
-| **6** | Inland City Fallback | Unknown/inland places defaulted to Kakinada or ocean points | Created `_classify_place` and `INLAND_CITIES` list. If user specifies inland cities (e.g. Delhi, Hyderabad) or gibberish, ORCA explicitly explains that it is not a marine port and suggests verified coastal ports. |
-| **7** | Fleet & PFZ Visibility | Fleet operations and PFZ icons difficult to distinguish | Created high-contrast, dedicated SVGs for Fleet Trawlers (sailboats with speed & VHF) and PFZ Hotspots (golden star for Best Catch, cyan for Secondary PFZ) with full detail overlays. |
-| **8** | Multi-Tab Language Desync | Changing language did not update Home or Alerts tabs | Added `_localize_reasons` and `_localize_alerts` in backend. Updated frontend `api.getSituation(region_id, lang)` and `api.getAlerts(region_id, lang)` to refresh dynamically on language change. |
-| **9** | Voice Language Matching | Telugu queries received English audio responses | Updated `_fallback_answer` with complete native Telugu/Hindi responses. Pre-warmed browser voices in `useVoiceAgent.ts` and bound `utterance.voice` to authentic target locale voices (`te-IN`, `hi-IN`, `ta-IN`). Added script-based audio expansion for units (`kn` -> "నాట్లు", `km` -> "కిలోమీటర్లు"). |
-| **10** | Chat Responsiveness | In-flight questions didn't show immediately | Added immediate optimistic user message rendering in `useChat.ts` with real-time response streaming and typing indicators. |
-
----
-
-## 4. System Architecture & Multi-Agent Data Flow
+## 3. System Architecture & 7-Agent Multi-Agent Pipeline
 
 ```
 +-------------------------------------------------------------------------------+
@@ -87,20 +74,16 @@
 |   |     Home Tab      |  |    Alerts Tab      |  |   Chat & ECDIS Map Tab  |  |
 |   | (Radar + Verdict) |  | (IMD Hazard Feeds) |  |  (Voice Copilot + HUD)  |  |
 |   +---------+---------+  +---------+----------+  +------------+------------+  |
-+-------------|----------------------|--------------------------|---------------+
-              |                      |                          |
-              +----------------------+--------------------------+
-                                     | REST JSON (Port 8000)
-                                     v
-+-------------------------------------------------------------------------------+
-|                        FASTAPI BACKEND (UVICORN)                              |
+|             |                      |                          |               |
+|             +----------------------+--------------------------+               |
+|                                    | REST JSON (Port 8000)                    |
+|                                    v                                          |
+|                        FASTAPI MONOLITHIC BACKEND                             |
 |                                                                               |
-|   [1. Zero-Delay Fast Path] (Instant response for greetings/thanks/help)       |
-|            | (if not greeting)                                                |
+|   [1. Zero-Delay Fast Path Router] (Instant response for greetings/thanks)    |
+|            |                                                                  |
 |            v                                                                  |
 |   [2. Planner Agent] (Deterministic intent extraction & NER)                  |
-|        - Port extraction (coastal / inland / unrecognized)                    |
-|        - Language & Script detection (native script vs romanized)             |
 |            |                                                                  |
 |            v                                                                  |
 |   [3. Specialist Multi-Agent Pipeline]                                        |
@@ -109,7 +92,7 @@
 |        +---> Ocean Analytics Agent (SST & Chlorophyll-a feeding grids)        |
 |        +---> Geospatial / Risk Agent (Fairway routing & Geofence checks)      |
 |        +---> Fleet Operations Specialist (AIS vessel tracker & VHF channels)  |
-|        +---> Reporting / Viz Agent (MapLibre widgets & SVG chart payloads)    |
+|        +---> Reporting / Viz Agent (Leaflet GeoJSON & SVG chart payloads)     |
 |            |                                                                  |
 |            v                                                                  |
 |   [4. Deterministic Safety Engine (rules.py)]                                 |
@@ -125,15 +108,10 @@
 +-------------------------------------------------------------------------------+
 ```
 
----
-
-## 5. Backend Multi-Agent Intelligence Engine
-
 ### The 7 Autonomous Agents (`backend/orchestrator/agents.py`):
-
 1. **Planner Agent**:
    - Performs sub-second intent classification and Named Entity Recognition (NER).
-   - Identifies source port, destination port, target timeframe (`today` vs `tomorrow`), language (`en`, `te`, `hi`, `ta`, etc.), and script (`native` vs `romanized`).
+   - Identifies source port, destination port, target timeframe (`today` vs `tomorrow`), language (`en`, `te`, `hi`, etc.), and script (`native` vs `romanized`).
    - Categorizes locations as `coastal` (valid port), `inland` (city with no marine coastline), or `unrecognized`.
 2. **Data Discovery Agent**:
    - Resolves coastal geography from the 28-region registry and dynamically selects required data streams (weather, boundaries, tides, fleet, ocean grids).
@@ -151,7 +129,7 @@
 
 ---
 
-## 6. Deterministic Marine Safety Engine (`rules.py`)
+## 4. Deterministic Marine Safety Engine (`rules.py`)
 
 ORCA's safety verdicts are **deterministic and immutable**. The LLM is never allowed to override safety thresholds:
 
@@ -168,7 +146,7 @@ ORCA's safety verdicts are **deterministic and immutable**. The LLM is never all
 
 ---
 
-## 7. Spatial & Maritime Fairway Routing Engine (Kanyakumari TSS)
+## 5. Spatial & Maritime Fairway Routing Engine (Kanyakumari TSS)
 
 ### The Seaward Parabolic Corridors (`backend/gis/spatial.py`):
 When navigating between coastal ports, straight-line chords often intersect headlands and landmasses. ORCA uses a seaward parabolic offset:
@@ -214,7 +192,7 @@ For voyages that transition between the **Bay of Bengal** (East Coast) and the *
 
 ---
 
-## 8. India-Wide Coastal Registry: 28 Ports & Marine Sanctuaries
+## 6. India-Wide Coastal Registry: 28 Ports & Marine Protected Areas
 
 | Region ID | Port / Region Name | State / UT | Maritime Coordinates | Sea Body | Marine Protected Area / Restricted Zone |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -250,9 +228,9 @@ For voyages that transition between the **Bay of Bengal** (East Coast) and the *
 
 ---
 
-## 9. Multilingual Synchronization Across All 4 Tabs
+## 7. Multilingual Synchronization Across All 4 Tabs (10 Languages)
 
-ORCA provides end-to-end synchronization across all 10 coastal languages:
+ORCA provides complete synchronization across 10 coastal languages:
 `English (en)`, `Telugu (te)`, `Tamil (ta)`, `Malayalam (ml)`, `Kannada (kn)`, `Marathi (mr)`, `Gujarati (gu)`, `Bengali (bn)`, `Odia (or)`, `Hindi (hi)`.
 
 ### Dynamic Multi-Tab Behavior:
@@ -261,12 +239,10 @@ When the user switches languages in the top-right modal:
    - Station sector name displays in target language (e.g. `కాకినాడ సెక్టార్`).
    - Live safety verdict localized (`సురక్షితం`, `హెచ్చరిక`, `ప్రమాదం`).
    - Next Tide indicator translates tide type (`హై టైడ్` / `లో టైడ్`).
-   - Live Sector Radar updates baseline label and status.
    - Situation Card fetches `/api/situation?language={lang}` to display localized evaluation reasons.
 2. **Alerts Tab (`alerts.tsx`)**:
    - Queries `/api/alerts?language={lang}`.
    - Bulletin titles and advisories render in native script (e.g. `తుఫాను హెచ్చరిక — తీవ్ర వాయుగుండం (BOB-04)`).
-   - Severity tags and guidance notes dynamically match chosen language.
 3. **Chat Tab (`index.tsx`)**:
    - Quick suggestion chips render in regional script.
    - User voice transcription automatically detects spoken script and replies in that language.
@@ -275,9 +251,8 @@ When the user switches languages in the top-right modal:
 
 ---
 
-## 10. Superfunctional Voice Marine Copilot (STT & Matching TTS)
+## 8. Hands-Free Voice Marine Copilot (STT & Matching Regional TTS)
 
-### Voice Pipeline Flow:
 ```
 [Fisherman Spoken Voice Input]
          │
@@ -294,20 +269,17 @@ When the user switches languages in the top-right modal:
 [Spoken Audio Response]          ◄──  Pre-warmed browser TTS matching detected language
 ```
 
-### Key Voice Capabilities:
-1. **Pre-Warmed Browser Voices**: Speech synthesis engines are initialized on app launch via `window.speechSynthesis.getVoices()` and `onvoiceschanged`, eliminating startup audio latency.
-2. **Matching Voice Synthesis**: If a query is asked in Telugu, ORCA speaks back using an authentic Indian Telugu voice (`te-IN`, e.g. `Microsoft Mohan` or `Google తెలుగు`). If asked in Hindi, it uses `hi-IN`.
-3. **Acoustic Nautical Expansion**: Normalizes abbreviations before feeding to the speech engine:
-   - `kn` / `kts` $\rightarrow$ *"నాట్లు"* (Telugu) / *"नॉट"* (Hindi) / *"knots"* (English)
-   - `km` $\rightarrow$ *"కిలోమీటర్లు"* (Telugu) / *"किलोमीटर"* (Hindi) / *"kilometers"* (English)
-   - `°C` $\rightarrow$ *"డిగ్రీల సెల్సియస్"* (Telugu) / *"डिग्री सेल्सियस"* (Hindi)
-4. **Hands-Free Floating Microphone**: Fixed high-visibility mic button with pulsing audio visualizer and instant cancellation on tap.
+- **Pre-Warmed Browser Voices**: Speech synthesis engines are initialized on app mount, eliminating startup audio latency.
+- **Matching Voice Synthesis**: If a query is asked in Telugu, ORCA speaks back using an authentic Indian Telugu voice (`te-IN`). If asked in Hindi, it uses `hi-IN`.
+- **Acoustic Nautical Expansion**: Normalizes abbreviations before speech synthesis:
+  - `kn` / `kts` $\rightarrow$ *"నాట్లు"* (Telugu) / *"नॉट"* (Hindi) / *"knots"* (English)
+  - `km` $\rightarrow$ *"కిలోమీటర్లు"* (Telugu) / *"किलोमीटर"* (Hindi)
+  - `°C` $\rightarrow$ *"డిగ్రీల సెల్సియస్"* (Telugu) / *"डिग्री सेल्सियस"* (Hindi)
 
 ---
 
-## 11. Mobile Application Tab Architecture (Frontend)
+## 9. Mobile Application Tab Architecture (Frontend)
 
-### File Structure (`frontend/`):
 ```
 frontend/
 ├── app/
@@ -317,7 +289,7 @@ frontend/
 │   │   ├── alerts.tsx         # Real-time IMD Cyclone, Squall & Lightning Feeds
 │   │   └── saved.tsx          # Saved Marine Fairways, Bookmarks & Location Pins
 │   ├── _layout.tsx            # Theme-aware Container (440-480px width) & Top Navigation
-│   └── +html.tsx              # Mobile Web Shell with Leaflet & MapLibre scripts
+│   └── +html.tsx              # Mobile Web Shell with Leaflet scripts
 ├── src/
 │   ├── components/
 │   │   ├── MapWidget.tsx      # Interactive Leaflet ECDIS Map, TSS Routes & HUD
@@ -338,7 +310,7 @@ frontend/
 
 ---
 
-## 12. Dynamic Leaflet ECDIS Map & Navigation HUD
+## 10. Dynamic Leaflet ECDIS Map & Live Navigation HUD
 
 ### 1. Interactive Marine ECDIS Basemap:
 High-performance Leaflet & OpenStreetMap integration rendering clear bathymetry, fairways, navigational depths, and coastal headlands with zero lag.
@@ -350,19 +322,24 @@ Whenever a maritime route is generated:
 - **ETA**: Calculated at standard 8-knot cruising speed with day/hour formatting.
 - **Safety Status**: High-contrast safety banner (`✓ 10/10 Checkpoints Clear` vs `⛔ Restricted Zone Breach`).
 
-### 3. High-Visibility Interactive Marker & Layer System:
-- 🔵 **Station / Harbor Pin**: Origin port roadstead or active station anchorage.
-- 🟢 **Port-to-Port Route Checkpoints**: Open-water fairway points with glowing cyan nautical lines.
+---
+
+## 11. Live AIS Fleet Tracking & VHF Radio Communication
+
 - ⛵ **Live Fleet Operations Markers**: Distinct vessel icons showing name, trawler class, cruising speed (`4.8 kn`), status (`Active Trawling`), and VHF emergency/working radio channels (`Ch 16 / 68`).
+- Direct hailing frequencies displayed for vessel-to-vessel collision prevention.
+
+---
+
+## 12. Potential Fishing Zone (PFZ) Radar & Satellite Telemetry
+
+- **Ocean Productivity Analysis**: Evaluates Sea Surface Temperature (SST, 27–29°C optimal) and Chlorophyll-a concentrations ($>1.5\text{ mg/m}^3$).
 - ★ **Best Catch PFZ Hotspot**: High-visibility golden star pin with depth, SST (°C), and Chlorophyll-a ($mg/m^3$) metrics.
 - 🐟 **Secondary PFZ Hotspots**: Cyan fish markers for surrounding biological productivity zones.
-- 🟥 **Restricted Marine Sanctuaries**: High-contrast red overlay polygons (e.g., Coringa MPA, Gahirmatha, Gulf of Mannar) with collision warnings.
 
 ---
 
 ## 13. Theme Purity Architecture (100% Light & 100% Dark)
-
-ORCA enforces strict visual theme purity across all four tabs:
 
 | Element | Pure Light Mode (`theme === 'light'`) | Pure Dark Mode (`theme === 'dark'`) |
 | :--- | :--- | :--- |
@@ -410,22 +387,14 @@ Submit natural language or voice queries to the multi-agent marine pipeline.
 ### 2. `GET /api/situation`
 Retrieves comprehensive live weather, tide table, deterministic verdict, and localized safety reasons.
 - **Query Parameters**: `region_id` (e.g. `kakinada`), `language` (e.g. `te`).
-- **Response Keys**: `region`, `region_id`, `verdict`, `reasons`, `weather_today`, `weather_tomorrow`, `alerts`, `tide`, `trends`.
 
 ### 3. `GET /api/alerts`
 Returns active IMD cyclone, squall, and thunderstorm advisories localized into the requested language.
 - **Query Parameters**: `region_id`, `language`.
-- **Response Keys**: `region`, `region_id`, `alerts` (`title`, `severity`, `body`).
 
 ### 4. `GET /api/regions` & `GET /api/regions/detect`
 - `/api/regions`: Returns all 28 registered maritime ports.
 - `/api/regions/detect?lat=16.98&lon=82.38`: Resolves nearest coastal port from device GPS coordinates.
-
-### 5. `GET /api/data/boundaries`
-Returns GeoJSON boundaries for all Indian Marine Protected Areas (MPAs) and naval zones.
-
-### 6. `GET /api/health`
-Health check endpoint returning system status and connected database state.
 
 ---
 
@@ -439,7 +408,7 @@ Health check endpoint returning system status and connected database state.
 ### Step 1: Backend Setup
 ```bash
 # Navigate to backend directory
-cd "C:\Users\surya\OneDrive\Desktop\ORCAMOBCOPY\backend"
+cd "c:\Users\surya\OneDrive\Desktop\HIGHENDAI\ORCA\ORCA MOBILE 2.0\backend"
 
 # Install Python dependencies
 python -m pip install -r requirements.txt
@@ -447,12 +416,12 @@ python -m pip install -r requirements.txt
 # Start FastAPI server on Port 8000
 python -m uvicorn server:app --host 127.0.0.1 --port 8000 --reload
 ```
-*Backend runs at `http://127.0.0.1:8000`*.
+*Backend runs at `http://127.0.0.1:8000` (API Docs at `http://127.0.0.1:8000/docs`)*.
 
 ### Step 2: Frontend Setup
 ```bash
 # Navigate to frontend directory
-cd "C:\Users\surya\OneDrive\Desktop\ORCAMOBCOPY\frontend"
+cd "c:\Users\surya\OneDrive\Desktop\HIGHENDAI\ORCA\ORCA MOBILE 2.0\frontend"
 
 # Install npm dependencies
 npm install
@@ -468,7 +437,7 @@ npx expo start --web --port 8081
 
 ### Automated Backend Tests:
 ```bash
-cd "C:\Users\surya\OneDrive\Desktop\ORCAMOBCOPY\backend"
+cd "c:\Users\surya\OneDrive\Desktop\HIGHENDAI\ORCA\ORCA MOBILE 2.0\backend"
 pytest -o addopts="" tests/test_unit_rules_and_spatial.py tests/test_api_integration.py tests/test_unit_live_marine.py
 ```
 **Results**:
@@ -476,17 +445,24 @@ pytest -o addopts="" tests/test_unit_rules_and_spatial.py tests/test_api_integra
 - `test_api_integration.py`: **7 / 7 PASSED**
 - `test_unit_live_marine.py`: **3 / 3 PASSED**
 
-### Multilingual & Routing Verification Script:
+### Frontend Static Type Validation:
 ```bash
-$env:PYTHONIOENCODING="utf-8"
-python -c "
-import urllib.request, json
-req = urllib.request.Request('http://127.0.0.1:8000/api/situation?region_id=kakinada&language=te')
-with urllib.request.urlopen(req) as resp:
-    print('Situation verdict:', json.loads(resp.read().decode('utf-8')).get('verdict'))
-"
+cd "c:\Users\surya\OneDrive\Desktop\HIGHENDAI\ORCA\ORCA MOBILE 2.0\frontend"
+npx tsc --noEmit
 ```
-**Results**: All queries in Telugu, Hindi, Tamil, and English return pure regional script responses and correct nautical routing coordinates.
+**Results**: **0 errors (Exit code 0)**.
 
 ---
-*ORCA Mobile 2.0 — Engineered for the Safety & Empowerment of Indian Coastal Seafarers.*
+
+## 17. Project Documentation Structure
+
+The full formal report for this project is maintained in [DOCUMENTATION.md](file:///c:/Users/surya/OneDrive/Desktop/HIGHENDAI/ORCA/ORCA%20MOBILE%202.0/DOCUMENTATION.md), organized in the following 6-part structure:
+1. **Cover Page**: Project title, team details, author, roll number, academic year.
+2. **Project Overview & Objectives**: Detailed description (100–150 words), problem statement, and technical objectives.
+3. **Technology Stack**: Programming languages, frameworks, databases, APIs, and tools.
+4. **Features & Implementation**: Comprehensive breakdown of the 7-agent pipeline, deterministic safety engine, parabolic fairway routing, 28-region registry, voice copilot, and REST API.
+5. **Screenshots & Results**: Detailed UI visual layouts, screen walkthroughs, and automated test execution results.
+6. **AI Usage & Individual Contributions**: Role of AI in the project, safety boundaries, and individual engineering contributions.
+
+---
+*ORCA Mobile 2.0 — Engineered for the Safety, Sustainability, and Empowerment of Indian Coastal Seafarers.*

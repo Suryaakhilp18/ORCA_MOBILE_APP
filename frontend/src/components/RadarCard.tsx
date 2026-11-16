@@ -32,8 +32,8 @@ export default function RadarCard({
   lang?: Lang;
 }) {
   const { colors, isDark } = useApp();
-  const lat = region?.center.lat ?? 16.9891;
-  const lon = region?.center.lon ?? 82.2475;
+  const lat = region?.center?.lat ?? 16.9891;
+  const lon = region?.center?.lon ?? 82.2475;
   const sector = region
     ? `${region.name} ${t("sector", lang)} · ${region.sea || "coastal waters"}`
     : `Kakinada ${t("sector", lang)} · Bay of Bengal`;

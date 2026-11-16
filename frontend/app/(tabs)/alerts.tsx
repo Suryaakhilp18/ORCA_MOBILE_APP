@@ -22,6 +22,9 @@ import { useApp, t, trackingFor } from "@/src/context/AppContext";
 import { storage } from "@/src/utils/storage";
 import { colors, fonts, radius, severityColor, spacing, type } from "@/src/theme";
 
+import mockSituationsData from "@/src/situations.json";
+import mockAlertsData from "@/src/alerts.json";
+
 const CACHE_KEY = "orca_alerts_cache";
 
 export default function AlertsScreen() {
@@ -41,16 +44,21 @@ export default function AlertsScreen() {
         api.getAlerts(region.id, lang),
         api.getNotifications(userId),
       ]);
-      setSituation(s);
-      setAlerts(a.alerts || []);
-      setNotifs(n || []);
+      const fallbackSit = (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"];
+      const resolvedSit = s || fallbackSit;
+      setSituation(resolvedSit);
+
+      const aList = Array.isArray(a) ? a : (a?.alerts || (mockAlertsData as any)[region.id]?.alerts || []);
+      setAlerts(Array.isArray(aList) ? aList : []);
+      setNotifs(Array.isArray(n) ? n : []);
       setStale(null);
+
       await storage.setItem(
         `${CACHE_KEY}_${lang}`,
         JSON.stringify({
-          situation: s,
-          alerts: a.alerts || [],
-          notifs: n || [],
+          situation: resolvedSit,
+          alerts: aList,
+          notifs: Array.isArray(n) ? n : [],
           ts: new Date().toISOString(),
         }),
       );
@@ -58,14 +66,21 @@ export default function AlertsScreen() {
       const raw = (await storage.getItem(`${CACHE_KEY}_${lang}`, "")) as string;
       if (raw) {
         try {
-          const c = JSON.parse(raw);
-          setSituation(c.situation || null);
-          setAlerts(c.alerts || []);
-          setNotifs(c.notifs || []);
+          const c = typeof raw === "string" ? JSON.parse(raw) : raw;
+          setSituation(c.situation || (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"]);
+          const storedAlerts = Array.isArray(c.alerts) ? c.alerts : (c.alerts?.alerts || []);
+          setAlerts(storedAlerts);
+          setNotifs(Array.isArray(c.notifs) ? c.notifs : []);
           setStale(c.ts);
         } catch {
-          /* ignore */
+          const fallbackSit = (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"];
+          setSituation(fallbackSit);
         }
+      } else {
+        const fallbackSit = (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"];
+        const fallbackAlerts = (mockAlertsData as any)[region.id]?.alerts || (mockAlertsData as any)["kakinada"]?.alerts || [];
+        setSituation(fallbackSit);
+        setAlerts(fallbackAlerts);
       }
     } finally {
       setLoading(false);
@@ -83,12 +98,18 @@ export default function AlertsScreen() {
     }, [load]),
   );
 
+  const safeAlerts = Array.isArray(alerts) ? alerts : [];
+  const safeNotifs = Array.isArray(notifs) ? notifs : [];
+
   const data = [
-    { header: t("activeAlerts", lang), items: alerts },
-    { header: t("notifications", lang), items: notifs },
+    { header: t("activeAlerts", lang), items: safeAlerts },
+    { header: t("notifications", lang), items: safeNotifs },
   ];
 
-  const sc = severityColor(situation?.severity);
+  const sc = severityColor(situation?.severity, isDark);
+
+  const sstVals = situation?.trends?.sst?.values ?? [28.4];
+  const lastSst = sstVals.length > 0 ? sstVals[sstVals.length - 1] : 28.4;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
@@ -143,69 +164,78 @@ export default function AlertsScreen() {
                 <RadarCard
                   region={region}
                   severity={situation.severity}
-                  windKn={situation.weather_today.wind_kn}
-                  waveM={situation.weather_today.wave_m}
-                  sstC={situation.trends.sst.values[situation.trends.sst.values.length - 1]}
+                  windKn={situation.weather_today?.wind_kn ?? 10}
+                  waveM={situation.weather_today?.wave_m ?? 0.8}
+                  sstC={lastSst}
                   lang={lang}
                 />
-                <ChartWidget
-                  widget={{
-                    type: "chart",
-                    title: t("windTrendTitle", lang),
-                    unit: situation.trends.wind.unit,
-                    labels: situation.trends.wind.labels,
-                    values: situation.trends.wind.values,
-                    color: colors.warning,
-                  }}
-                  forceColor={colors.warning}
-                />
-                <ChartWidget
-                  widget={{
-                    type: "chart",
-                    title: t("waveTrendTitle", lang),
-                    unit: situation.trends.wave.unit,
-                    labels: situation.trends.wave.labels,
-                    values: situation.trends.wave.values,
-                    color: colors.dataBlue,
-                  }}
-                  forceColor={colors.dataBlue}
-                />
-                <ChartWidget
-                  widget={{
-                    type: "chart",
-                    title: t("sstTrendTitle", lang),
-                    unit: situation.trends.sst.unit,
-                    labels: situation.trends.sst.labels,
-                    values: situation.trends.sst.values,
-                    color: colors.error,
-                  }}
-                  forceColor={colors.error}
-                />
+                {situation.trends?.wind?.values && situation.trends.wind.values.length > 0 && (
+                  <ChartWidget
+                    widget={{
+                      type: "chart",
+                      title: t("windTrendTitle", lang),
+                      unit: situation.trends.wind.unit || "kn",
+                      labels: situation.trends.wind.labels || [],
+                      values: situation.trends.wind.values || [],
+                      color: colors.warning,
+                    }}
+                    forceColor={colors.warning}
+                  />
+                )}
+                {situation.trends?.wave?.values && situation.trends.wave.values.length > 0 && (
+                  <ChartWidget
+                    widget={{
+                      type: "chart",
+                      title: t("waveTrendTitle", lang),
+                      unit: situation.trends.wave.unit || "m",
+                      labels: situation.trends.wave.labels || [],
+                      values: situation.trends.wave.values || [],
+                      color: colors.dataBlue,
+                    }}
+                    forceColor={colors.dataBlue}
+                  />
+                )}
+                {situation.trends?.sst?.values && situation.trends.sst.values.length > 0 && (
+                  <ChartWidget
+                    widget={{
+                      type: "chart",
+                      title: t("sstTrendTitle", lang),
+                      unit: situation.trends.sst.unit || "°C",
+                      labels: situation.trends.sst.labels || [],
+                      values: situation.trends.sst.values || [],
+                      color: colors.error,
+                    }}
+                    forceColor={colors.error}
+                  />
+                )}
                 <View style={{ height: spacing.md }} />
               </View>
             ) : null
           }
-          renderItem={({ item: section }) => (
-            <View style={{ marginBottom: spacing.lg }}>
-              <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
-                {section.header}
-              </Text>
-              {section.items.length === 0 ? (
-                <View testID="no-hazards" style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={18}
-                    color={colors.success}
-                  />
-                  <Text style={styles.emptyText}>{t("noHazards", lang)}</Text>
-                </View>
-              ) : (
-                section.items.map((it, i) => (
-                  <AlertCard key={i} item={it} lang={lang} />
-                ))
-              )}
-            </View>
-          )}
+          renderItem={({ item: section }) => {
+            const sectionItems = Array.isArray(section.items) ? section.items : [];
+            return (
+              <View style={{ marginBottom: spacing.lg }}>
+                <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
+                  {section.header}
+                </Text>
+                {sectionItems.length === 0 ? (
+                  <View testID="no-hazards" style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={18}
+                      color={colors.success}
+                    />
+                    <Text style={styles.emptyText}>{t("noHazards", lang)}</Text>
+                  </View>
+                ) : (
+                  sectionItems.map((it, i) => (
+                    <AlertCard key={i} item={it} lang={lang} />
+                  ))
+                )}
+              </View>
+            );
+          }}
         />
       )}
     </View>

@@ -84,7 +84,14 @@ export default function AlertCard({ item, lang = "en" }: { item: AlertItem; lang
           )}
           {!!ts && (
             <Text style={[styles.meta, { color: colors.muted }]}>
-              {new Date(ts).toLocaleString()}
+              {(() => {
+                try {
+                  const d = new Date(ts);
+                  return isNaN(d.getTime()) ? ts : d.toLocaleString();
+                } catch {
+                  return ts;
+                }
+              })()}
             </Text>
           )}
         </View>

@@ -252,12 +252,15 @@ export const api = {
     if (region_id) params.append("region_id", region_id);
     if (language) params.append("language", language);
     const qs = params.toString();
+    const regId = region_id || "kakinada";
     try {
-      return await req(`/alerts${qs ? `?${qs}` : ""}`);
+      const res = await req(`/alerts${qs ? `?${qs}` : ""}`);
+      const rawList = Array.isArray(res) ? res : (res?.alerts || []);
+      return { alerts: Array.isArray(rawList) ? rawList : [], count: rawList.length, region_id: regId };
     } catch {
-      const regId = region_id || "kakinada";
-      const alerts = (mockAlertsData as any)[regId] || (mockAlertsData as any)["kakinada"] || [];
-      return { alerts, count: alerts.length, region_id: regId };
+      const regionData = (mockAlertsData as any)[regId] || (mockAlertsData as any)["kakinada"] || {};
+      const alertsList = Array.isArray(regionData) ? regionData : (regionData.alerts || []);
+      return { alerts: Array.isArray(alertsList) ? alertsList : [], count: alertsList.length, region_id: regId };
     }
   },
 

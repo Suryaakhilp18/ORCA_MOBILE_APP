@@ -22,9 +22,14 @@ export default function SituationCard({
   lang: Lang;
 }) {
   const { colors, isDark } = useApp();
-  const sc = severityColor(situation.severity, isDark);
-  const today = situation.weather_today;
-  const nextTide = situation.tide?.[0];
+  const sc = severityColor(situation?.severity, isDark);
+  const today = situation?.weather_today || {
+    wind_kn: 12,
+    wave_m: 0.9,
+    lightning_pct: 10,
+    cyclone: null,
+  };
+  const nextTide = situation?.tide?.[0];
 
   return (
     <View
@@ -67,7 +72,7 @@ export default function SituationCard({
         <Metric label={t("lightningLabel", lang)} value={`${today.lightning_pct}%`} colors={colors} />
       </View>
 
-      {situation.reasons?.length > 0 && (
+      {Array.isArray(situation?.reasons) && situation.reasons.length > 0 && (
         <View style={styles.reasonsBox}>
           {situation.reasons.map((r, i) => (
             <View key={i} style={styles.reasonRow}>

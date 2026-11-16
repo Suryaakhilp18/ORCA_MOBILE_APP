@@ -18,20 +18,29 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.brand,
-        tabBarInactiveTintColor: colors.muted,
+        tabBarInactiveTintColor: isDark ? "rgba(255, 255, 255, 0.45)" : "rgba(15, 23, 42, 0.45)",
         tabBarStyle: {
-          backgroundColor: colors.surfaceGlass,
+          backgroundColor: isDark ? "rgba(24, 28, 32, 0.94)" : "rgba(255, 255, 255, 0.96)",
           borderTopWidth: 1,
-          borderTopColor: colors.border,
-          paddingBottom: insets.bottom,
-          ...(Platform.OS === "web" ? { height: 64 } : {}),
+          borderTopColor: isDark ? "rgba(31, 166, 160, 0.25)" : "rgba(13, 148, 136, 0.16)",
+          paddingBottom: Math.max(insets.bottom, 6),
+          paddingTop: 8,
+          height: Platform.OS === "web" ? 68 : 64 + insets.bottom,
+          ...(Platform.OS === "web"
+            ? {
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                boxShadow: isDark ? "0 -8px 24px rgba(0, 0, 0, 0.4)" : "0 -4px 20px rgba(0, 0, 0, 0.05)",
+              }
+            : {}),
         },
-        tabBarItemStyle: { alignSelf: "center" },
+        tabBarItemStyle: { alignSelf: "center", paddingVertical: 2 },
         tabBarLabelStyle: {
           fontFamily: fonts.mono,
           fontSize: 10,
-          fontWeight: "700",
-          letterSpacing: trackingFor(lang, 1),
+          fontWeight: "800",
+          letterSpacing: trackingFor(lang, 0.8),
+          marginTop: 2,
         },
       }}
     >

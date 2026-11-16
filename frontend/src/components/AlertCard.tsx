@@ -45,10 +45,24 @@ export default function AlertCard({ item, lang = "en" }: { item: AlertItem; lang
     icon: "information-circle",
   };
   const tier = SEVERITY_TIER[item.severity || ""] || "advisory";
-  const sc = severityColor(tier);
+  const sc = severityColor(tier, isDark);
   const ts = item.issued_at || item.created_at;
   return (
-    <View testID={`alert-card-${item.type}`} style={[styles.card, { backgroundColor: colors.surfaceGlass, borderColor: colors.borderGlass }]}>
+    <View
+      testID={`alert-card-${item.type}`}
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? "rgba(24, 28, 32, 0.88)" : "rgba(255, 255, 255, 0.95)",
+          borderColor: isDark ? "rgba(31, 166, 160, 0.25)" : "rgba(13, 148, 136, 0.16)",
+          shadowColor: sc.bg,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: isDark ? 0.25 : 0.06,
+          shadowRadius: 10,
+          elevation: 2,
+        },
+      ]}
+    >
       <View style={[styles.iconStrip, { backgroundColor: cfg.bg }]}>
         <Ionicons name={cfg.icon} size={20} color={cfg.fg} />
       </View>

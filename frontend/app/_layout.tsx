@@ -54,24 +54,36 @@ export default function RootLayout() {
 }
 
 function RootContent() {
-  const { isDark } = useApp();
+  const { isDark, colors } = useApp();
   return (
     <>
       <StatusBar style={isDark ? "light" : "dark"} />
-      <View style={{ flex: 1, width: "100%", alignItems: "center", backgroundColor: isDark ? colors.bg : "#EEF2F6" }}>
+      <View
+        style={{
+          flex: 1,
+          width: "100%",
+          alignItems: "center",
+          backgroundColor: isDark ? "#080B0E" : "#E2E8F0",
+          backgroundImage: isDark
+            ? "radial-gradient(ellipse at 50% -20%, rgba(31, 166, 160, 0.18), transparent 70%), radial-gradient(ellipse at 50% 120%, rgba(15, 61, 62, 0.25), transparent 70%)"
+            : "radial-gradient(ellipse at 50% -20%, rgba(13, 148, 136, 0.12), transparent 70%), radial-gradient(ellipse at 50% 120%, rgba(2, 132, 199, 0.08), transparent 70%)",
+        } as any}
+      >
         <View
           style={{
             flex: 1,
             width: "100%",
-            maxWidth: Platform.OS === "web" ? 480 : "100%",
+            maxWidth: Platform.OS === "web" ? 520 : "100%",
             backgroundColor: isDark ? colors.bg : "#F8FAFC",
             ...(Platform.OS === "web"
               ? {
                   height: "100%" as any,
                   borderLeftWidth: 1,
                   borderRightWidth: 1,
-                  borderColor: isDark ? colors.border : "rgba(0,0,0,0.08)",
-                  boxShadow: "0 0 40px rgba(0,0,0,0.15)",
+                  borderColor: isDark ? "rgba(31, 166, 160, 0.22)" : "rgba(13, 148, 136, 0.15)",
+                  boxShadow: isDark
+                    ? "0 0 80px rgba(31, 166, 160, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.7)"
+                    : "0 0 60px rgba(13, 148, 136, 0.12), 0 20px 40px -10px rgba(15, 23, 42, 0.12)",
                 }
               : {}),
           }}

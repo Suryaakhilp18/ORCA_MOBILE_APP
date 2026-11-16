@@ -22,12 +22,26 @@ export default function SituationCard({
   lang: Lang;
 }) {
   const { colors, isDark } = useApp();
-  const sc = severityColor(situation.severity);
+  const sc = severityColor(situation.severity, isDark);
   const today = situation.weather_today;
   const nextTide = situation.tide?.[0];
 
   return (
-    <View testID="situation-card" style={[styles.card, { backgroundColor: colors.surfaceGlass, borderColor: colors.borderGlass }]}>
+    <View
+      testID="situation-card"
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? "rgba(24, 28, 32, 0.88)" : "rgba(255, 255, 255, 0.95)",
+          borderColor: isDark ? "rgba(31, 166, 160, 0.28)" : "rgba(13, 148, 136, 0.16)",
+          shadowColor: sc.bg,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: isDark ? 0.3 : 0.08,
+          shadowRadius: 12,
+          elevation: 3,
+        },
+      ]}
+    >
       <View style={styles.topRow}>
         <Text style={[styles.title, { color: colors.muted }]}>{t("situationSummary", lang)}</Text>
         <View style={[styles.badge, { backgroundColor: sc.bg }]}>

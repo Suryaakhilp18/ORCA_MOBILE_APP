@@ -64,7 +64,27 @@ export default function RadarCard({
   const cardBg = isDark ? "#181C20" : "#FFFFFF";
 
   return (
-    <View testID="radar-card" style={[styles.card, { backgroundColor: cardBg, borderColor: colors.borderStrong }]}>
+    <View
+      testID="radar-card"
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? "rgba(24, 28, 32, 0.88)" : "rgba(255, 255, 255, 0.95)",
+          borderColor: isDark ? "rgba(31, 166, 160, 0.3)" : "rgba(13, 148, 136, 0.2)",
+          shadowColor: colors.brand,
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: isDark ? 0.25 : 0.08,
+          shadowRadius: 16,
+          elevation: 4,
+          ...(Platform.OS === "web"
+            ? {
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+              }
+            : {}),
+        },
+      ]}
+    >
       <View style={styles.header}>
         <View style={styles.sysRow}>
           <View style={[styles.dot, { backgroundColor: sc.bg }]} />

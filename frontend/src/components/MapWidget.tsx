@@ -632,8 +632,20 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
 
         // Draw Layers (Polygons, Boundaries, Route lines, Heatmap)
         (w.layers || []).forEach(function(l) {
-          if (l.type === 'route_line' && l.segments) {
-            l.segments.forEach(function(s) {
+          if (l.type === 'route_line') {
+            var rawSegments = l.segments || [];
+            if ((!rawSegments || rawSegments.length === 0) && l.coordinates && l.coordinates.length > 1) {
+              rawSegments = [];
+              for (var ci = 0; ci < l.coordinates.length - 1; ci++) {
+                var c1 = l.coordinates[ci];
+                var c2 = l.coordinates[ci + 1];
+                var pt1 = Array.isArray(c1) ? c1 : [c1.lon, c1.lat];
+                var pt2 = Array.isArray(c2) ? c2 : [c2.lon, c2.lat];
+                rawSegments.push({ a: pt1, b: pt2, unsafe: false });
+              }
+            }
+
+            rawSegments.forEach(function(s, idx) {
               if (!s.a || !s.b) return;
               var p1 = [s.a[1], s.a[0]];
               var p2 = [s.b[1], s.b[0]];
@@ -670,6 +682,22 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
                 opacity: 0.9,
                 dashArray: '6, 10'
               }).addTo(layerRoute);
+
+              // Directional Navigational Arrow along fairway polyline
+              var dLat = p2[0] - p1[0];
+              var dLon = p2[1] - p1[1];
+              var segDist = Math.sqrt(dLat * dLat + dLon * dLon);
+              if (segDist > 0.04 || idx % 2 === 0) {
+                var bearing = (Math.atan2(dLon, dLat) * 180 / Math.PI + 360) % 360;
+                var midPoint = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+                var arrowIcon = L.divIcon({
+                  className: 'route-directional-arrow',
+                  html: '<div style="transform: rotate(' + Math.round(bearing) + 'deg); color: #00F0FF; font-size: 14px; font-weight: 900; line-height: 1; text-shadow: 0 0 6px #000; pointer-events: none; user-select: none;">➤</div>',
+                  iconSize: [16, 16],
+                  iconAnchor: [8, 8]
+                });
+                L.marker(midPoint, { icon: arrowIcon, interactive: false }).addTo(layerRoute);
+              }
             });
           } else if ((l.type === 'boundary' || l.type === 'polygon') && (l.features || l.coordinates)) {
             // Geofence / Sanctuary / MPA polygon
@@ -722,10 +750,12 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
         });
 
         // Fit map bounds smoothly
-        if (hasBounds && (w.markers || []).length > 1) {
+        if (w.route_info && hasBounds) {
+          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+        } else if (hasBounds && (w.markers || []).length > 1) {
           map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
         } else {
-          map.setView([center.lat, center.lon], 10);
+          map.setView([center.lat, center.lon], 11);
         }
 
         // Expose global controller for iframe / native bridge (Module 2 & 6)

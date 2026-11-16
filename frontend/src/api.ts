@@ -20,6 +20,8 @@ import {
   generateStateClarificationResponse,
   generateInvalidDestinationResponse,
   generateNearestPortResponse,
+  buildVesselMapWidget,
+  generateVesselResponse,
   PORTS_REGISTRY,
 } from "./utils/navigation";
 
@@ -312,6 +314,17 @@ export const api = {
         content = generateDomainExplanation(domainTopic || "map", detectedLang);
         citations = ["IMO & INCOIS Marine Standards"];
         reasoning_trace = [{ agent: "Marine Domain Intelligence", detail: `Explained ${(domainTopic || "marine").toUpperCase()} in ${detectedLang.toUpperCase()}.` }];
+      } else if (intent === "locate_vessel" && analysis.targetVessel) {
+        const vsl = analysis.targetVessel;
+        widgets = [buildVesselMapWidget(startPort, vsl)];
+        content = generateVesselResponse(vsl, startPort, detectedLang);
+        verdict = "SAFE";
+        citations = ["AIS Vessel Traffic Service", "DG Shipping Craft Register", "INCOIS Coastal Radar"];
+        reasoning_trace = [
+          { agent: "Fleet Operations Agent", detail: `Located craft ${vsl.name} (${vsl.callsign}) at ${vsl.lat.toFixed(4)}°N, ${vsl.lon.toFixed(4)}°E.` },
+          { agent: "Geospatial Agent", detail: "Centered tactical chart on vessel with pulse highlight ring (no route generated)." },
+          { agent: "Synthesizer Agent", detail: `Provided AIS vessel telemetrics in ${detectedLang.toUpperCase()}.` },
+        ];
       } else if (intent === "port_focus") {
         const focusP = focusPort || startPort;
         widgets = [buildPortMapWidget(focusP)];

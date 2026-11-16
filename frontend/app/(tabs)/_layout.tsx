@@ -28,10 +28,10 @@ export default function TabsLayout() {
           height: Platform.OS === "web" ? 68 : 64 + insets.bottom,
           ...(Platform.OS === "web"
             ? {
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                boxShadow: isDark ? "0 -8px 24px rgba(0, 0, 0, 0.4)" : "0 -4px 20px rgba(0, 0, 0, 0.05)",
-              }
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              boxShadow: isDark ? "0 -8px 24px rgba(0, 0, 0, 0.4)" : "0 -4px 20px rgba(0, 0, 0, 0.05)",
+            }
             : {}),
         },
         tabBarItemStyle: { alignSelf: "center", paddingVertical: 2 },

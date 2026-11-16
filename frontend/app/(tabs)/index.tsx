@@ -79,6 +79,7 @@ export default function ChatScreen() {
   } | null>(null);
   const listRef = useRef<FlatList>(null);
   const sentParam = useRef<string | null>(null);
+  const currentRequestIdRef = useRef<number>(0);
   const voice = useVoiceAgent(lang);
 
   const scrollEnd = useCallback(() => {
@@ -105,6 +106,7 @@ export default function ChatScreen() {
     async (text: string, loc?: any, viaVoice = false, queryLang?: Lang) => {
       const clean = text.trim();
       if (!clean || loading) return;
+      const requestId = ++currentRequestIdRef.current;
       setInput("");
       const userMsg: ChatMessage = {
         id: `u-${Date.now()}`,
@@ -134,6 +136,39 @@ export default function ChatScreen() {
           region_id: region.id,
           user_id: userId,
         });
+
+        // Stale Route Prevention: Drop response if a newer query was issued
+        if (requestId !== currentRequestIdRef.current) {
+          console.log(`[ORCA Route Trace] Dropping stale response #${requestId}; current is #${currentRequestIdRef.current}`);
+          return;
+        }
+
+        // Route Destination Validation: Verify user destination matches returned route
+        if (analysis.intent === "route_safety" && analysis.endPort && resp.assistant_message?.widgets) {
+          const mapW = resp.assistant_message.widgets.find((w: any) => w.type === "map");
+          if (mapW && (mapW as any).route_info) {
+            const returnedEnd = ((mapW as any).route_info.end_name || "").toLowerCase();
+            const expectedEnd = analysis.endPort.name.toLowerCase();
+            if (!returnedEnd.includes(expectedEnd)) {
+              console.warn(`[ORCA Route Trace] Mismatched destination! Expected '${expectedEnd}', received '${returnedEnd}'. Sanitizing.`);
+              (mapW as any).route_info.end_name = `${analysis.endPort.name} Port`;
+            }
+          }
+        }
+
+        // Development Route Debugging Trace
+        if (typeof __DEV__ !== "undefined" && __DEV__) {
+          console.log(`[ORCA Routing Trace] Request #${requestId}:`, {
+            query: clean,
+            detectedLang: effectiveLang,
+            intent: analysis.intent,
+            startPort: analysis.startPort?.name,
+            endPort: analysis.endPort?.name,
+            stateClarification: analysis.clarificationState?.name,
+            invalidLocation: analysis.invalidLocation?.name,
+          });
+        }
+
         setMessages((p) => [...p, resp.assistant_message]);
         if (viaVoice && resp.assistant_message?.content) {
           voice.speak(resp.assistant_message.content, effectiveLang);

@@ -308,6 +308,55 @@ def _find_coastal_port(text: str) -> dict | None:
                 return COASTAL_PORTS[port_key]
     return None
 
+
+COASTAL_STATES = {
+    "gujarat": {
+        "name": "Gujarat",
+        "ports": ["Veraval", "Porbandar", "Kandla", "Okha"],
+        "aliases": ["gujarat", "gujrat", "ગુજરાત", "గుజరాత్", "गुजरात"]
+    },
+    "maharashtra": {
+        "name": "Maharashtra",
+        "ports": ["Mumbai", "Ratnagiri", "Malvan"],
+        "aliases": ["maharashtra", "महाराष्ट्र", "మహారాష్ట్ర", "மகாராஷ்டிரா"]
+    },
+    "goa": {
+        "name": "Goa",
+        "ports": ["Mormugao"],
+        "aliases": ["goa", "गोवा", "గోవా"]
+    },
+    "karnataka": {
+        "name": "Karnataka",
+        "ports": ["Mangalore", "Karwar"],
+        "aliases": ["karnataka", "कर्नाटक", "కర్ణాటಕ"]
+    },
+    "kerala": {
+        "name": "Kerala",
+        "ports": ["Kochi", "Kozhikode", "Vizhinjam"],
+        "aliases": ["kerala", "केरल", "కేరళ"]
+    },
+    "tamil nadu": {
+        "name": "Tamil Nadu",
+        "ports": ["Chennai", "Tuticorin", "Rameswaram", "Kanyakumari"],
+        "aliases": ["tamil nadu", "tamilnadu", "तमिलनाडु", "తమిళనాడు", "தமிழ்நாடு"]
+    },
+    "andhra pradesh": {
+        "name": "Andhra Pradesh",
+        "ports": ["Visakhapatnam", "Kakinada", "Machilipatnam"],
+        "aliases": ["andhra pradesh", "andhra", "ఆంధ్రప్రదేశ్", "ఆంధ్ర", "आंध्र प्रदेश"]
+    },
+    "odisha": {
+        "name": "Odisha",
+        "ports": ["Paradip", "Gopalpur", "Puri"],
+        "aliases": ["odisha", "orissa", "ओडिशा", "ఒడిశా"]
+    },
+    "west bengal": {
+        "name": "West Bengal",
+        "ports": ["Digha", "Sundarbans"],
+        "aliases": ["west bengal", "bengal", "पश्चिम बंगाल", "పశ్చిమ బెంగాల్"]
+    },
+}
+
 def _classify_place(candidate: str) -> tuple[str, any]:
     if not candidate:
         return "none", None
@@ -317,6 +366,9 @@ def _classify_place(candidate: str) -> tuple[str, any]:
     port = _find_coastal_port(clean)
     if port:
         return "coastal", port
+    for s_key, s_data in COASTAL_STATES.items():
+        if clean == s_key or clean in s_data["aliases"]:
+            return "coastal_state", s_data
     if clean in INLAND_CITIES or any(c in clean for c in ["delhi", "hyderabad", "bengaluru", "bangalore", "pune", "jaipur", "lucknow"]):
         return "inland", clean
     return "unrecognized", clean
@@ -326,6 +378,25 @@ def _build_invalid_location_message(inv: dict, lang: str = "en") -> str:
     name = inv.get("name", "specified location")
     pos = inv.get("position")
     name_display = name.title()
+
+    if kind == "state":
+        ports_list = inv.get("ports", ["Veraval", "Porbandar", "Kandla", "Okha"])
+        ports_str = "\n".join(f"• **{p} Port**" for p in ports_list)
+        if lang == "te":
+            return (f"🧭 **ప్రాంతీయ గమ్యస్థాన స్పష్టీకరణ: {name_display} తీరప్రాంతం**\n\n"
+                    f"**{name_display}** అనేది విస్తారమైన తీరప్రాంతాన్ని కలిగి ఉన్న ఒక రాష్ట్రం. ఖచ్చితమైన నావిగేషన్ మార్గం కోసం, దయచేసి మీరు చేరుకోవాలనుకుంటున్న నిర్దిష్ట ఓడరేవును పేర్కొనండి:\n\n"
+                    f"{ports_str}\n\n"
+                    f"💡 దయచేసి మీ నిర్దిష్ట గమ్యస్థాన పోర్టును పేర్కొనండి (ఉదాహరణకు: 'Route from Kakinada to {ports_list[0]}').")
+        elif lang == "hi":
+            return (f"🧭 **क्षेत्रीय गंतव्य स्पष्टीकरण: {name_display} तटीय क्षेत्र**\n\n"
+                    f"**{name_display}** एक विस्तृत तटीय राज्य है जिसमें कई अलग-अलग समुद्री बंदरगाह हैं। सटीक समुद्री मार्ग की गणना करने के लिए, कृपया अपने आगमन का विशिष्ट बंदरगाह चुनें:\n\n"
+                    f"{ports_str}\n\n"
+                    f"💡 कृपया अपने विशिष्ट बंदरगाह का नाम बताएं (जैसे: 'Route from Kakinada to {ports_list[0]}')।")
+        else:
+            return (f"🧭 **Regional Destination Clarification: {name_display} Coastal Sector**\n\n"
+                    f"**{name_display}** spans an extensive coastal boundary with multiple distinct maritime ports. To calculate an exact seaward route, please specify your intended port of arrival:\n\n"
+                    f"{ports_str}\n\n"
+                    f"💡 **Skipper Advice:** Reply with your specific arrival port (e.g. 'Route from Kakinada to {ports_list[0]}') to compute verified seaward waypoints, compass bearing, and cruising ETA.")
 
     if kind == "inland":
         if pos == "start":
@@ -494,7 +565,12 @@ def _extract_ports_and_route(m: str, region_hint: dict | None = None) -> tuple[d
 
         if cls_start == "coastal" and cls_end == "coastal":
             return obj_start, obj_end, "multi_port", None
-        
+
+        if cls_end == "coastal_state":
+            return obj_start, None, "invalid_route_location", {"kind": "state", "name": obj_end["name"], "ports": obj_end["ports"], "position": "end"}
+        if cls_start == "coastal_state":
+            return None, None, "invalid_route_location", {"kind": "state", "name": obj_start["name"], "ports": obj_start["ports"], "position": "start"}
+
         # Check if one or both are inland or unrecognized
         if cls_start in ("inland", "unrecognized"):
             return None, None, "invalid_route_location", {"kind": cls_start, "name": raw_start, "position": "start"}
@@ -509,8 +585,26 @@ def _extract_ports_and_route(m: str, region_hint: dict | None = None) -> tuple[d
         cls_dest, obj_dest = _classify_place(cand)
         if cls_dest == "coastal":
             return None, obj_dest, "single_port", None
+        elif cls_dest == "coastal_state":
+            return None, None, "invalid_route_location", {"kind": "state", "name": obj_dest["name"], "ports": obj_dest["ports"], "position": "end"}
         elif cls_dest in ("inland", "unrecognized"):
             return None, None, "invalid_route_location", {"kind": cls_dest, "name": cand, "position": "end"}
+
+    # Check nearest port request
+    if re.search(r"\b(nearest\s+port|closest\s+port)\b", m, re.IGNORECASE):
+        reg_id = (region_hint.get("id") if region_hint else None) or "kakinada"
+        start_pt = COASTAL_PORTS.get(reg_id) or COASTAL_PORTS.get("kakinada")
+        min_d = float('inf')
+        closest_p = None
+        for pk, pdata in COASTAL_PORTS.items():
+            if pdata["name"] == start_pt["name"]:
+                continue
+            d = spatial.haversine(start_pt["lat"], start_pt["lon"], pdata["lat"], pdata["lon"])
+            if d < min_d:
+                min_d = d
+                closest_p = pdata
+        if closest_p:
+            return start_pt, closest_p, "multi_port", None
 
     # 3. Find known coastal ports mentioned anywhere in text
     matches = []

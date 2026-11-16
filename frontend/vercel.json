@@ -1,11 +1,16 @@
 {
+  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/api/voice/speak",
       "destination": "/api/speak"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/((?!_expo|assets|api|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

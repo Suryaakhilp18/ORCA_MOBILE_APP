@@ -86,7 +86,7 @@ class AlertsErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySta
 }
 
 
-export default function AlertsScreen() {
+function AlertsContent() {
   const { lang, userId, region, colors, isDark, toggleTheme } = useApp();
   const insets = useSafeAreaInsets();
   
@@ -179,8 +179,7 @@ export default function AlertsScreen() {
   const regState = region?.state || "Andhra Pradesh";
 
   return (
-    <AlertsErrorBoundary fallbackColors={colors} isDark={isDark} onReset={load}>
-      <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets?.top || 0 }]}>
+    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets?.top || 0 }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderBottomColor: sc.bg }]}>
         <View>
@@ -331,7 +330,15 @@ export default function AlertsScreen() {
           </View>
         </ScrollView>
       )}
-      </View>
+    </View>
+  );
+}
+
+export default function AlertsScreen() {
+  const { colors, isDark } = useApp();
+  return (
+    <AlertsErrorBoundary fallbackColors={colors} isDark={isDark}>
+      <AlertsContent />
     </AlertsErrorBoundary>
   );
 }

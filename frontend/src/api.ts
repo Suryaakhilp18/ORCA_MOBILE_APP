@@ -17,6 +17,9 @@ import {
   generateFishingSafetyResponse,
   buildPfzRouteMapWidget,
   generatePfzRouteResponse,
+  generateStateClarificationResponse,
+  generateInvalidDestinationResponse,
+  generateNearestPortResponse,
   PORTS_REGISTRY,
 } from "./utils/navigation";
 
@@ -238,7 +241,16 @@ export const api = {
 
       // 1. Analyze query language, ports, and navigational intent
       const analysis = detectQueryLanguageAndIntent(userQuery, currentLang, regId);
-      const { detectedLang, intent, startPort, endPort, domainTopic, focusPort } = analysis;
+      const {
+        detectedLang,
+        intent,
+        startPort,
+        endPort,
+        clarificationState,
+        invalidLocation,
+        domainTopic,
+        focusPort,
+      } = analysis;
 
       let content = "";
       let verdict: string | null = "SAFE";
@@ -313,6 +325,34 @@ export const api = {
         verdict = "SAFE";
         citations = ["Port Authority Coastal Registry", "IMD Marine Services"];
         reasoning_trace = [{ agent: "Port Intelligence Agent", detail: `Focused tactical map on ${focusP.name}.` }];
+      } else if (intent === "state_clarification" && clarificationState) {
+        content = generateStateClarificationResponse(startPort, clarificationState, detectedLang);
+        verdict = null;
+        widgets = [];
+        citations = ["State Maritime Boards", "Indian Major Ports Authority", "DG Shipping Coastal Directory"];
+        reasoning_trace = [
+          { agent: "Planner Agent", detail: `Identified destination '${clarificationState.name}' as a coastal state with multiple ports.` },
+          { agent: "Navigation Agent", detail: `Requested specific arrival port clarification from ${startPort.name} with certified port options.` },
+        ];
+      } else if (intent === "invalid_destination" && invalidLocation) {
+        content = generateInvalidDestinationResponse(invalidLocation, startPort, detectedLang);
+        verdict = null;
+        widgets = [];
+        citations = ["National Hydrographic Office", "Port Authority Coastal Registry"];
+        reasoning_trace = [
+          { agent: "Planner Agent", detail: `Handled ${invalidLocation.kind} destination '${invalidLocation.name}'.` },
+          { agent: "Geospatial Agent", detail: "Flagged non-coastal destination without defaulting to arbitrary ports." },
+        ];
+      } else if (intent === "nearest_port" && endPort) {
+        const mapWidget = buildRouteMapWidget(startPort, endPort);
+        widgets = [mapWidget];
+        content = generateNearestPortResponse(startPort, endPort, detectedLang);
+        verdict = "SAFE";
+        citations = ["INCOIS Ocean State Services", "National Hydrographic Office Fairway Scheme"];
+        reasoning_trace = [
+          { agent: "Spatial Analytics Agent", detail: `Calculated nearest operational seaport to ${startPort.name}: ${endPort.name} Port.` },
+          { agent: "Navigation Agent", detail: `Plotted collision-free fairway route to ${endPort.name} (${mapWidget.route_info?.distance_nm} NM).` },
+        ];
       } else if (intent === "route_safety" && endPort) {
         const mapWidget = buildRouteMapWidget(startPort, endPort);
         widgets = [mapWidget];

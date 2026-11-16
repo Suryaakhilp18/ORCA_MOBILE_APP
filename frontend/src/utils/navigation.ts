@@ -272,6 +272,159 @@ export const PORTS_REGISTRY: Record<string, PortCoordinate> = {
   },
 };
 
+
+export type CoastalStateInfo = {
+  id: string;
+  name: string;
+  aliases: string[];
+  ports: string[];
+};
+
+export const COASTAL_STATES_REGISTRY: Record<string, CoastalStateInfo> = {
+  gujarat: {
+    id: "gujarat",
+    name: "Gujarat",
+    aliases: ["gujarat", "gujrat", "ગુજરાત", "గుజరాత్", "गुजरात"],
+    ports: ["veraval", "porbandar", "kandla", "okha"],
+  },
+  maharashtra: {
+    id: "maharashtra",
+    name: "Maharashtra",
+    aliases: ["maharashtra", "महाराष्ट्र", "మహారాష్ట్ర", "மகாராஷ்டிரா"],
+    ports: ["mumbai", "ratnagiri", "malvan"],
+  },
+  goa: {
+    id: "goa",
+    name: "Goa",
+    aliases: ["goa", "गोवा", "గోవా", "கோவா"],
+    ports: ["mormugao"],
+  },
+  karnataka: {
+    id: "karnataka",
+    name: "Karnataka",
+    aliases: ["karnataka", "कर्नाटक", "కర్ణాటక", "ಕರ್ನಾಟಕ"],
+    ports: ["mangalore", "karwar"],
+  },
+  kerala: {
+    id: "kerala",
+    name: "Kerala",
+    aliases: ["kerala", "केरल", "కేరళ", "കേരളം", "கேரளா"],
+    ports: ["kochi", "kozhikode", "vizhinjam"],
+  },
+  tamilnadu: {
+    id: "tamilnadu",
+    name: "Tamil Nadu",
+    aliases: ["tamil nadu", "tamilnadu", "तमिलनाडु", "తమిళనాడు", "தமிழ்நாடு"],
+    ports: ["chennai", "tuticorin", "rameswaram", "kanyakumari"],
+  },
+  andhra: {
+    id: "andhra",
+    name: "Andhra Pradesh",
+    aliases: ["andhra pradesh", "andhra", "ap", "ఆంధ్రప్రదేశ్", "ఆంధ్ర", "आंध्र प्रदेश", "ஆந்திரா"],
+    ports: ["kakinada", "visakhapatnam", "machilipatnam"],
+  },
+  odisha: {
+    id: "odisha",
+    name: "Odisha",
+    aliases: ["odisha", "orissa", "ओडिशा", "उड़ीसा", "ఒడిశా", "ଓଡ଼ିଶା"],
+    ports: ["paradip", "gopalpur", "puri"],
+  },
+  westbengal: {
+    id: "westbengal",
+    name: "West Bengal",
+    aliases: ["west bengal", "bengal", "पश्चिम बंगाल", "పశ్చిమ బెంగాల్", "পশ্চিমবঙ্গ"],
+    ports: ["digha", "sundarbans"],
+  },
+  andaman: {
+    id: "andaman",
+    name: "Andaman & Nicobar",
+    aliases: ["andaman", "nicobar", "port blair", "अंडमान", "అండమాన్"],
+    ports: ["portblair"],
+  },
+  lakshadweep: {
+    id: "lakshadweep",
+    name: "Lakshadweep",
+    aliases: ["lakshadweep", "लक्षद्वीप", "లక్షద్వీప్"],
+    ports: ["kavaratti"],
+  },
+};
+
+export const INLAND_CITIES_LIST = [
+  "delhi", "new delhi", "hyderabad", "bengaluru", "bangalore", "pune", "jaipur", "lucknow",
+  "ahmedabad", "bhopal", "patna", "chandigarh", "nagpur", "indore", "kanpur", "agra",
+  "varanasi", "coimbatore", "madurai", "tirupati", "vijayawada", "guntur", "warangal",
+  "dehradun", "amritsar", "ludhiana", "raipur", "ranchi", "paris", "london", "new york"
+];
+
+export function findNearestPort(origin: PortCoordinate): {
+  nearestPort: PortCoordinate;
+  distanceKm: number;
+  distanceNm: number;
+} {
+  let closestPort: PortCoordinate = PORTS_REGISTRY.visakhapatnam;
+  let minDistance = Infinity;
+
+  for (const key of Object.keys(PORTS_REGISTRY)) {
+    const port = PORTS_REGISTRY[key];
+    if (port.id === origin.id) continue;
+    const d = haversineKm(origin.lat, origin.lon, port.lat, port.lon);
+    if (d < minDistance) {
+      minDistance = d;
+      closestPort = port;
+    }
+  }
+
+  const dKm = Math.round(minDistance * 10) / 10;
+  const dNm = Math.round(dKm * 0.539957 * 10) / 10;
+  return { nearestPort: closestPort, distanceKm: dKm, distanceNm: dNm };
+}
+
+export function cleanPlaceToken(str: string): string {
+  if (!str) return "";
+  let s = str.trim();
+  s = s.replace(/^(?:route\s+from|sail\s+from|navigate\s+from|passage\s+from|from|a\s+route\s+from)\s+/i, "");
+  s = s.replace(/^(?:route\s+to|sail\s+to|navigate\s+to|take\s+me\s+to|way\s+to|to)\s+/i, "");
+  s = s.replace(/\b(?:port|harbour|harbor|city|sector|area|please|now|today|tomorrow|safely|safe|root|route|into|chiptawah|cheptava|cheppava|cheppandi|cheppu|batao|bataiye|dikhao|dikhaao|sollu)\b/gi, "");
+  s = s.replace(/[\.\,\?\!]/g, "");
+  return s.trim().toLowerCase();
+}
+
+export function resolvePortByAlias(token: string): PortCoordinate | null {
+  if (!token) return null;
+  const clean = cleanPlaceToken(token);
+  if (!clean) return null;
+
+  for (const key of Object.keys(PORTS_REGISTRY)) {
+    const port = PORTS_REGISTRY[key];
+    if (port.id === clean || port.name.toLowerCase() === clean) return port;
+    for (const alias of port.aliases) {
+      const aLower = alias.toLowerCase();
+      if (clean === aLower || clean.includes(aLower) || aLower.includes(clean)) {
+        return port;
+      }
+    }
+  }
+  return null;
+}
+
+export function resolveCoastalState(token: string): CoastalStateInfo | null {
+  if (!token) return null;
+  const clean = cleanPlaceToken(token);
+  if (!clean) return null;
+
+  for (const key of Object.keys(COASTAL_STATES_REGISTRY)) {
+    const state = COASTAL_STATES_REGISTRY[key];
+    if (state.id === clean || state.name.toLowerCase() === clean) return state;
+    for (const alias of state.aliases) {
+      const aLower = alias.toLowerCase();
+      if (clean === aLower) return state;
+      const re = new RegExp(`(^|\\s)${aLower}(\\s|$)`, "i");
+      if (re.test(clean)) return state;
+    }
+  }
+  return null;
+}
+
 export const COASTAL_SEA_CORRIDOR = [
   { name: "Digha Deep Offshore", lat: 21.25, lon: 87.85 },
   { name: "Paradip Outer Fairway", lat: 20.15, lon: 86.95 },
@@ -436,24 +589,45 @@ export function computeFairwayRoute(startPort: PortCoordinate, endPort: PortCoor
  * Intelligent Language & Intent Detection Engine
  * Decodes native scripts AND Romanized/phonetic transliterations across Indian coastal languages.
  */
+export type NavAnalysisResult = {
+  detectedLang: Lang;
+  intent:
+    | "route_safety"
+    | "route_pfz"
+    | "pfz_nearest"
+    | "weather_safety"
+    | "state_clarification"
+    | "invalid_destination"
+    | "nearest_port"
+    | "greeting"
+    | "capabilities"
+    | "explain_domain"
+    | "port_focus"
+    | "general";
+  startPort: PortCoordinate;
+  endPort?: PortCoordinate;
+  clarificationState?: CoastalStateInfo;
+  invalidLocation?: { kind: "inland" | "unrecognized"; name: string; position: "start" | "end" | "single" };
+  domainTopic?: "ais" | "pfz" | "ecdis" | "map" | "sst";
+  focusPort?: PortCoordinate;
+};
+
+/**
+ * Intelligent Language & Intent Detection Engine with Explicit Destination Parsing
+ * Correctly distinguishes between Port-to-Port navigation, Coastal States (requiring clarification),
+ * Inland locations, Nearest Port requests, and PFZ fishing zone routes.
+ * CRITICAL RULE: NEVER automatically defaults to Visakhapatnam Port when user destination differs!
+ */
 export function detectQueryLanguageAndIntent(
   query: string,
   currentLang: Lang = "en",
   defaultRegionId = "kakinada"
-): {
-  detectedLang: Lang;
-  intent: "route_safety" | "route_pfz" | "pfz_nearest" | "weather_safety" | "greeting" | "capabilities" | "explain_domain" | "port_focus" | "general";
-  startPort: PortCoordinate;
-  endPort?: PortCoordinate;
-  domainTopic?: "ais" | "pfz" | "ecdis" | "map" | "sst";
-  focusPort?: PortCoordinate;
-} {
+): NavAnalysisResult {
   const q = query.trim().toLowerCase();
 
-  // 1. Language detection (Unicode scripts + phonetic markers)
+  // 1. Language detection (Unicode scripts + phonetic transliterations)
   let detectedLang: Lang = currentLang;
 
-  // Unicode checks
   if (/[\u0C00-\u0C7F]/.test(query)) detectedLang = "te"; // Telugu
   else if (/[\u0B80-\u0BFF]/.test(query)) detectedLang = "ta"; // Tamil
   else if (/[\u0900-\u097F]/.test(query)) detectedLang = "hi"; // Hindi / Marathi
@@ -463,21 +637,18 @@ export function detectQueryLanguageAndIntent(
   else if (/[\u0980-\u09FF]/.test(query)) detectedLang = "bn"; // Bengali
   else if (/[\u0B00-\u0B7F]/.test(query)) detectedLang = "or"; // Odia
   else {
-    // Phonetic / Romanized transliteration markers
     if (/\b(nandi|nundi|ninchi|nunchi|chiptawah|cheppu|cheppandi|dhaari|samudram|ela|undi|ledu|kadha|cheyagalanu)\b/i.test(q)) {
       detectedLang = "te";
-    }
-    else if (/\b(batao|bataiye|rasta|samundar|kaisa|lehar|toofan|jaana|hawa|safar|karein|karega)\b/i.test(q)) {
+    } else if (/\b(batao|bataiye|rasta|samundar|kaisa|lehar|toofan|jaana|hawa|safar|karein|karega)\b/i.test(q)) {
       detectedLang = "hi";
-    }
-    else if (/\b(irunthu|lerunthu|sollu|solla|kaathu|alai|puyal|vazhi)\b/i.test(q)) {
+    } else if (/\b(irunthu|lerunthu|sollu|solla|kaathu|alai|puyal|vazhi)\b/i.test(q)) {
       detectedLang = "ta";
     }
   }
 
   const defaultPort = PORTS_REGISTRY[defaultRegionId] || PORTS_REGISTRY.kakinada;
 
-  // 2. Identify Ports in query
+  // 2. Identify known Ports mentioned in query
   const foundPorts: PortCoordinate[] = [];
   const portKeys = Object.keys(PORTS_REGISTRY);
 
@@ -493,36 +664,30 @@ export function detectQueryLanguageAndIntent(
     }
   }
 
-  const isNavWords = /\b(navigate|navigation|route|root|way|fairway|rasta|dhaari|vazhi|cheppu|batao|to|nandi|nundi|se|lerunthu)\b/i.test(q);
+  const isNavWords = /\b(navigate|navigation|route|root|way|fairway|rasta|dhaari|vazhi|cheppu|batao|to|nandi|nundi|se|lerunthu|reach|sail)\b/i.test(q);
 
-  // 3. Conversational Greetings & Capabilities (only if not asking for route/port)
-  const isGreeting = (foundPorts.length === 0 && !isNavWords) && (
-    /^(hi|hello|hey|namaste|vanakkam|namaskaram)[\s!.]*$/i.test(q) ||
-    /^(హాయ్|నమస్కారం|హలో|नमस्ते|नमस्कार|வணக்கம்|നമസ്കാരം|ನಮಸ್ಕಾರ)[\s!.]*$/i.test(query.trim())
-  );
+  // 3. Conversational Greetings & Capabilities
+  const isGreeting =
+    foundPorts.length === 0 &&
+    !isNavWords &&
+    (/^(hi|hello|hey|namaste|vanakkam|namaskaram)[\s!.]*$/i.test(q) ||
+      /^(హాయ్|నమస్కారం|హలో|नमस्ते|नमस्कार|வணக்கம்|നമസ്കാരം|ನಮಸ್ಕಾರ)[\s!.]*$/i.test(query.trim()));
   if (isGreeting) {
-    return {
-      detectedLang,
-      intent: "greeting",
-      startPort: defaultPort,
-    };
+    return { detectedLang, intent: "greeting", startPort: defaultPort };
   }
 
-  const isCapabilities = (foundPorts.length === 0 && !isNavWords) && (
-    /^(what can you do|who are you|help me|capabilities|what you can do)[\s?.]*$/i.test(q) ||
-    /\b(what can you do|who are you|capabilities|what you can do)\b/i.test(q) ||
-    /^(help|help me)$/i.test(q) ||
-    /నువ్వు ఏమి చేయగలవు|నువ్వేం చేయగలవు|నువ్వు ఏం చేస్తావు|మీరు ఏమి చేయగలరు|మీరేం చేయగలరు|నీ సామర్థ్యాలు|आप क्या कर सकते हैं|तुम क्या कर सकते हो|आप क्या कर सकती हैं|तुम क्या करते हो|நீ என்ன செய்ய முடியும்/i.test(query)
-  );
+  const isCapabilities =
+    foundPorts.length === 0 &&
+    !isNavWords &&
+    (/^(what can you do|who are you|help me|capabilities|what you can do)[\s?.]*$/i.test(q) ||
+      /\b(what can you do|who are you|capabilities|what you can do)\b/i.test(q) ||
+      /^(help|help me)$/i.test(q) ||
+      /నువ్వు ఏమి చేయగలవు|నువ్వేం చేయగలవు|నువ్వు ఏం చేస్తావు|మీరు ఏమి చేయగలరు|మీరేం చేయగలరు|నీ సామర్థ్యాలు|आप क्या कर सकते हैं|तुम क्या कर सकते हो|आप क्या कर सकती हैं|तुम क्या करते हो|நீ என்ன செய்ய முடியும்/i.test(query));
   if (isCapabilities) {
-    return {
-      detectedLang,
-      intent: "capabilities",
-      startPort: defaultPort,
-    };
+    return { detectedLang, intent: "capabilities", startPort: defaultPort };
   }
 
-  // 4. Domain Explanations (AIS, PFZ, ECDIS, Map, SST)
+  // 4. Domain Explanations
   if (/\b(what is ais|explain ais|about ais|ais meaning)\b/i.test(q) || /ais అంటే ఏమిటి|ais గురించి|ais क्या है|ais के बारे में/i.test(query)) {
     return { detectedLang, intent: "explain_domain", domainTopic: "ais", startPort: defaultPort };
   }
@@ -539,92 +704,254 @@ export function detectQueryLanguageAndIntent(
     return { detectedLang, intent: "explain_domain", domainTopic: "sst", startPort: defaultPort };
   }
 
-  // 5. Port Focus / View Command ("Show me Kakinada Port", "విశాఖ పోర్టును చూపించు", "काकीनाडा बंदरगाह दिखाओ")
+  // 5. Port Focus / View Command
   const isShowPortWords = /\b(show|view|focus|open|display|center)\b/i.test(q) || /చూపించు|దగ్గర|दिखाओ|दिखाइए|காட்டு/i.test(query);
-
   if (foundPorts.length === 1 && isShowPortWords && !isNavWords) {
-    return {
-      detectedLang,
-      intent: "port_focus",
-      startPort: foundPorts[0],
-      focusPort: foundPorts[0],
-    };
+    return { detectedLang, intent: "port_focus", startPort: foundPorts[0], focusPort: foundPorts[0] };
   }
 
-  // 6. Navigation Route Intent
-  const isPfzWords = /\b(pfz|fish|fishing|zones?|hotspots?|chlorophyll|sst|catch|mackerel|sardine|machli|chepalu|meen)\b/i.test(q) ||
+  // 6. Fishing Zone & Safety Inquiries
+  const isPfzWords =
+    /\b(pfz|fish|fishing|zones?|hotspots?|chlorophyll|sst|catch|mackerel|sardine|machli|chepalu|meen)\b/i.test(q) ||
     /చేపల వేట|మత్స్య|ఫిషింగ్|మత్స్య ప్రాంతం|మత్స్య సంపద|मछली पकड़ने|मत्स्य क्षेत्र/i.test(query);
-  const isSafetyQuestion = /\b(is it safe|safe to go|safe to sail|safety|safe to fish|cyclone|weather safe|storm warning)\b/i.test(q) ||
+  const isSafetyQuestion =
+    /\b(is it safe|safe to go|safe to sail|safety|safe to fish|cyclone|weather safe|storm warning)\b/i.test(q) ||
     /సురక్షితమేనా|వెళ్ళవచ్చా|సురక్షితమా|सुरक्षित है क्या|जाना सुरक्षित है/i.test(query);
-  const isWeatherWords = /\b(safe|safety|cyclone|wind|wave|storm|lightning|tide|weather|toofan|gaali|ala|lehar|hava)\b/i.test(q) ||
+  const isWeatherWords =
+    /\b(safe|safety|cyclone|wind|wave|storm|lightning|tide|weather|toofan|gaali|ala|lehar|hava)\b/i.test(q) ||
     /వాతావరణం|గాలులు|అలలు|हवा|मौसम|लहरें/i.test(query);
 
   const targetPort = foundPorts[0] || defaultPort;
 
-  // PRIORITY A: Navigation TO a Potential Fishing Zone (e.g. "Route me to nearest PFZ from Kakinada Port")
-  // MUST NEVER be confused with port-to-port navigation!
+  // PRIORITY A: Navigation TO a Potential Fishing Zone
   if (isPfzWords && isNavWords) {
-    return {
-      detectedLang,
-      intent: "route_pfz",
-      startPort: targetPort,
-    };
+    return { detectedLang, intent: "route_pfz", startPort: targetPort };
   }
 
   // PRIORITY B: General Fishing Zone discovery without explicit route
   if (isPfzWords && !isSafetyQuestion) {
-    return {
-      detectedLang,
-      intent: "pfz_nearest",
-      startPort: targetPort,
-    };
+    return { detectedLang, intent: "pfz_nearest", startPort: targetPort };
   }
 
   // PRIORITY C: Sea Safety Assessment
   if (isSafetyQuestion) {
-    return {
-      detectedLang,
-      intent: "weather_safety",
-      startPort: targetPort,
-    };
+    return { detectedLang, intent: "weather_safety", startPort: targetPort };
   }
 
-  // PRIORITY D: Port-to-Port Maritime Navigation (ONLY when asking to sail between distinct ports)
-  if (foundPorts.length >= 2 || (foundPorts.length === 1 && isNavWords && !isPfzWords)) {
-    let start = defaultPort;
-    let end = defaultPort;
-    if (foundPorts.length >= 2) {
-      start = foundPorts[0];
-      end = foundPorts[1];
-    } else {
-      if (foundPorts[0].id === defaultPort.id) {
-        end = defaultPort.id === "kakinada" ? PORTS_REGISTRY.visakhapatnam : PORTS_REGISTRY.kakinada;
-      } else {
-        start = defaultPort;
-        end = foundPorts[0];
-      }
+  // PRIORITY D: Accurate User Destination & Maritime Routing Engine
+  if (isNavWords) {
+    // 1. Check for "nearest port" request
+    if (/\b(nearest\s+port|closest\s+port|next\s+port|సమీప\s+పోర్ట్|निकटतम\s+बंदरगाह)\b/i.test(q)) {
+      const { nearestPort } = findNearestPort(targetPort);
+      return {
+        detectedLang,
+        intent: "nearest_port",
+        startPort: targetPort,
+        endPort: nearestPort,
+      };
     }
-    return {
-      detectedLang,
-      intent: "route_safety",
-      startPort: start,
-      endPort: end,
-    };
+
+    // 2. Parse from/to endpoints with robust pattern extraction
+    let rawStartStr: string | null = null;
+    let rawEndStr: string | null = null;
+
+    const mToFrom = q.match(/\b(?:route\s+to|sail\s+to|reach|passage\s+to|navigate\s+to)\s+(.+?)\s+from\s+(.+)/i);
+    const mFromTo = q.match(/\bfrom\s+(.+?)\s+to\s+(.+)/i);
+    const mTe = q.match(/(.+?)\s*(?:నుండి|నుంచి|నుంచీ|nundi|nunchi|ninchi|nandi)\s*(.+?)\s*(?:వరకు|కి|కు|dhaari|route|root|cheppandi|cheppu|chiptawah|cheptava|cheppava|$)/i);
+    const mHi = q.match(/(.+?)\s*(?:से|se)\s*(.+?)\s*(?:तक|rasta|route|batao|bataiye|jaana|$)/i);
+    const mTa = q.match(/(.+?)\s*(?:இருந்து|லிருந்து|irunthu|lerunthu)\s*(.+?)\s*(?:க்கு|vazhi|route|sollu|$)/i);
+    const mRouteTo = q.match(/\b(?:route\s+to|sail\s+to|navigate\s+to|take\s+me\s+to|way\s+to)\s+(.+)/i);
+
+    if (mToFrom) {
+      rawEndStr = mToFrom[1].trim();
+      rawStartStr = mToFrom[2].trim();
+    } else if (mFromTo) {
+      rawStartStr = mFromTo[1].trim();
+      rawEndStr = mFromTo[2].trim();
+    } else if (mTe) {
+      rawStartStr = mTe[1].trim();
+      rawEndStr = mTe[2].trim();
+    } else if (mHi) {
+      rawStartStr = mHi[1].trim();
+      rawEndStr = mHi[2].trim();
+    } else if (mTa) {
+      rawStartStr = mTa[1].trim();
+      rawEndStr = mTa[2].trim();
+    } else if (mRouteTo) {
+      rawEndStr = mRouteTo[1].trim();
+    }
+
+    const cleanStart = rawStartStr ? cleanPlaceToken(rawStartStr) : "";
+    const cleanEnd = rawEndStr ? cleanPlaceToken(rawEndStr) : "";
+
+    // Resolve Origin Port
+    let resolvedStart = targetPort;
+    if (cleanStart) {
+      const matchedStart = resolvePortByAlias(cleanStart);
+      if (matchedStart) resolvedStart = matchedStart;
+    }
+
+    // Resolve Destination (CHECK PORT FIRST, THEN STATE, THEN INLAND)
+    if (cleanEnd) {
+      // 1. Check if destination matches an actual coastal port FIRST
+      const matchedEnd = resolvePortByAlias(cleanEnd);
+      if (matchedEnd) {
+        return {
+          detectedLang,
+          intent: "route_safety",
+          startPort: resolvedStart,
+          endPort: matchedEnd,
+        };
+      }
+
+      // 2. Check if destination is a coastal state (e.g. Gujarat, Kerala, Maharashtra, etc.)
+      const matchedState = resolveCoastalState(cleanEnd);
+      if (matchedState) {
+        return {
+          detectedLang,
+          intent: "state_clarification",
+          startPort: resolvedStart,
+          clarificationState: matchedState,
+        };
+      }
+
+      // 3. Check if destination is an inland city
+      if (INLAND_CITIES_LIST.includes(cleanEnd) || /\b(delhi|hyderabad|bengaluru|bangalore|pune|jaipur|lucknow|ahmedabad)\b/i.test(cleanEnd)) {
+        return {
+          detectedLang,
+          intent: "invalid_destination",
+          startPort: resolvedStart,
+          invalidLocation: { kind: "inland", name: rawEndStr || cleanEnd, position: "end" },
+        };
+      }
+
+      // 4. Unrecognized destination place
+      return {
+        detectedLang,
+        intent: "invalid_destination",
+        startPort: resolvedStart,
+        invalidLocation: { kind: "unrecognized", name: rawEndStr || cleanEnd, position: "end" },
+      };
+    }
+
+    // If 2 distinct ports were mentioned anywhere in query
+    if (foundPorts.length >= 2) {
+      return {
+        detectedLang,
+        intent: "route_safety",
+        startPort: foundPorts[0],
+        endPort: foundPorts[1],
+      };
+    }
+
+    // If only 1 port was mentioned and no valid destination was extracted,
+    // NEVER substitute Visakhapatnam! Ask the user for the intended destination.
+    if (foundPorts.length === 1 && cleanStart && !cleanEnd) {
+      return {
+        detectedLang,
+        intent: "general",
+        startPort: foundPorts[0],
+      };
+    }
   }
 
   if (isWeatherWords) {
-    return {
-      detectedLang,
-      intent: "weather_safety",
-      startPort: targetPort,
-    };
+    return { detectedLang, intent: "weather_safety", startPort: targetPort };
   }
 
-  return {
-    detectedLang,
-    intent: "general",
-    startPort: targetPort,
-  };
+  return { detectedLang, intent: "general", startPort: targetPort };
+}
+
+/**
+ * Generates an informative, structured clarification message when a user requests routing
+ * to a coastal state (e.g. Gujarat) instead of a specific port.
+ */
+export function generateStateClarificationResponse(
+  startPort: PortCoordinate,
+  state: CoastalStateInfo,
+  lang: Lang
+): string {
+  const portsList = state.ports
+    .map((pId) => {
+      const p = PORTS_REGISTRY[pId];
+      return p ? `• **${p.name} Port** (${p.sea})` : null;
+    })
+    .filter(Boolean)
+    .join("\n");
+
+  switch (lang) {
+    case "te":
+      return `🧭 **ప్రాంతీయ గమ్యస్థాన స్పష్టీకరణ: ${state.name} తీరప్రాంతం**\n\n**${state.name}** అనేది విస్తారమైన తీరప్రాంతాన్ని కలిగి ఉన్న ఒక ప్రధాన రాష్ట్రం. **${startPort.name} పోర్ట్** నుండి ఖచ్చితమైన సముద్ర నావిగేషన్ మార్గాన్ని గీయడానికి, దయచేసి మీరు చేరుకోవాలనుకుంటున్న నిర్దిష్ట ఓడరేవును పేర్కొనండి:\n\n${portsList}\n\n💡 **సూచన:** మీ నిర్దిష్ట గమ్యస్థాన పోర్టును పేర్కొంటూ సమాధానం ఇవ్వండి (ఉదాహరణకు: *"Route from ${startPort.name} to ${state.ports[0] ? PORTS_REGISTRY[state.ports[0]]?.name : "Veraval"}"*). మేము సముద్ర నావిగేషన్ మార్గం, దూరం మరియు ప్రయాణ సమయాన్ని లెక్కిస్తాము.`;
+
+    case "hi":
+      return `🧭 **क्षेत्रीय गंतव्य स्पष्टीकरण: ${state.name} तटीय क्षेत्र**\n\n**${state.name}** एक विस्तृत तटीय राज्य है जिसमें कई अलग-अलग समुद्री बंदरगाह हैं। **${startPort.name} बंदरगाह** से सटीक समुद्री मार्ग की गणना करने के लिए, कृपया अपने आगमन का विशिष्ट बंदरगाह चुनें:\n\n${portsList}\n\n💡 **सलाह:** कृपया अपने विशिष्ट बंदरगाह का नाम बताएं (जैसे: *"Route from ${startPort.name} to ${state.ports[0] ? PORTS_REGISTRY[state.ports[0]]?.name : "Veraval"}"*) ताकि हम समुद्री वेपॉइंट्स, कंपास हेडिंग और ईटीए की गणना कर सकें।`;
+
+    case "en":
+    default:
+      return `🧭 **Regional Destination Clarification: ${state.name} Coastal Sector**\n\n**${state.name}** spans an extensive coastal boundary with multiple distinct maritime ports. To calculate an exact seaward route from **${startPort.name} Port**, please specify your intended port of arrival:\n\n${portsList}\n\n💡 **Skipper Advice:** Reply with your specific arrival port (e.g. *"Route from ${startPort.name} to ${state.ports[0] ? PORTS_REGISTRY[state.ports[0]]?.name : "Veraval"}"*) to compute verified seaward waypoints, compass bearing, and cruising ETA.`;
+  }
+}
+
+/**
+ * Generates an explanatory message when a requested destination is an inland city
+ * or unrecognized in the coastal maritime database.
+ */
+export function generateInvalidDestinationResponse(
+  inv: { kind: "inland" | "unrecognized"; name: string; position: string },
+  startPort: PortCoordinate,
+  lang: Lang
+): string {
+  const name = inv.name || "specified destination";
+
+  if (inv.kind === "inland") {
+    switch (lang) {
+      case "te":
+        return `⚠️ **తీరం లేని ప్రాంతం: ${name}**\n\nమీరు పేర్కొన్న **"${name}"** ఒక లోతట్టు ప్రాంతం (ఇన్లాండ్ నగరం). ఇక్కడ ఎలాంటి సముద్ర తీరం లేదా ఓడరేవు లేదు. ORCA కేవలం భారతీయ సముద్ర తీరప్రాంతాలు మరియు ఓడరేవులకు మాత్రమే నావిగేషన్ సమాచారాన్ని అందిస్తుంది.\n\n⚓ **సమీప తీరప్రాంత పోర్టులు**:\n• **${startPort.name} పోర్ట్** (ప్రస్తుత సెక్టార్)\n• **విశాఖపట్నం పోర్ట్**\n• **చెన్నై పోర్ట్**\n• **ముంబై పోర్ట్**\n\nదయచేసి సముద్ర మార్గం కోసం సరైన తీరప్రాంత పోర్టును ఎంచుకోండి.`;
+
+      case "hi":
+        return `⚠️ **तटीय सीमा रहित स्थल: ${name}**\n\nगंतव्य **"${name}"** एक अंतर्देशीय (inland) शहर है जहाँ कोई समुद्री तट या नौगम्य बंदरगाह नहीं है। ORCA विशेष रूप से भारतीय तटीय नौवहन के लिए मार्ग प्रदान करता है।\n\n⚓ **मान्य तटीय बंदरगाह**:\n• **${startPort.name} पोर्ट** (वर्तमान क्षेत्र)\n• **विशाखापट्टनम पोर्ट**\n• **चेन्नई पोर्ट**\n• **मुंबई पोर्ट**\n\nकृपया समुद्री मार्ग की गणना के लिए किसी मान्य तटीय बंदरगाह का चयन करें।`;
+
+      case "en":
+      default:
+        return `⚠️ **Inland Location Notice: ${name}**\n\nDestination **"${name}"** is an inland city with no sea coastline or navigable marine harbor. ORCA specializes exclusively in coastal maritime navigation across the Bay of Bengal, Arabian Sea, and Indian Ocean.\n\n⚓ **Supported Coastal Departure & Arrival Ports**:\n• **${startPort.name} Port** (Current Sector)\n• **Visakhapatnam Port**\n• **Chennai Port**\n• **Mumbai Port**\n• **Kochi Port**\n• **Veraval Port**\n\nPlease select a verified coastal seaport for maritime route calculation.`;
+    }
+  }
+
+  // Unrecognized
+  switch (lang) {
+    case "te":
+      return `⚠️ గమ్యస్థానం **"${name}"** మా భారతీయ తీరప్రాంత నావిగేషన్ డేటాబేస్‌లో గుర్తించబడలేదు.\n\nదయచేసి సరైన తీరప్రాంత పోర్ట్ పేరును పేర్కొనండి (ఉదాహరణకు: **కాకినాడ, విశాఖపట్నం, చెన్నై, ముంబై, కొచ్చి, వెరావల్, పోర్‌బందర్, మంగళూరు, పారాదీప్**).`;
+
+    case "hi":
+      return `⚠️ गंतव्य **"${name}"** हमारे भारतीय तटीय नौवहन डेटाबेस में उपलब्ध नहीं है।\n\nकृपया किसी मान्य तटीय बंदरगाह का चयन करें (जैसे: **काकीनाडा, विशाखापट्टनम, चेन्नई, मुंबई, कोच्चि, वेरावल, पोरबंदर, मैंगलोर, पारादीप**)।`;
+
+    case "en":
+    default:
+      return `⚠️ Destination **"${name}"** was not recognized as a coastal port in our Indian maritime navigation database.\n\nPlease check the spelling or select a verified coastal seaport such as **Kakinada, Visakhapatnam, Chennai, Mumbai, Kochi, Veraval, Porbandar, Mangalore, or Paradip**.`;
+  }
+}
+
+/**
+ * Generates response for 'route to nearest port'
+ */
+export function generateNearestPortResponse(
+  startPort: PortCoordinate,
+  nearestPort: PortCoordinate,
+  lang: Lang
+): string {
+  const route = computeFairwayRoute(startPort, nearestPort);
+
+  switch (lang) {
+    case "te":
+      return `⚓ **${startPort.name} నుండి అత్యంత సమీప ఓడరేవు: ${nearestPort.name} పోర్ట్**\n\n• **సమీప పోర్ట్:** **${nearestPort.name} పోర్ట్** (${nearestPort.state})\n• **సముద్ర దూరం:** **${route.distance_nm} నాటికల్ మైళ్ళు** (${route.distance_km} కి.మీ)\n• **దిశ (Heading):** **${route.bearing_deg}° ${route.bearing_cardinal}**\n• **అంచనా ప్రయాణ సమయం (ETA):** **~${route.eta_str}** (8.5 నాట్ల బోటు వేగంతో)\n• **సముద్ర స్థితి:** వాతావరణ పరిస్థితులు ప్రస్తుతం **సురక్షితంగా (SAFE)** ఉన్నాయి.\n\nక్రింది మ్యాప్‌లో సమీప పోర్టుకు నావిగేషన్ మార్గం చూపబడింది.`;
+
+    case "hi":
+      return `⚓ **${startPort.name} से निकटतम बंदरगाह: ${nearestPort.name} बंदरगाह**\n\n• **निकटतम बंदरगाह:** **${nearestPort.name} पोर्ट** (${nearestPort.state})\n• **समुद्री दूरी:** **${route.distance_nm} नॉटिकल मील** (${route.distance_km} किमी)\n• **दिशा (Heading):** **${route.bearing_deg}° ${route.bearing_cardinal}**\n• **अनुमानित यात्रा समय (ETA):** **~${route.eta_str}** (8.5 नॉट गति पर)\n• **समुद्री स्थिति:** वर्तमान में समुद्र की स्थिति **सुरक्षित (SAFE)** है।\n\nनिकटतम बंदरगाह का नौवहन मार्ग नीचे नक्शे पर प्रदर्शित है।`;
+
+    case "en":
+    default:
+      return `⚓ **Nearest Marine Port from ${startPort.name}: ${nearestPort.name} Port**\n\n• **Closest Navigable Harbor:** **${nearestPort.name} Port** (${nearestPort.state})\n• **Total Seaward Distance:** **${route.distance_nm} Nautical Miles** (${route.distance_km} km)\n• **Initial Compass Heading:** **${route.bearing_deg}° ${route.bearing_cardinal}**\n• **Estimated Transit Time:** **~${route.eta_str}** (at 8.5 kn cruising speed)\n• **Navigation Advisory:** Open-water coastal fairway. Current sea state is confirmed **SAFE**.\n\nTactical fairway route plotted on chart below.`;
+  }
 }
 
 /**

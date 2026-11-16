@@ -51,11 +51,11 @@ export default function SituationCard({
         <Text style={[styles.title, { color: colors.muted }]}>{t("situationSummary", lang)}</Text>
         <View style={[styles.badge, { backgroundColor: sc.bg }]}>
           <Text style={[styles.badgeText, { color: sc.fg }]}>
-            {t(SEVERITY_KEY[situation.severity] || "severityAdvisory", lang)}
+            {t(SEVERITY_KEY[situation?.severity || ""] || "severityAdvisory", lang)}
           </Text>
         </View>
       </View>
-      <Text style={[styles.region, { color: colors.onSurface }]}>{situation.region}</Text>
+      <Text style={[styles.region, { color: colors.onSurface }]}>{situation?.region || "Coastal Waters"}</Text>
 
       {today.cyclone && (
         <View style={[styles.cycloneBanner, { backgroundColor: colors.error }]}>

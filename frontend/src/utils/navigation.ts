@@ -385,6 +385,10 @@ export function cleanPlaceToken(str: string): string {
   s = s.replace(/^(?:route\s+from|sail\s+from|navigate\s+from|passage\s+from|from|a\s+route\s+from)\s+/i, "");
   s = s.replace(/^(?:route\s+to|sail\s+to|navigate\s+to|take\s+me\s+to|way\s+to|to)\s+/i, "");
   s = s.replace(/\b(?:port|harbour|harbor|city|sector|area|please|now|today|tomorrow|safely|safe|root|route|into|chiptawah|cheptava|cheppava|cheppandi|cheppu|batao|bataiye|dikhao|dikhaao|sollu)\b/gi, "");
+  // Strip conversational Telugu fillers
+  s = s.replace(/(?:ఇప్పుడు|నన్ను|ఎలా|వెళ్లాలో|వెళ్లాలి|వెళ్ళు|రూట్|రూటు|ఇవ్వు|చెప్పు|అండ్|ఆల్సో|దగ్గరలో|ఉన్న|పొటెన్షియల్|ఫిషింగ్|జోన్స్|కూడా|మ్యాప్|చేసి|దయచేసి)/gi, " ");
+  // Strip Telugu/Hindi/Tamil postpositions
+  s = s.replace(/(?:కి|కు|నుండి|నుంచి|నుంచీ|లో|వరకు|కో|సే|तक|में|க்கு|லிருந்து|இருந்து)$/, "");
   s = s.replace(/[\.\,\?\!]/g, "");
   return s.trim().toLowerCase();
 }
@@ -610,6 +614,7 @@ export type NavAnalysisResult = {
   invalidLocation?: { kind: "inland" | "unrecognized"; name: string; position: "start" | "end" | "single" };
   domainTopic?: "ais" | "pfz" | "ecdis" | "map" | "sst";
   focusPort?: PortCoordinate;
+  includePfzOverlay?: boolean;
 };
 
 /**
@@ -664,7 +669,12 @@ export function detectQueryLanguageAndIntent(
     }
   }
 
-  const isNavWords = /\b(navigate|navigation|route|root|way|fairway|rasta|dhaari|vazhi|cheppu|batao|to|nandi|nundi|se|lerunthu|reach|sail)\b/i.test(q);
+  const isNavWords =
+    /\b(navigate|navigation|route|root|way|fairway|rasta|dhaari|vazhi|cheppu|batao|to|nandi|nundi|se|lerunthu|reach|sail)\b/i.test(q) ||
+    /(?:రూట్|రూటు|దారి|మార్గం|మార్గాన్ని|వెళ్లాలి|వెళ్లాలో|వెళ్ళు|వెళ్ళడానికి|నుండి|నుంచి|నుంచీ|నావిగేషన్|తీసుకెళ్ళు|ఎలా\s+వెళ్ళాలి|ఎలా\s+వెళ్లాలో|చేరుకోవాలి|చేరుకోవడానికి|ఇవ్వు|చెప్పు)/i.test(query) ||
+    /(?:रास्ता|मार्ग|रूट|नौवहन|नेविगेट|जाना|पहुंचना|दूरी|बताओ|बताइए)/i.test(query) ||
+    /(?:வழி|பாதை|செல்ல|போக|ரூட்|நேவிகேஷன்)/i.test(query) ||
+    foundPorts.length >= 2;
 
   // 3. Conversational Greetings & Capabilities
   const isGreeting =
@@ -723,13 +733,22 @@ export function detectQueryLanguageAndIntent(
 
   const targetPort = foundPorts[0] || defaultPort;
 
-  // PRIORITY A: Navigation TO a Potential Fishing Zone
-  if (isPfzWords && isNavWords) {
+  const isPfzTarget = Boolean(q.match(/\b(pfz|fishing\s+zones?|fish|hotspots?|catch)\b/i) || /చేపల\s*వేట|మత్స్య/i.test(query));
+  const hasMultipleEndpoints =
+    foundPorts.length >= 2 ||
+    (!isPfzTarget && (
+      Boolean(q.match(/\bfrom\s+[a-z\s]+?\s+to\s+[a-z\s]+/i)) ||
+      Boolean(q.match(/(?:నుండి|నుంచి|nu[mn]di|nu[mn]chi|ninchi|nandi).+?(?:వరకు|కి|కు|dhaari|route|root|vellalo)/i)) ||
+      Boolean(q.match(/(?:से|se).+?(?:तक|rasta|route)/i))
+    ));
+
+  // PRIORITY A: Navigation TO a Potential Fishing Zone (Single harbor departure without destination)
+  if (isPfzWords && isNavWords && !hasMultipleEndpoints) {
     return { detectedLang, intent: "route_pfz", startPort: targetPort };
   }
 
   // PRIORITY B: General Fishing Zone discovery without explicit route
-  if (isPfzWords && !isSafetyQuestion) {
+  if (isPfzWords && !isSafetyQuestion && !hasMultipleEndpoints) {
     return { detectedLang, intent: "pfz_nearest", startPort: targetPort };
   }
 
@@ -801,6 +820,7 @@ export function detectQueryLanguageAndIntent(
           intent: "route_safety",
           startPort: resolvedStart,
           endPort: matchedEnd,
+          includePfzOverlay: isPfzWords,
         };
       }
 
@@ -841,6 +861,7 @@ export function detectQueryLanguageAndIntent(
         intent: "route_safety",
         startPort: foundPorts[0],
         endPort: foundPorts[1],
+        includePfzOverlay: isPfzWords,
       };
     }
 

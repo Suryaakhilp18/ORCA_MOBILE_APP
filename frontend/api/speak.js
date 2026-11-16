@@ -32,8 +32,12 @@ export default async function handler(req, res) {
         similarity_boost: 0.8
       }
     };
-    if (language) {
-      payload.language_code = language;
+    // ElevenLabs only supports language_code for a specific whitelist of ISO codes.
+    // For Telugu, Tamil, Kannada, Malayalam, etc., omitting language_code allows
+    // eleven_multilingual_v2 to automatically and flawlessly synthesize native speech.
+    const SUPPORTED_EXPLICIT_CODES = ["en", "hi", "es", "fr", "de", "it", "pt", "pl"];
+    if (language && SUPPORTED_EXPLICIT_CODES.includes(language.toLowerCase())) {
+      payload.language_code = language.toLowerCase();
     }
 
     const elevenRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {

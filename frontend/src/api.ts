@@ -357,10 +357,38 @@ export const api = {
         const mapWidget = buildRouteMapWidget(startPort, endPort);
         widgets = [mapWidget];
 
-        const defaultNautical = generateNauticalResponse(startPort, endPort, detectedLang);
+        let defaultNautical = generateNauticalResponse(startPort, endPort, detectedLang);
+
+        if (analysis.includePfzOverlay) {
+          const startZones = getPfzZonesForPort(startPort.id);
+          const endZones = getPfzZonesForPort(endPort.id);
+          const allZones = [...startZones, ...endZones];
+          allZones.forEach((z) => {
+            mapWidget.markers.push({
+              lat: z.lat,
+              lon: z.lon,
+              label: `★ PFZ: ${z.name} (${z.confidence}%)`,
+              name: z.name,
+              kind: "pfz",
+              confidence: z.confidence,
+              species: z.species,
+              sst_c: z.sst_c,
+              chl_mg_m3: z.chl_mg_m3,
+              depth_m: z.depth_m,
+            });
+          });
+          const isTe = detectedLang === "te";
+          const isHi = detectedLang === "hi";
+          const pfzAddon = isTe
+            ? `\n\n🐟 **ఈ మార్గంలో సంభావ్య చేపల వేట ప్రాంతాలు (PFZ Hotspots):**\n• **${startPort.name} సెక్టార్:** ${startZones[0]?.name || "కోస్టల్ హాట్‌స్పాట్"} (${startZones[0]?.species || "మాకెరల్, సార్డైన్"})\n• **${endPort.name} సెక్టార్:** ${endZones[0]?.name || "కోస్టల్ హాట్‌స్పాట్"} (${endZones[0]?.species || "ట్యూనా, వంజరం"})\n• మ్యాప్‌లో చేపల వేట జోన్లు స్పష్టంగా ప్లాట్ చేయబడ్డాయి.`
+            : isHi
+            ? `\n\n🐟 **इस नौवहन मार्ग पर संभावित मत्स्य क्षेत्र (PFZ):**\n• **${startPort.name} सेक्टर:** ${startZones[0]?.name || "तटवर्ती क्षेत्र"} (${startZones[0]?.species || "मछलियां"})\n• **${endPort.name} सेक्टर:** ${endZones[0]?.name || "तटीय क्षेत्र"} (${endZones[0]?.species || "टूना, सुरमई"})\n• नक्शे पर फिशिंग ज़ोन प्रदर्शित हैं।`
+            : `\n\n🐟 **Potential Fishing Zones (PFZ) along this Fairway:**\n• **${startPort.name} Sector:** ${startZones[0]?.name || "Offshore Hotspot"} (${startZones[0]?.species || "Pelagic species"})\n• **${endPort.name} Sector:** ${endZones[0]?.name || "Coastal Hotspot"} (${endZones[0]?.species || "Tuna, Seer Fish"})\n• Certified INCOIS satellite hotspots plotted on the nautical chart.`;
+          defaultNautical += pfzAddon;
+        }
 
         // Try direct Gemini 3.5 Flash for natural, human-toned regional response
-        const sysPrompt = `You are ORCA (Ocean Risk & Coastal Advisory), an expert marine copilot for Indian fishers. The fisher asked: "${userQuery}". Verified seaward fairway: from ${startPort.name} Port (${startPort.state}) to ${endPort.name} Port (${endPort.state}), total distance ${mapWidget.route_info?.distance_nm} NM (${mapWidget.route_info?.distance_km} km), initial compass heading ${mapWidget.route_info?.bearing_deg}° ${mapWidget.route_info?.bearing_cardinal}, transit time ~${mapWidget.route_info?.eta_str}. Provide an authentic, polite, respectful nautical navigation advisory in ${detectedLang} language. Give practical advice on winds, waves, and steering course.`;
+        const sysPrompt = `You are ORCA (Ocean Risk & Coastal Advisory), an expert marine copilot for Indian fishers. The fisher asked: "${userQuery}". Verified seaward fairway: from ${startPort.name} Port (${startPort.state}) to ${endPort.name} Port (${endPort.state}), total distance ${mapWidget.route_info?.distance_nm} NM (${mapWidget.route_info?.distance_km} km), initial compass heading ${mapWidget.route_info?.bearing_deg}° ${mapWidget.route_info?.bearing_cardinal}, transit time ~${mapWidget.route_info?.eta_str}.${analysis.includePfzOverlay ? " Include brief advice on the potential fishing zones along this route." : ""} Provide an authentic, polite, respectful nautical navigation advisory in ${detectedLang} language. Give practical advice on winds, waves, and steering course.`;
         
         const geminiReply = await callDirectGemini(
           `Provide a clear marine fairway navigation briefing for sailing from ${startPort.name} to ${endPort.name}. Answer in ${detectedLang} language.`,

@@ -31,7 +31,11 @@ try:
     from elevenlabs import ElevenLabs
 except ImportError:
     ElevenLabs = None
-from emergentintegrations.llm.openai import OpenAISpeechToText, OpenAITextToSpeech
+try:
+    from emergentintegrations.llm.openai import OpenAISpeechToText, OpenAITextToSpeech
+except Exception:
+    OpenAISpeechToText = None
+    OpenAITextToSpeech = None
 
 load_dotenv()
 
@@ -84,8 +88,10 @@ async def _elevenlabs_rest_tts(text: str, model_id: str, voice_id: str, language
         "model_id": model_id,
         "voice_settings": {"stability": 0.5, "similarity_boost": 0.8}
     }
-    if language_code:
-        body["language_code"] = language_code
+    # ElevenLabs supports language_code only for certain ISO codes. For Telugu and other Indic languages,
+    # omitting language_code allows eleven_multilingual_v2 / eleven_v3 to automatically synthesize from native script.
+    if language_code and language_code.lower() in ("en", "hi", "es", "fr", "de", "it", "pt", "pl"):
+        body["language_code"] = language_code.lower()
     async with httpx.AsyncClient(timeout=15.0) as client:
         resp = await client.post(
             url,
@@ -118,8 +124,8 @@ async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.m4a",
     except Exception as e:  # noqa: BLE001
         logger.warning("ElevenLabs STT failed (%s), falling back to Whisper", e)
 
-    if not _EMERGENT_KEY:
-        raise VoiceUnavailable("STT failed and no Emergent fallback key configured")
+    if not _EMERGENT_KEY or OpenAISpeechToText is None:
+        raise VoiceUnavailable("STT failed and no Emergent fallback key or provider available")
     try:
         audio_file = io.BytesIO(audio_bytes)
         audio_file.name = filename if "." in filename else f"{filename}.m4a"
@@ -136,6 +142,7 @@ async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.m4a",
 async def synthesize_speech(text: str, language_code: str = "en",
                              voice_id: str = DEFAULT_VOICE_ID) -> bytes:
     """Text -> speech (mp3 bytes). Tries ElevenLabs SDK first, falls back to direct REST."""
+    clean_lang = language_code.lower() if (language_code and language_code.lower() in ("en", "hi", "es", "fr", "de", "it", "pt", "pl")) else None
     key = _get_eleven_key()
     if key:
         # 1. Try ElevenLabs SDK if installed
@@ -144,7 +151,7 @@ async def synthesize_speech(text: str, language_code: str = "en",
                 client = _get_eleven_client()
                 chunks = client.text_to_speech.convert(
                     voice_id=voice_id, text=text, model_id=TTS_MODEL_PRIMARY,
-                    language_code=language_code, output_format="mp3_44100_128",
+                    language_code=clean_lang, output_format="mp3_44100_128",
                 )
                 return b"".join(chunks)
             except Exception as e:
@@ -152,12 +159,12 @@ async def synthesize_speech(text: str, language_code: str = "en",
 
         # 2. Try ElevenLabs REST API
         try:
-            return await _elevenlabs_rest_tts(text, TTS_MODEL_FALLBACK, voice_id, language_code)
+            return await _elevenlabs_rest_tts(text, TTS_MODEL_FALLBACK, voice_id, clean_lang)
         except Exception as e:
             logger.warning("ElevenLabs REST TTS fallback failed: %s", e)
 
-    if not _EMERGENT_KEY:
-        raise VoiceUnavailable("TTS failed and no Emergent fallback key configured")
+    if not _EMERGENT_KEY or OpenAITextToSpeech is None:
+        raise VoiceUnavailable("TTS failed and no Emergent fallback key or provider available")
     try:
         tts = OpenAITextToSpeech(api_key=_EMERGENT_KEY)
         return await tts.generate_speech(text=text, model="tts-1",

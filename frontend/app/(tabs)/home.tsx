@@ -220,6 +220,72 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brand} />}
         showsVerticalScrollIndicator={false}
       >
+
+        {/* Module 7: Fisherman Quick Action & Direct Voice Bar */}
+        <View style={[styles.fishermanBar, { backgroundColor: isDark ? "rgba(24, 28, 32, 0.95)" : "#FFFFFF", borderColor: isDark ? "rgba(31, 166, 160, 0.35)" : "rgba(13, 148, 136, 0.25)" }]}>
+          <Pressable
+            testID="fisherman-voice-mic-btn"
+            style={[styles.bigMicButton, { backgroundColor: colors.brand }]}
+            onPress={() => router.push("/(tabs)")}
+          >
+            <Ionicons name="mic" size={24} color="#FFFFFF" />
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={{ color: "#FFFFFF", fontSize: 13, fontWeight: "800", letterSpacing: 0.5 }}>
+                {lang === "te" ? "ఓర్కా వాయిస్ అసిస్టెంట్‌తో మాట్లాడండి" : lang === "hi" ? "ओर्का वॉइस असिस्टेंट से बात करें" : "TAP TO SPEAK WITH ORCA"}
+              </Text>
+              <Text style={{ color: "rgba(255, 255, 255, 0.85)", fontSize: 10, marginTop: 2 }}>
+                {lang === "te" ? "తెలుగు, हिन्दी లేదా English లో సమాధానం" : lang === "hi" ? "हिन्दी, తెలుగు या English में बोलें" : "Supports Telugu, Hindi & English natively"}
+              </Text>
+            </View>
+            <View style={styles.micChevron}>
+              <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
+            </View>
+          </Pressable>
+
+          {/* Quick Action Pills */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingTop: 10 }}>
+            <Pressable
+              onPress={() => router.push("/(tabs)")}
+              style={[styles.quickPill, { backgroundColor: isDark ? "rgba(31, 166, 160, 0.15)" : "rgba(13, 148, 136, 0.12)", borderColor: colors.brand }]}
+            >
+              <Text style={{ fontSize: 14 }}>🐟</Text>
+              <Text style={[styles.quickPillText, { color: colors.brand }]}>
+                {lang === "te" ? "చేపల వేట జోన్లు (PFZ)" : lang === "hi" ? "मत्स्य क्षेत्र (PFZ)" : "Best Catch (PFZ)"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/(tabs)")}
+              style={[styles.quickPill, { backgroundColor: isDark ? "rgba(16, 185, 129, 0.15)" : "rgba(16, 185, 129, 0.12)", borderColor: "#10B981" }]}
+            >
+              <Text style={{ fontSize: 14 }}>🌊</Text>
+              <Text style={[styles.quickPillText, { color: "#10B981" }]}>
+                {lang === "te" ? "సముద్ర భద్రత (Safety)" : lang === "hi" ? "समुद्र सुरक्षा" : "Sea Safety"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/(tabs)/alerts")}
+              style={[styles.quickPill, { backgroundColor: isDark ? "rgba(245, 158, 11, 0.15)" : "rgba(245, 158, 11, 0.12)", borderColor: colors.warning }]}
+            >
+              <Text style={{ fontSize: 14 }}>⚠️</Text>
+              <Text style={[styles.quickPillText, { color: colors.warning }]}>
+                {lang === "te" ? "తుఫాను హెచ్చరికలు" : lang === "hi" ? "मौसम चेतावनी" : "Marine Alerts"}
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setRegionModalVisible(true)}
+              style={[styles.quickPill, { backgroundColor: isDark ? "rgba(56, 189, 248, 0.15)" : "rgba(2, 132, 199, 0.12)", borderColor: colors.dataBlue }]}
+            >
+              <Text style={{ fontSize: 14 }}>⚓</Text>
+              <Text style={[styles.quickPillText, { color: colors.dataBlue }]}>
+                {lang === "te" ? "పోర్టు మార్చండి" : lang === "hi" ? "बंदरगाह बदलें" : "Change Port"}
+              </Text>
+            </Pressable>
+          </ScrollView>
+        </View>
+
         {/* Editorial Hero Header */}
         <View style={styles.heroSection}>
           <View style={styles.heroPreHeader}>
@@ -473,6 +539,50 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+
+  fishermanBar: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  bigMicButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: radius.lg,
+  },
+  micChevron: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quickPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+  },
+  quickPillText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: "700",
+  },
+
   topBar: {
     flexDirection: "row",
     alignItems: "center",

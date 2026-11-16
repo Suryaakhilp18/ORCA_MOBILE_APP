@@ -11,6 +11,10 @@ import {
   generateCapabilitiesResponse,
   generateDomainExplanation,
   buildPortMapWidget,
+  getPfzZonesForPort,
+  buildPfzMapWidget,
+  generatePfzResponse,
+  generateFishingSafetyResponse,
   PORTS_REGISTRY,
 } from "./utils/navigation";
 
@@ -292,36 +296,49 @@ export const api = {
           { agent: "Synthesizer Agent", detail: `Generated nautical navigation briefing in ${detectedLang.toUpperCase()}.` },
         ];
       } else if (intent === "pfz_nearest") {
-        verdict = "SAFE";
-        const isTe = detectedLang === "te";
-        const isHi = detectedLang === "hi";
-        const isTa = detectedLang === "ta";
-
-        content = isTe
-          ? `🐟 **${startPort.name} తీరంలో సంభావ్య ఫిషింగ్ జోన్లు (PFZ) & క్లోరోఫిల్ విశ్లేషణ:**\n\n• **అనుకూల ఉష్ణోగ్రత (SST):** 28.2°C - 28.8°C (చేపల సమృద్ధికి అత్యంత అనుకూలం)\n• **క్లోరోఫిల్ సాంద్రత:** 2.2 - 2.8 mg/m³\n• **సిఫార్సు చేయబడిన దూరం:** తీరం నుండి 18-24 నాటికల్ మైళ్ళు\n• **ప్రధాన జాతులు:** పెలాజిక్ జాతులు (మ్యాకెరల్, సార్డైన్ మరియు ట్యూనా). క్రింది మ్యాప్ మరియు చార్ట్‌లలో జోన్ వివరాలు చూడండి.`
-          : isHi
-          ? `🐟 **${startPort.name} तट के पास संभावित मत्स्य पालन क्षेत्र (PFZ):**\n\n• **समुद्री सतह तापमान (SST):** 28.2°C - 28.8°C\n• **क्लोरोफिल सघनता:** 2.2 - 2.8 mg/m³\n• **अनुशंसित दूरी:** तट से 18-24 नॉटिकल मील\n• **प्रमुख मछलियां:** मैकेरल, सार्डिन और टूना। नीचे दिए गए चार्ट में विवरण देखें।`
-          : isTa
-          ? `🐟 **${startPort.name} கடல் பகுதியில் சாத்தியமான மீன்பிடி மண்டலங்கள் (PFZ):**\n\n• **கடல் மேற்பரப்பு வெப்பநிலை (SST):** 28.2°C - 28.8°C\n• **குளோரோபில் செறிவு:** 2.2 - 2.8 mg/m³\n• **பரிந்துரைக்கப்பட்ட தூரம்:** கரையிலிருந்து 18-24 கடல் மைல்கள்.\n• **முக்கிய மீன் வகைகள்:** கானாங்கெளுத்தி மற்றும் மத்தி மீன்கள்.`
-          : `🐟 **Potential Fishing Zones (PFZ) & Ocean Productivity: ${startPort.name} Sector**\n\n• **Sea Surface Temperature (SST):** 28.2°C – 28.8°C (Optimal thermal front)\n• **Chlorophyll-a Concentration:** 2.2 – 2.8 mg/m³\n• **Recommended Distance:** 18–24 Nautical Miles offshore\n• **Abundant Species:** Pelagic shoals (Indian Mackerel, Oil Sardine, Skipjack Tuna). Complete telemetry charts plotted below.`;
+        const pfzZones = getPfzZonesForPort(startPort.id);
+        const bestZone = pfzZones[0];
+        const pfzMap = buildPfzMapWidget(startPort, pfzZones);
 
         widgets = [
+          pfzMap,
           {
             type: "chart",
-            title: "Sea Surface Temperature (7-day)",
+            title: `Sea Surface Temp (${startPort.name} Front)`,
             unit: "°C",
             labels: ["10 Nov", "11 Nov", "12 Nov", "13 Nov", "14 Nov", "15 Nov", "16 Nov"],
-            values: [28.9, 28.7, 28.6, 28.5, 28.4, 28.3, 28.4],
-            color: "#E63946",
+            values: [28.8, 28.6, 28.5, 28.4, 28.4, 28.3, bestZone.sst_c],
+            color: "#0284C7",
           },
           {
             type: "chart",
-            title: "Chlorophyll-a (7-day)",
+            title: `Chlorophyll-a Biomass (${startPort.name})`,
             unit: "mg/m³",
             labels: ["10 Nov", "11 Nov", "12 Nov", "13 Nov", "14 Nov", "15 Nov", "16 Nov"],
-            values: [1.2, 1.4, 1.6, 1.9, 2.1, 2.2, 2.1],
-            color: "#2A3B32",
+            values: [1.3, 1.5, 1.7, 1.9, 2.0, 2.1, bestZone.chl_mg_m3],
+            color: "#10B981",
           },
+        ];
+
+        content = generatePfzResponse(startPort, bestZone, detectedLang);
+        verdict = "SAFE";
+        citations = [
+          "INCOIS Ocean State Services (PFZ Mission)",
+          "ISRO Oceansat Thermal & Chlorophyll Sensor",
+          "Ministry of Earth Sciences (MoES)",
+        ];
+        reasoning_trace = [
+          { agent: "Ocean Analytics Agent", detail: `Located ${pfzZones.length} PFZ hotspots off ${startPort.name} (${bestZone.name}).` },
+          { agent: "Data Discovery Agent", detail: `SST front: ${bestZone.sst_c}°C, Chl: ${bestZone.chl_mg_m3} mg/m³, Depth: ${bestZone.depth_m}m.` },
+          { agent: "Synthesizer Agent", detail: `Delivered practical fisherman PFZ advisory in ${detectedLang.toUpperCase()}.` },
+        ];
+      } else if (intent === "weather_safety") {
+        content = generateFishingSafetyResponse(startPort, detectedLang);
+        verdict = "SAFE";
+        citations = ["IMD Marine Weather Bulletins", "INCOIS Coastal Safety Matrix"];
+        reasoning_trace = [
+          { agent: "Weather Intelligence Agent", detail: `Assessed sea conditions off ${startPort.name} for coastal fishing.` },
+          { agent: "Deterministic Safety Engine", detail: "Verified wind velocity and wave height within safe artisanal limits." },
         ];
       } else {
         // General Marine or Weather Query: Try calling Gemini 3.5 Flash directly

@@ -294,46 +294,125 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
       margin-top: 1px;
     }
 
-    /* Tactical Map Legend */
-    .tactical-legend {
-      position: absolute;
-      bottom: 12px;
-      left: 12px;
-      z-index: 1000;
-      padding: 6px 10px;
-      border-radius: 8px;
+    /* Tactical Callout Chip Attached to Marker - Hidden by default, reveals on hover/active */
+    .tactical-chip {
+      padding: 3px 8px;
+      border-radius: 6px;
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
       pointer-events: none;
-      line-height: 14px;
+      display: flex;
+      flex-direction: column;
+      line-height: 13px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(4px) scale(0.92);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: absolute;
+      left: 34px;
+      top: 0px;
+      z-index: 1000;
     }
-    .legend-dark {
-      background: rgba(11, 19, 29, 0.9);
-      border: 1px solid rgba(31, 166, 160, 0.4);
+    .tactical-marker-box:hover .tactical-chip,
+    .tactical-marker-box.active .tactical-chip,
+    .tactical-marker-box.selected .tactical-chip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+    .vessel-pulse-highlight {
+      animation: vessel-locate-ring 1.2s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+      border-color: #00F0FF !important;
+    }
+    @keyframes vessel-locate-ring {
+      0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.9), 0 0 16px #00F0FF; }
+      70% { box-shadow: 0 0 0 16px rgba(0, 240, 255, 0), 0 0 24px #00F0FF; }
+      100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0), 0 0 16px #00F0FF; }
+    }
+
+    /* Dedicated Side Position Tactical Legend & Layer Manager (Module 2) */
+    .tactical-side-bar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 230px;
+    }
+    .side-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      user-select: none;
+    }
+    .side-drawer {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+      padding: 0 10px;
+      overflow: hidden;
+    }
+    .tactical-side-bar:hover .side-drawer,
+    .tactical-side-bar.open .side-drawer {
+      max-height: 420px;
+      opacity: 1;
+      pointer-events: auto;
+      padding: 6px 12px 10px 12px;
+      overflow-y: auto;
+    }
+    .side-dark {
+      background: rgba(11, 19, 29, 0.94);
+      border: 1px solid rgba(31, 166, 160, 0.45);
       color: #E2E8F0;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
     }
-    .legend-light {
+    .side-light {
       background: rgba(255, 255, 255, 0.96);
       border: 1px solid rgba(13, 148, 136, 0.35);
       color: #0F172A;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.15);
+      backdrop-filter: blur(10px);
     }
-    .legend-header {
-      font-size: 9px;
-      letter-spacing: 0.6px;
-      color: #0D9488;
-      margin-bottom: 3px;
-      text-transform: uppercase;
+    .side-drawer-header {
+      font-size: 9.5px;
       font-weight: 900;
+      color: #0D9488;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(31, 166, 160, 0.2);
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .legend-row {
+    .layer-item {
       display: flex;
       align-items: center;
-      gap: 5px;
-      margin-bottom: 2px;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      cursor: pointer;
+      user-select: none;
     }
-    .legend-dot {
+    .layer-item input {
+      accent-color: #0D9488;
+      cursor: pointer;
+      width: 13px;
+      height: 13px;
+    }
+    .item-icon {
       font-size: 11px;
       width: 14px;
       text-align: center;
@@ -347,13 +426,30 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
 </head>
 <body>
   <div id="map"></div>
-  <div class="tactical-legend ${isDark ? 'legend-dark' : 'legend-light'}">
-    <div class="legend-header">ORCA TACTICAL ECDIS</div>
-    <div class="legend-row"><span class="legend-dot" style="color:#10B981">⛵</span> Active Fleet (AIS)</div>
-    <div class="legend-row"><span class="legend-dot" style="color:#F59E0B">★</span> Best Catch (PFZ)</div>
-    <div class="legend-row"><span class="legend-dot" style="color:#0284C7">🐟</span> PFZ Hotspot</div>
-    <div class="legend-row"><span class="legend-dot" style="color:#0D9488">⚓</span> Port / Fairway</div>
-    <div class="legend-row"><span class="legend-dot" style="color:#EF4444">⚠️</span> Restricted Zone</div>
+  <div class="tactical-side-bar ${isDark ? 'side-dark' : 'side-light'}" id="tacticalSideBar">
+    <div class="side-toggle-btn" id="sideToggleBtn" title="Tactical Layers & Legend">
+      <span class="side-btn-icon">🧭</span>
+      <span class="side-btn-label">TACTICAL LAYERS</span>
+      <span style="font-size: 8px; opacity: 0.7; margin-left: 2px;">▼</span>
+    </div>
+    <div class="side-drawer" id="sideDrawer">
+      <div class="side-drawer-header">
+        <span>TACTICAL ECDIS (10 LAYERS)</span>
+        <span style="cursor:pointer; font-size:11px;" id="sideDrawerClose">✕</span>
+      </div>
+      <div class="side-layer-items">
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('fleet', this.checked)"><span class="item-icon" style="color:#10B981">⛵</span> Active Fleet (AIS)</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('vessel', this.checked)"><span class="item-icon" style="color:#00F0FF">📍</span> Vessel Position</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('pfz_best', this.checked)"><span class="item-icon" style="color:#F59E0B">★</span> Best Catch (PFZ)</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('pfz_hotspots', this.checked)"><span class="item-icon" style="color:#38BDF8">🐟</span> PFZ Hotspots</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('ports', this.checked)"><span class="item-icon" style="color:#0D9488">⚓</span> Ports &amp; Harbours</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('fairways', this.checked)"><span class="item-icon" style="color:#2DD4BF">〰️</span> Fairways</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('restricted', this.checked)"><span class="item-icon" style="color:#EF4444">⚠️</span> Restricted Zones</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('hazards', this.checked)"><span class="item-icon" style="color:#F97316">⚡</span> Marine Hazards</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('route', this.checked)"><span class="item-icon" style="color:#38BDF8">➔</span> Navigation Route</label>
+        <label class="layer-item"><input type="checkbox" checked onchange="window.leafletBridge.toggleLayer('waypoints', this.checked)"><span class="item-icon" style="color:#10B981">⚑</span> Waypoints</label>
+      </div>
+    </div>
   </div>
   <script>
     (function(){
@@ -413,12 +509,34 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
           });
         }
 
-        // Layer groups
-        var routeGroup = L.layerGroup().addTo(map);
-        var markerGroup = L.layerGroup().addTo(map);
-        var geofenceGroup = L.layerGroup().addTo(map);
+        // 10 Dedicated Layer Groups matching Module 2
+        var layerFleet = L.layerGroup().addTo(map);
+        var layerVesselPos = L.layerGroup().addTo(map);
+        var layerPfzBest = L.layerGroup().addTo(map);
+        var layerPfzHotspots = L.layerGroup().addTo(map);
+        var layerPorts = L.layerGroup().addTo(map);
+        var layerFairways = L.layerGroup().addTo(map);
+        var layerRestricted = L.layerGroup().addTo(map);
+        var layerHazards = L.layerGroup().addTo(map);
+        var layerRoute = L.layerGroup().addTo(map);
+        var layerWaypoints = L.layerGroup().addTo(map);
 
-        // Draw Markers
+        var layerMap = {
+          fleet: layerFleet,
+          vessel: layerVesselPos,
+          pfz_best: layerPfzBest,
+          pfz_hotspots: layerPfzHotspots,
+          ports: layerPorts,
+          fairways: layerFairways,
+          restricted: layerRestricted,
+          hazards: layerHazards,
+          route: layerRoute,
+          waypoints: layerWaypoints
+        };
+
+        var vesselMarkersList = [];
+
+        // Draw Markers into their dedicated layers
         (w.markers || []).forEach(function(m) {
           if (!m || typeof m.lat !== 'number' || typeof m.lon !== 'number') return;
           var latLng = [m.lat, m.lon];
@@ -427,19 +545,24 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
 
           var icon;
           var popupContent = '';
+          var targetLayer = layerVesselPos;
 
           if (m.kind === 'route_start') {
             icon = makeTacticalIcon('start', '⚑', m.name || m.label || 'Departure', 'Departure Port');
             popupContent = '<div class="popup-card"><div class="popup-header">⚑ ' + (m.name || m.label || 'Departure Port') + '</div><div class="popup-meta-row"><span>STATUS:</span> <b style="color:#10B981">Origin Fairway</b></div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerPorts;
           } else if (m.kind === 'route_end') {
             icon = makeTacticalIcon('dest', '⚓', m.name || m.label || 'Destination', 'Destination Port');
             popupContent = '<div class="popup-card"><div class="popup-header">⚓ ' + (m.name || m.label || 'Destination Port') + '</div><div class="popup-meta-row"><span>STATUS:</span> <b style="color:#10B981">Arrival Fairway</b></div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerPorts;
           } else if (m.kind === 'route_unsafe') {
             icon = makeIcon('pin-wp-unsafe', '');
             popupContent = '<div class="popup-card"><div class="popup-header" style="color:#EF4444">⚠️ RESTRICTED CHECKPOINT</div><div class="popup-meta-row"><span>HAZARD:</span> <b style="color:#EF4444">' + (m.label || 'Restricted Marine Zone') + '</b></div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerWaypoints;
           } else if (m.kind === 'route_safe') {
             icon = makeIcon('pin-wp-safe', '');
             popupContent = '<div class="popup-card"><div class="popup-header" style="color:#10B981">SAFE WAYPOINT</div><div class="popup-meta-row"><span>STATUS:</span> <b>Deep Water Fairway</b></div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerWaypoints;
           } else if (m.kind === 'pfz_recommended') {
             var recTitle = m.name || 'Recommended PFZ';
             var recSub = (m.species ? m.species : 'Tuna, Mackerel') + (m.depth_m ? ' • ' + m.depth_m + 'm' : '');
@@ -454,6 +577,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
               (m.distance_km ? '<div class="popup-meta-row"><span>OFFSHORE:</span> <b>~' + m.distance_km + ' km</b></div>' : '') +
               '<div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div>' +
               '</div>';
+            targetLayer = layerPfzBest;
           } else if (m.kind === 'pfz') {
             var pfzTitle = m.name || 'PFZ Hotspot';
             var pfzSub = (m.species ? m.species : 'Pelagic') + (m.depth_m ? ' • ' + m.depth_m + 'm' : '');
@@ -468,6 +592,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
               (m.distance_km ? '<div class="popup-meta-row"><span>OFFSHORE:</span> <b>~' + m.distance_km + ' km</b></div>' : '') +
               '<div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div>' +
               '</div>';
+            targetLayer = layerPfzHotspots;
           } else if (m.kind === 'fleet' || m.kind === 'vessel' || m.kind === 'fleet_vessel') {
             var vslTitle = m.name || m.label || 'Fleet Craft';
             var vslSub = (m.speed_kn != null ? m.speed_kn + ' kn' : '') + (m.vhf_channel || m.vhf ? ' • ' + (m.vhf_channel || m.vhf) : '');
@@ -481,20 +606,28 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
               (m.crew ? '<div class="popup-meta-row"><span>CREW:</span> <b>' + m.crew + ' onboard</b></div>' : '') +
               '<div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div>' +
               '</div>';
+            targetLayer = layerFleet;
           } else if (m.kind === 'user') {
             var userTitle = m.name || m.label || 'Base Harbor';
             icon = makeTacticalIcon('user', '⚓', userTitle, 'Operational Hub');
             popupContent = '<div class="popup-card"><div class="popup-header">' + userTitle + '</div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerPorts;
           } else if (m.kind === 'danger') {
             icon = makeTacticalIcon('danger', '!', m.label || 'Restricted Area', 'Hazard Warning');
             popupContent = '<div class="popup-card"><div class="popup-header" style="color:#EF4444">⚠️ ' + (m.label || 'Restricted Area') + '</div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerHazards;
           } else {
             icon = makeTacticalIcon('user', '●', m.label || 'Waypoint', '');
             popupContent = '<div class="popup-card"><div class="popup-header">' + (m.label || 'Waypoint') + '</div><div class="popup-meta-row"><span>COORDS:</span> <span>' + m.lat.toFixed(4) + '°N, ' + m.lon.toFixed(4) + '°E</span></div></div>';
+            targetLayer = layerWaypoints;
           }
 
-          var marker = L.marker(latLng, { icon: icon }).addTo(markerGroup);
+          var marker = L.marker(latLng, { icon: icon }).addTo(targetLayer);
           marker.bindPopup(popupContent);
+
+          if (m.kind === 'fleet' || m.kind === 'vessel' || m.kind === 'fleet_vessel') {
+            vesselMarkersList.push({ data: m, marker: marker });
+          }
         });
 
         // Draw Layers (Polygons, Boundaries, Route lines, Heatmap)
@@ -519,7 +652,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
                 opacity: 0.35,
                 lineCap: 'round',
                 lineJoin: 'round'
-              }).addTo(routeGroup);
+              }).addTo(layerRoute);
 
               // Layer 2: Core Fairway Channel
               L.polyline([p1, p2], {
@@ -528,7 +661,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
                 opacity: 0.95,
                 lineCap: 'round',
                 lineJoin: 'round'
-              }).addTo(routeGroup);
+              }).addTo(layerRoute);
 
               // Layer 3: Navigational Directional Dash
               L.polyline([p1, p2], {
@@ -536,7 +669,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
                 weight: 1.5,
                 opacity: 0.9,
                 dashArray: '6, 10'
-              }).addTo(routeGroup);
+              }).addTo(layerRoute);
             });
           } else if ((l.type === 'boundary' || l.type === 'polygon') && (l.features || l.coordinates)) {
             // Geofence / Sanctuary / MPA polygon
@@ -560,7 +693,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
                   fillColor: polyColor,
                   fillOpacity: isRestricted ? 0.22 : 0.08,
                   dashArray: isRestricted ? '4, 6' : '2, 4'
-                }).addTo(geofenceGroup);
+                }).addTo(layerRestricted);
 
                 var title = isRestricted ? '⚠️ RESTRICTED ZONE' : 'MARITIME BOUNDARY';
                 var sub = (f.name ? '<b>' + f.name + '</b><br/>' : '') + (f.note || '');
@@ -579,7 +712,7 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
                 color: 'transparent',
                 fillColor: color,
                 fillOpacity: 0.4
-              }).addTo(markerGroup);
+              }).addTo(layerPfzHotspots);
               circle.bindPopup(
                 '<div class="popup-title">' + (l.metric === 'chl' ? 'CHLOROPHYLL-A PRODUCTIVITY' : 'SEA SURFACE TEMP') + '</div>' +
                 '<div class="popup-sub">Lat: ' + cell.lat.toFixed(2) + ', Lon: ' + cell.lon.toFixed(2) + '<br/>Value: ' + (val != null ? val.toFixed(2) : '—') + ' ' + (l.metric === 'chl' ? 'mg/m³' : '°C') + '</div>'
@@ -595,19 +728,80 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
           map.setView([center.lat, center.lon], 10);
         }
 
-        // Expose global controller for iframe / native bridge
+        // Expose global controller for iframe / native bridge (Module 2 & 6)
         window.leafletBridge = {
           fitAll: function() {
             if (hasBounds) map.fitBounds(bounds, { padding: [35, 35] });
           },
-          focusCoord: function(lat, lon) {
-            map.flyTo([lat, lon], 12, { duration: 1 });
+          focusCoord: function(lat, lon, zoom) {
+            map.flyTo([lat, lon], zoom || 13, { duration: 1.2 });
+          },
+          locateVessel: function(vesselNameOrId) {
+            var vQuery = (vesselNameOrId || '').toLowerCase().trim();
+            var target = null;
+            for (var i = 0; i < vesselMarkersList.length; i++) {
+              var vm = vesselMarkersList[i];
+              var vName = (vm.data.name || vm.data.label || '').toLowerCase();
+              if (vName.includes(vQuery) || vQuery.includes(vName)) {
+                target = vm;
+                break;
+              }
+            }
+            if (!target && vesselMarkersList.length > 0) target = vesselMarkersList[0];
+            if (target) {
+              map.flyTo([target.data.lat, target.data.lon], 13, { duration: 1.2 });
+              // Highlight selected vessel marker
+              vesselMarkersList.forEach(function(vm) {
+                if (vm.marker && vm.marker._icon) {
+                  var bubble = vm.marker._icon.querySelector('.tactical-bubble');
+                  if (bubble) bubble.classList.remove('vessel-pulse-highlight');
+                }
+              });
+              if (target.marker && target.marker._icon) {
+                var bubble = target.marker._icon.querySelector('.tactical-bubble');
+                if (bubble) bubble.classList.add('vessel-pulse-highlight');
+              }
+              setTimeout(function() {
+                target.marker.openPopup();
+              }, 400);
+              return true;
+            }
+            return false;
+          },
+          toggleLayer: function(layerKey, isVisible) {
+            var grp = layerMap[layerKey];
+            if (!grp) return;
+            if (isVisible) {
+              if (!map.hasLayer(grp)) map.addLayer(grp);
+            } else {
+              if (map.hasLayer(grp)) map.removeLayer(grp);
+            }
           },
           toggleGeofences: function(show) {
-            if (show) map.addLayer(geofenceGroup);
-            else map.removeLayer(geofenceGroup);
+            if (show) map.addLayer(layerRestricted);
+            else map.removeLayer(layerRestricted);
           }
         };
+
+        // Mobile tap listener for tactical side bar
+        var sideBar = document.getElementById('tacticalSideBar');
+        var sideBtn = document.getElementById('sideToggleBtn');
+        var sideClose = document.getElementById('sideDrawerClose');
+        if (sideBtn && sideBar) {
+          sideBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sideBar.classList.toggle('open');
+          });
+        }
+        if (sideClose && sideBar) {
+          sideClose.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sideBar.classList.remove('open');
+          });
+        }
+        document.addEventListener('click', function(e) {
+          if (sideBar && !sideBar.contains(e.target)) sideBar.classList.remove('open');
+        });
 
         // Post load ready
         if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
@@ -630,6 +824,9 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
   const [showWaypoints, setShowWaypoints] = useState(false);
   const [selectedWaypointIndex, setSelectedWaypointIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [expandedFleet, setExpandedFleet] = useState(true);
+  const [expandedPfz, setExpandedPfz] = useState(true);
+  const [locatingVessel, setLocatingVessel] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -671,6 +868,13 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
       webViewRef.current?.injectJavaScript(jsCode + "; true;");
     }
   }, []);
+
+  const handleLocateVessel = useCallback((name: string) => {
+    setLocatingVessel(name);
+    const escaped = (name || "").replace(/'/g, "\\'");
+    executeMapCmd(`window.leafletBridge && window.leafletBridge.locateVessel('${escaped}')`);
+    setTimeout(() => setLocatingVessel(null), 3000);
+  }, [executeMapCmd]);
 
   const handleFitRoute = useCallback(() => {
     executeMapCmd("window.leafletBridge && window.leafletBridge.fitAll()");
@@ -1068,28 +1272,35 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
             },
           ]}
         >
-          <View style={styles.hudHeaderRow}>
-            <View
-              style={[
-                styles.hudLiveBadge,
-                {
-                  backgroundColor: isDark ? "rgba(16, 185, 129, 0.15)" : "rgba(16, 185, 129, 0.1)",
-                  borderColor: isDark ? "rgba(16, 185, 129, 0.35)" : "#10B981",
-                },
-              ]}
-            >
-              <View style={[styles.pulseDot, { backgroundColor: "#10B981" }]} />
-              <Text style={[styles.hudLiveText, { color: "#10B981" }]}>ACTIVE AIS RADAR</Text>
+          <Pressable
+            onPress={() => setExpandedFleet(!expandedFleet)}
+            style={styles.hudHeaderRow}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flex: 1 }}>
+              <View
+                style={[
+                  styles.hudLiveBadge,
+                  {
+                    backgroundColor: isDark ? "rgba(16, 185, 129, 0.15)" : "rgba(16, 185, 129, 0.1)",
+                    borderColor: isDark ? "rgba(16, 185, 129, 0.35)" : "#10B981",
+                  },
+                ]}
+              >
+                <View style={[styles.pulseDot, { backgroundColor: "#10B981" }]} />
+                <Text style={[styles.hudLiveText, { color: "#10B981" }]}>ACTIVE AIS RADAR</Text>
+              </View>
+              <Text style={[styles.hudTitle, { color: colors.onSurface }]} numberOfLines={1}>
+                Fleet Operations • {widget.fleet_info?.sector || "Coastal"} ({fleetMarkers.length} Craft)
+              </Text>
             </View>
-            <Text style={[styles.hudTitle, { color: colors.onSurface }]} numberOfLines={1}>
-              Fleet Operations • {widget.fleet_info?.sector || "Coastal"} ({fleetMarkers.length} Craft)
-            </Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
+            <Ionicons name={expandedFleet ? "chevron-up" : "chevron-down"} size={16} color={colors.muted} />
+          </Pressable>
+          {expandedFleet && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
             {fleetMarkers.map((v, idx) => (
               <Pressable
                 key={idx}
-                onPress={() => handleFocusWaypoint(v.lat, v.lon, idx)}
+                onPress={() => handleLocateVessel(v.name || v.label)}
                 style={[
                   styles.vesselCard,
                   {
@@ -1115,14 +1326,27 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
                   <Text style={[styles.vesselRadio, { color: colors.brand }]}>
                     📻 {v.vhf_channel || v.vhf || "Ch 16"}
                   </Text>
-                  <View style={styles.locateBtn}>
-                    <Ionicons name="locate" size={13} color={colors.brand} />
-                    <Text style={{ color: colors.brand, fontSize: 10, fontWeight: "700" }}>Locate</Text>
-                  </View>
+                  <Pressable
+                    onPress={() => handleLocateVessel(v.name || v.label)}
+                    style={[
+                      styles.locateBtn,
+                      locatingVessel === (v.name || v.label) && { backgroundColor: "rgba(31, 166, 160, 0.25)" }
+                    ]}
+                  >
+                    <Ionicons
+                      name={locatingVessel === (v.name || v.label) ? "sync" : "locate"}
+                      size={13}
+                      color={colors.brand}
+                    />
+                    <Text style={{ color: colors.brand, fontSize: 10, fontWeight: "700" }}>
+                      {locatingVessel === (v.name || v.label) ? "Locating..." : "Locate"}
+                    </Text>
+                  </Pressable>
                 </View>
               </Pressable>
             ))}
           </ScrollView>
+          )}
         </View>
       )}
 
@@ -1138,24 +1362,31 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
             },
           ]}
         >
-          <View style={styles.hudHeaderRow}>
-            <View
-              style={[
-                styles.hudLiveBadge,
-                {
-                  backgroundColor: isDark ? "rgba(245, 158, 11, 0.15)" : "rgba(245, 158, 11, 0.1)",
-                  borderColor: isDark ? "rgba(245, 158, 11, 0.35)" : "#F59E0B",
-                },
-              ]}
-            >
-              <View style={[styles.pulseDot, { backgroundColor: "#F59E0B" }]} />
-              <Text style={[styles.hudLiveText, { color: "#F59E0B" }]}>PFZ ADVISORY</Text>
+          <Pressable
+            onPress={() => setExpandedPfz(!expandedPfz)}
+            style={styles.hudHeaderRow}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flex: 1 }}>
+              <View
+                style={[
+                  styles.hudLiveBadge,
+                  {
+                    backgroundColor: isDark ? "rgba(245, 158, 11, 0.15)" : "rgba(245, 158, 11, 0.1)",
+                    borderColor: isDark ? "rgba(245, 158, 11, 0.35)" : "#F59E0B",
+                  },
+                ]}
+              >
+                <View style={[styles.pulseDot, { backgroundColor: "#F59E0B" }]} />
+                <Text style={[styles.hudLiveText, { color: "#F59E0B" }]}>PFZ ADVISORY</Text>
+              </View>
+              <Text style={[styles.hudTitle, { color: colors.onSurface }]} numberOfLines={1}>
+                INCOIS Fishing Hotspots ({pfzMarkers.length} Zones)
+              </Text>
             </View>
-            <Text style={[styles.hudTitle, { color: colors.onSurface }]} numberOfLines={1}>
-              INCOIS Fishing Hotspots ({pfzMarkers.length} Zones)
-            </Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
+            <Ionicons name={expandedPfz ? "chevron-up" : "chevron-down"} size={16} color={colors.muted} />
+          </Pressable>
+          {expandedPfz && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
             {pfzMarkers.map((z, idx) => {
               const isBest = z.kind === "pfz_recommended";
               return (
@@ -1197,6 +1428,7 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
               );
             })}
           </ScrollView>
+          )}
         </View>
       )}
 

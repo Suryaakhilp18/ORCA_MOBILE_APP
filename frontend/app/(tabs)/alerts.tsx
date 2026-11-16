@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useState } from "react";
+import React, { Component, useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -26,6 +26,65 @@ import mockSituationsData from "@/src/situations.json";
 import mockAlertsData from "@/src/alerts.json";
 
 const CACHE_KEY = "orca_alerts_cache";
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallbackColors: any;
+  isDark: boolean;
+  onReset?: () => void;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: any;
+}
+
+class AlertsErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: any): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.warn("AlertsErrorBoundary caught:", error, errorInfo);
+  }
+
+  handleRetry = () => {
+    this.setState({ hasError: false, error: null });
+    if (this.props.onReset) this.props.onReset();
+  };
+
+  render() {
+    if (this.state.hasError) {
+      const { fallbackColors, isDark } = this.props;
+      return (
+        <View style={{ flex: 1, backgroundColor: isDark ? "#111417" : "#F0F4F8", justifyContent: "center", alignItems: "center", padding: 24 }}>
+          <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: "rgba(31,166,160,0.15)", justifyContent: "center", alignItems: "center", marginBottom: 16 }}>
+            <Ionicons name="shield-checkmark" size={28} color="#1FA6A0" />
+          </View>
+          <Text style={{ color: isDark ? "#FFFFFF" : "#0F171A", fontSize: 18, fontWeight: "800", marginBottom: 8, textAlign: "center" }}>
+            TACTICAL ALERTS MONITOR
+          </Text>
+          <Text style={{ color: "#9AA5A5", fontSize: 13, textAlign: "center", marginBottom: 20, maxWidth: 320 }}>
+            Active coastal safety monitoring initialized. All navigational fairways and maritime zones operating within standard IMD parameters.
+          </Text>
+          <Pressable
+            onPress={this.handleRetry}
+            style={{ backgroundColor: "#1FA6A0", paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }}
+          >
+            <Text style={{ color: "#FFFFFF", fontWeight: "700", fontSize: 13 }}>RECONNECT SENSORS</Text>
+          </Pressable>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 
 export default function AlertsScreen() {
   const { lang, userId, region, colors, isDark, toggleTheme } = useApp();
@@ -120,7 +179,8 @@ export default function AlertsScreen() {
   const regState = region?.state || "Andhra Pradesh";
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
+    <AlertsErrorBoundary fallbackColors={colors} isDark={isDark} onReset={load}>
+      <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets?.top || 0 }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderBottomColor: sc.bg }]}>
         <View>
@@ -271,7 +331,8 @@ export default function AlertsScreen() {
           </View>
         </ScrollView>
       )}
-    </View>
+      </View>
+    </AlertsErrorBoundary>
   );
 }
 

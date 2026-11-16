@@ -227,21 +227,21 @@ export function useVoiceAgent(lang: Lang) {
     else if (/[\u0980-\u09FF]/.test(text)) actualLang = "bn";
     else if (/[\u0B00-\u0B7F]/.test(text)) actualLang = "or";
 
+    // Clean text of markdown, icons, asterisks for natural spoken delivery
+    const cleanText = text
+      .replace(/[*#_~`•]/g, " ")
+      .replace(/⛔|⚠️|✓|★|➔|->|🧭|🐟|⚓|⛵/g, " ")
+      .replace(/NM\b/g, actualLang === "te" ? " నాటికల్ మైళ్ళు " : actualLang === "hi" ? " नॉटिकल मील " : " nautical miles ")
+      .replace(/kts|knots|kn\b/gi, actualLang === "te" ? " నాట్లు " : actualLang === "hi" ? " नॉट " : " knots ")
+      .replace(/km\b/gi, actualLang === "te" ? " కిలోమీటర్లు " : actualLang === "hi" ? " किलोमीटर " : " km ")
+      .replace(/°C/g, actualLang === "te" ? " డిగ్రీల సెల్సియస్ " : actualLang === "hi" ? " डिग्री सेल्सियस " : " degrees ")
+      .replace(/\s+/g, " ")
+      .trim();
+
     if (isWeb && typeof window !== "undefined") {
       if (window.speechSynthesis) {
         try {
           window.speechSynthesis.cancel();
-          // Clean text of markdown, icons, asterisks for natural spoken delivery
-          let cleanText = text
-            .replace(/[*#_~`•]/g, " ")
-            .replace(/⛔|⚠️|✓|★|➔|->|🧭|🐟|⚓|⛵/g, " ")
-            .replace(/NM\b/g, actualLang === "te" ? " నాటికల్ మైళ్ళు " : actualLang === "hi" ? " नॉटिकल मील " : " nautical miles ")
-            .replace(/kts|knots|kn\b/gi, actualLang === "te" ? " నాట్లు " : actualLang === "hi" ? " नॉट " : " knots ")
-            .replace(/km\b/gi, actualLang === "te" ? " కిలోమీటర్లు " : actualLang === "hi" ? " किलोमीटर " : " km ")
-            .replace(/°C/g, actualLang === "te" ? " డిగ్రీల సెల్సియస్ " : actualLang === "hi" ? " डिग्री सेल्सियस " : " degrees ")
-            .replace(/\s+/g, " ")
-            .trim();
-
           const utterance = new SpeechSynthesisUtterance(cleanText);
           const targetLang = BROWSER_LANG_MAP[actualLang] || "en-IN";
           const langPrefix = actualLang.toLowerCase();
@@ -269,31 +269,46 @@ export function useVoiceAgent(lang: Lang) {
             const aliases = names[langPrefix] || [];
             matchedVoice = voices.find((v: any) => aliases.some((a) => (v.name || "").toLowerCase().includes(a)));
           }
-          if (!matchedVoice) {
-            matchedVoice = voices.find((v: any) => (v.lang || "").toLowerCase().includes("en-in") || (v.name || "").toLowerCase().includes("india"));
-          }
-
+          // Only use browser speech if a genuine native voice for that language is found
           if (matchedVoice) {
             utterance.voice = matchedVoice;
             utterance.lang = matchedVoice.lang;
-          } else {
-            utterance.lang = targetLang;
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            utterance.onstart = () => setState("speaking");
+            utterance.onend = () => setState("idle");
+            utterance.onerror = () => setState("idle");
+            window.speechSynthesis.speak(utterance);
+            setState("speaking");
+            return;
           }
-
-          utterance.rate = 0.96;
-          utterance.pitch = 1.0;
-          utterance.onstart = () => setState("speaking");
-          utterance.onend = () => setState("idle");
-          utterance.onerror = (e) => {
-            console.warn("speechSynthesis error:", e);
-            setState("idle");
-          };
-          window.speechSynthesis.speak(utterance);
-          setState("speaking");
-          return;
         } catch (err) {
-          console.warn("speechSynthesis exception:", err);
+          console.warn("speechSynthesis exception, falling back to neural audio:", err);
         }
+      }
+
+      // If browser lacks a native regional voice (e.g. Telugu/Hindi on standard setups),
+      // seamlessly synthesize via neural TTS backend (ElevenLabs eleven_v3) and play web audio!
+      try {
+        setState("speaking");
+        const buf = await api.voiceSpeak(cleanText, actualLang);
+        const blob = new Blob([buf], { type: "audio/mpeg" });
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        audio.onplay = () => setState("speaking");
+        audio.onended = () => {
+          setState("idle");
+          URL.revokeObjectURL(audioUrl);
+        };
+        audio.onerror = () => {
+          setState("idle");
+          URL.revokeObjectURL(audioUrl);
+        };
+        await audio.play();
+        return;
+      } catch (err) {
+        console.warn("Neural web audio playback failed:", err);
+        setState("idle");
       }
     }
 

@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -816,7 +816,13 @@ function buildHtml(widget: MapWidgetT, mapMode: MapStyleMode = "osm", isDark = t
 </html>`;
 }
 
-export default function MapWidget({ widget }: { widget: MapWidgetT }) {
+export type MapWidgetRef = {
+  locateVessel: (name: string) => void;
+  focusCoord: (lat: number, lon: number) => void;
+  fitAll: () => void;
+};
+
+const MapWidget = forwardRef<MapWidgetRef, { widget: MapWidgetT }>(function MapWidget({ widget }, ref) {
   const { isDark, colors } = useApp();
   const [fullscreen, setFullscreen] = useState(false);
   const [mapMode, setMapMode] = useState<MapStyleMode>("osm");
@@ -876,9 +882,18 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
     setTimeout(() => setLocatingVessel(null), 3000);
   }, [executeMapCmd]);
 
+
   const handleFitRoute = useCallback(() => {
     executeMapCmd("window.leafletBridge && window.leafletBridge.fitAll()");
   }, [executeMapCmd]);
+
+  useImperativeHandle(ref, () => ({
+    locateVessel: (name: string) => handleLocateVessel(name),
+    focusCoord: (lat: number, lon: number) => {
+      executeMapCmd(`window.leafletBridge && window.leafletBridge.focusCoord(${lat}, ${lon})`);
+    },
+    fitAll: () => handleFitRoute(),
+  }), [handleLocateVessel, executeMapCmd, handleFitRoute]);
 
   const handleFocusWaypoint = useCallback((lat: number, lon: number, idx: number) => {
     setSelectedWaypointIndex(idx);
@@ -1460,7 +1475,9 @@ export default function MapWidget({ widget }: { widget: MapWidgetT }) {
       </Modal>
     </View>
   );
-}
+});
+
+export default MapWidget;
 
 const styles = StyleSheet.create({
   container: {

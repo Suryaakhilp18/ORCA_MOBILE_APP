@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/voice/speak",
+      "destination": "/api/speak"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

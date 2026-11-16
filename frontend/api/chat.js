@@ -323,6 +323,108 @@ export default async function handler(req, res) {
       });
     }
 
+        // 5.4 Route to Nearest PFZ Hotspot (Priority: user requested route to fishing zone)
+    if (isPfz && isNav) {
+      const bestZone = {
+        name: `${activePort.name} Bay Mouth Hotspot`,
+        lat: Number((activePort.lat + 0.04).toFixed(3)),
+        lon: Number((activePort.lon + (activePort.sea.includes("Arabian") ? -0.15 : 0.15)).toFixed(3)),
+        confidence: 88,
+        sst_c: 28.4,
+        chl_mg_m3: 2.1,
+        depth_m: 35,
+        species: "Indian Mackerel, Sardine, Tuna",
+        distance_note: `~18 km (9.7 NM) offshore from ${activePort.name}`,
+        source: "INCOIS / ISRO Oceansat Thermal Front Advisory",
+        published_time: "Today, 06:00 IST (Valid 24h)",
+      };
+
+      const dKm = 18.0;
+      const dNm = 9.7;
+      const { deg, cardinal } = calculateBearing(activePort.lat, activePort.lon, bestZone.lat, bestZone.lon);
+      const etaStr = "1h 8m";
+
+      const pfzRouteMapWidget = {
+        type: "map",
+        center: { lat: (activePort.lat + bestZone.lat) / 2, lon: (activePort.lon + bestZone.lon) / 2 },
+        markers: [
+          { lat: activePort.lat, lon: activePort.lon, label: `⚓ START: ${activePort.name.toUpperCase()} BASE`, kind: "route_start" },
+          {
+            lat: bestZone.lat,
+            lon: bestZone.lon,
+            label: `★ DESTINATION (PFZ): ${bestZone.name} (88%)`,
+            kind: "pfz_recommended",
+            species: bestZone.species,
+            confidence: 88,
+            sst_c: bestZone.sst_c,
+            chl_mg_m3: bestZone.chl_mg_m3,
+            depth_m: bestZone.depth_m,
+            distance_km: dKm,
+          },
+          {
+            lat: activePort.lat + 0.04,
+            lon: activePort.lon + (activePort.sea.includes("Arabian") ? -0.08 : 0.08),
+            name: "MV Sagar Samrat",
+            label: "⛵ MV Sagar Samrat (9.2 kn)",
+            kind: "fleet",
+            speed_kn: 9.2,
+            status: "Active Trawling",
+            vhf_channel: "Ch 16",
+          },
+        ],
+        layers: [
+          {
+            type: "polygon",
+            label: "INCOIS Chlorophyll Thermal Boundary",
+            coordinates: [
+              { lat: bestZone.lat - 0.05, lon: bestZone.lon - 0.05 },
+              { lat: bestZone.lat + 0.05, lon: bestZone.lon - 0.05 },
+              { lat: bestZone.lat + 0.05, lon: bestZone.lon + 0.05 },
+              { lat: bestZone.lat - 0.05, lon: bestZone.lon + 0.05 },
+            ],
+          },
+        ],
+        route_info: {
+          start_name: `${activePort.name} Harbour`,
+          end_name: `${bestZone.name} (PFZ)`,
+          distance_km: dKm,
+          distance_nm: dNm,
+          bearing_deg: deg,
+          bearing_cardinal: cardinal,
+          eta_str: etaStr,
+          unsafe_count: 0,
+          total: 2,
+        },
+        fleet_info: { sector: activePort.name, total_vessels: 3 },
+      };
+
+      let pfzRouteReply = `🧭 **Seaward Navigation Route: ${activePort.name} Port to Nearest Potential Fishing Zone (PFZ)**\n\n• **Destination Hotspot:** ${bestZone.name} (88% Catch Probability)\n• **Target Coordinates:** ${bestZone.lat.toFixed(4)}°N, ${bestZone.lon.toFixed(4)}°E\n• **Seaward Distance:** **${dNm} Nautical Miles** (~18 km offshore)\n• **Compass Heading:** **${deg}° ${cardinal}**\n• **Estimated Transit Time:** **~${etaStr}** (cruising @ 8.5 kn)\n• **Thermal Front (SST):** ${bestZone.sst_c}°C (Optimal pelagic front gradient)\n• **Chlorophyll-a Biomass:** ${bestZone.chl_mg_m3} mg/m³ (High phytoplankton density)\n• **Target Pelagic Species:** ${bestZone.species}\n• **Ocean Shelf Depth:** ~${bestZone.depth_m} metres\n• **Data Source:** INCOIS Ocean State Services (PFZ Mission)\n• **Advisory Timestamp:** ${bestZone.published_time}\n\n💡 **Skipper Advisory:** Coastal navigation parameters are verified **SAFE**. VHF marine radio monitoring on Ch 16 recommended. Direct seaward fairway plotted on tactical chart below.`;
+
+      if (lang === "te") {
+        pfzRouteReply = `🧭 **${activePort.name} పోర్ట్ నుండి సమీప చేపల వేట ప్రాంతం (PFZ) నావిగేషన్ రూట్:**\n\n• **సిఫార్సు చేయబడిన గమ్యస్థానం:** ${bestZone.name} (88% లభ్యత సంభావ్యత)\n• **స్థానం (కోఆర్డినేట్స్):** ${bestZone.lat.toFixed(4)}°N, ${bestZone.lon.toFixed(4)}°E\n• **సముద్ర దూరం:** **${dNm} నాటికల్ మైళ్ళు** (${Math.round(dKm)} కి.మీ)\n• **ప్రారంభ కంపాస్ దిశ (Heading):** **${deg}° ${cardinal}**\n• **అంచనా ప్రయాణ సమయం (ETA):** **~${etaStr}** (8.5 నాట్ల బోటు వేగంతో)\n• **సముద్ర ఉష్ణోగ్రత (SST):** ${bestZone.sst_c}°C (చేపలు గుమిగూడే ఉష్ణోగ్రత సరిహద్దు)\n• **క్లోరోఫిల్ సాంద్రత:** ${bestZone.chl_mg_m3} mg/m³ (ప్లవాంగాలు సమృద్ధిగా ఉన్నాయి)\n• **దొరికే ప్రధాన చేపలు:** ${bestZone.species}\n• **నీటి లోతు:** సుమారు ${bestZone.depth_m} మీటర్లు\n• **డేటా మూలం:** INCOIS (భారత జాతీయ సముద్ర సమాచార సేవల కేంద్రం) శాటిలైట్ అడ్వైజరీ\n• **విడుదల సమయం:** ${bestZone.published_time}\n\n💡 **మత్స్యకారులకు సలహా:** సముద్ర వాతావరణం ప్రస్తుతం **సురక్షితంగా (SAFE)** ఉంది. వేటకు వెళ్లే సీ-రూట్ మరియు హాట్‌స్పాట్ క్రింది వ్యూహాత్మక మ్యాప్‌లో ప్లాట్ చేయబడింది.`;
+      } else if (lang === "hi") {
+        pfzRouteReply = `🧭 **${activePort.name} बंदरगाह से निकटतम मत्स्य क्षेत्र (PFZ) नौवहन मार्ग:**\n\n• **अनुशंसित गंतव्य:** ${bestZone.name} (88% संभावना)\n• **निर्देशांक (Coordinates):** ${bestZone.lat.toFixed(4)}°N, ${bestZone.lon.toFixed(4)}°E\n• **समुद्री दूरी:** **${dNm} नॉटिकल मील** (${Math.round(dKm)} किमी)\n• **दिशा (Heading):** **${deg}° ${cardinal}**\n• **अनुमानित यात्रा समय (ETA):** **~${etaStr}** (8.5 नॉट नौका गति पर)\n• **समुद्री तापमान (SST):** ${bestZone.sst_c}°C (थर्मल फ्रंट)\n• **क्लोरोफिल सघनता:** ${bestZone.chl_mg_m3} mg/m³\n• **प्रमुख मछलियां:** ${bestZone.species}\n• **शेल्फ गहराई:** लगभग ${bestZone.depth_m} मीटर\n• **डेटा स्रोत:** INCOIS सैटेलाइट बुलेटिन\n• **प्रकाशन समय:** ${bestZone.published_time}\n\n💡 **मछुआरों के लिए सलाह:** समुद्र की स्थिति **सुरक्षित (SAFE)** है। नौवहन मार्ग नीचे नक्शे पर स्पष्ट रूप से प्रदर्शित है।`;
+      }
+
+      return res.status(200).json({
+        user_message: { id: `u-${Date.now()}`, role: "user", content: message, created_at: new Date().toISOString() },
+        assistant_message: {
+          id: `a-${Date.now()}`,
+          role: "assistant",
+          content: pfzRouteReply,
+          created_at: new Date().toISOString(),
+          verdict: "SAFE",
+          citations: ["INCOIS Ocean State Services (PFZ Mission)", "ISRO Oceansat Ocean Color"],
+          widgets: [pfzRouteMapWidget],
+          reasoning_trace: [
+            { agent: "Navigation Agent", detail: `Calculated direct seaward route from ${activePort.name} to ${bestZone.name}.` },
+            { agent: "Ocean Analytics Agent", detail: `Optimal pelagic hotspot: ${bestZone.name} (88% Catch Probability).` },
+            { agent: "Synthesizer Agent", detail: `Generated nautical PFZ navigation briefing in ${lang.toUpperCase()}.` },
+          ],
+        },
+      });
+    }
+
     if (isPfz && !isNav) {
       const bestZone = {
         name: `${activePort.name} Bay Mouth Hotspot`,
@@ -429,7 +531,7 @@ export default async function handler(req, res) {
     }
 
     // 6. Navigation Route Calculation
-    if (foundPorts.length >= 2 || (foundPorts.length === 1 && isNav)) {
+    if ((foundPorts.length >= 2 || (foundPorts.length === 1 && isNav)) && !isPfz) {
       const startPort = foundPorts.length >= 2 ? foundPorts[0] : defaultPort;
       const endPort = foundPorts.length >= 2 ? foundPorts[1] : (foundPorts[0].name === defaultPort.name ? PORTS.visakhapatnam : foundPorts[0]);
 

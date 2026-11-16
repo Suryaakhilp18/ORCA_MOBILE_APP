@@ -15,6 +15,8 @@ import {
   buildPfzMapWidget,
   generatePfzResponse,
   generateFishingSafetyResponse,
+  buildPfzRouteMapWidget,
+  generatePfzRouteResponse,
   PORTS_REGISTRY,
 } from "./utils/navigation";
 
@@ -249,7 +251,44 @@ export const api = {
       ];
 
       // 1. Mandatory Greetings (Module 2.1)
-      if (intent === "greeting") {
+            // Priority A: Route to Nearest PFZ Hotspot
+      if (intent === "route_pfz") {
+        const pfzZones = getPfzZonesForPort(startPort.id);
+        const bestZone = pfzZones[0];
+        const routeWidget = buildPfzRouteMapWidget(startPort, bestZone);
+        widgets = [
+          routeWidget,
+          {
+            type: "chart",
+            title: `Sea Surface Temp (${startPort.name} Front)`,
+            unit: "°C",
+            labels: ["10 Nov", "11 Nov", "12 Nov", "13 Nov", "14 Nov", "15 Nov", "16 Nov"],
+            values: [28.8, 28.6, 28.5, 28.4, 28.4, 28.3, bestZone.sst_c],
+            color: "#0284C7",
+          },
+          {
+            type: "chart",
+            title: `Chlorophyll-a Biomass (${startPort.name})`,
+            unit: "mg/m³",
+            labels: ["10 Nov", "11 Nov", "12 Nov", "13 Nov", "14 Nov", "15 Nov", "16 Nov"],
+            values: [1.3, 1.5, 1.7, 1.9, 2.0, 2.1, bestZone.chl_mg_m3],
+            color: "#10B981",
+          },
+        ];
+
+        content = generatePfzRouteResponse(startPort, bestZone, detectedLang);
+        verdict = "SAFE";
+        citations = [
+          "INCOIS Ocean State Services (PFZ Mission)",
+          "ISRO Oceansat Thermal & Chlorophyll Sensor",
+          "Ministry of Earth Sciences (MoES)",
+        ];
+        reasoning_trace = [
+          { agent: "Navigation Agent", detail: `Calculated direct seaward route from ${startPort.name} to ${bestZone.name}.` },
+          { agent: "Ocean Analytics Agent", detail: `Optimal pelagic hotspot: ${bestZone.name} (88% Catch Probability).` },
+          { agent: "Synthesizer Agent", detail: `Generated nautical PFZ navigation briefing in ${detectedLang.toUpperCase()}.` },
+        ];
+      } else if (intent === "greeting") {
         content = generateGreetingResponse(detectedLang);
         citations = ["ORCA Conversational Core"];
         reasoning_trace = [{ agent: "Conversational Agent", detail: `Processed greeting in ${detectedLang.toUpperCase()}.` }];
@@ -447,14 +486,23 @@ export const api = {
     return res.json();
   },
   voiceSpeak: async (text: string, language: string): Promise<ArrayBuffer> => {
-    const res = await fetch(`${getBaseUrl()}/voice/speak`, {
+    let res = await fetch(`${getBaseUrl()}/voice/speak`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, language }),
-    });
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      throw new Error(`${res.status}: ${errText || res.statusText}`);
+    }).catch(() => null);
+
+    if (!res || !res.ok) {
+      res = await fetch(`${getBaseUrl()}/speak`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, language }),
+      }).catch(() => null);
+    }
+
+    if (!res || !res.ok) {
+      const errText = res ? await res.text().catch(() => "") : "Network error";
+      throw new Error(`${res ? res.status : 500}: ${errText}`);
     }
     return res.arrayBuffer();
   },

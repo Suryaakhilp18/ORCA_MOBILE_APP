@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -9,12 +9,14 @@ import {
   StyleSheet,
   Text,
   View,
+  Modal,
+  TextInput,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { api, Situation, MapWidgetT, Marker } from "@/src/api";
 import LanguagePicker from "@/src/components/LanguagePicker";
-import MapWidget from "@/src/components/MapWidget";
+import MapWidget, { MapWidgetRef } from "@/src/components/MapWidget";
 import RadarCard from "@/src/components/RadarCard";
 import RegionSwitcher from "@/src/components/RegionSwitcher";
 import { Lang, t, trackingFor, useApp } from "@/src/context/AppContext";
@@ -34,6 +36,16 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [regionModalVisible, setRegionModalVisible] = useState(false);
   const [langModalVisible, setLangModalVisible] = useState(false);
+  const [fleetModalVisible, setFleetModalVisible] = useState(false);
+  const [fleetSearch, setFleetSearch] = useState("");
+  const [locatingVessel, setLocatingVessel] = useState<string | null>(null);
+  const mapRef = useRef<MapWidgetRef>(null);
+
+  const handleLocateVessel = useCallback((name: string) => {
+    setLocatingVessel(name);
+    mapRef.current?.locateVessel(name);
+    setTimeout(() => setLocatingVessel(null), 2500);
+  }, []);
 
   const homeMapWidget: MapWidgetT = useMemo(() => {
     const activePort = PORTS_REGISTRY[region?.id] || {
@@ -245,7 +257,7 @@ export default function HomeScreen() {
           {/* Quick Action Pills */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingTop: 10 }}>
             <Pressable
-              onPress={() => router.push("/(tabs)")}
+              onPress={() => router.push({ pathname: "/(tabs)", params: { q: "Route me to nearest PFZ from Kakinada Port" } })}
               style={[styles.quickPill, { backgroundColor: isDark ? "rgba(31, 166, 160, 0.15)" : "rgba(13, 148, 136, 0.12)", borderColor: colors.brand }]}
             >
               <Text style={{ fontSize: 14 }}>🐟</Text>
@@ -255,7 +267,7 @@ export default function HomeScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push("/(tabs)")}
+              onPress={() => router.push({ pathname: "/(tabs)", params: { q: "Is it safe to go fishing today?" } })}
               style={[styles.quickPill, { backgroundColor: isDark ? "rgba(16, 185, 129, 0.15)" : "rgba(16, 185, 129, 0.12)", borderColor: "#10B981" }]}
             >
               <Text style={{ fontSize: 14 }}>🌊</Text>
@@ -482,6 +494,146 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
+        {/* Module 4: Fleet Operations Command Center (With Structured Seed Data & Working Locate) */}
+        <View style={styles.radarSection}>
+          <View style={styles.sectionHeader}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <Ionicons name="boat" size={18} color="#10B981" />
+                <View>
+                  <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1.2) }]}>
+                    {lang === "te" ? "ఫ్లీట్ కార్యకలాపాలు (FLEET OPERATIONS)" : lang === "hi" ? "फ्लीट ऑपरेशन्स (FLEET OPERATIONS)" : "FLEET OPERATIONS"}
+                  </Text>
+                  <Text style={[styles.sectionSubtitle, { color: colors.muted }]}>
+                    3 Craft Monitored • 2 Active Trawlers • 1 Pilot Station
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                onPress={() => setFleetModalVisible(true)}
+                style={[styles.viewAllBtn, { backgroundColor: isDark ? "rgba(16, 185, 129, 0.15)" : "rgba(16, 185, 129, 0.1)", borderColor: "#10B981" }]}
+              >
+                <Text style={{ color: "#10B981", fontSize: 11, fontWeight: "700" }}>View All Fleet</Text>
+                <Ionicons name="chevron-forward" size={13} color="#10B981" />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Seed Fleet Cards */}
+          <View style={{ gap: 10 }}>
+            {/* Vessel 1: MV Sagar Samrat */}
+            <View style={[styles.fleetSeedCard, { backgroundColor: isDark ? "rgba(24, 28, 32, 0.88)" : "#FFFFFF", borderColor: isDark ? "rgba(16, 185, 129, 0.35)" : colors.borderStrong }]}>
+              <View style={styles.fleetCardTop}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Text style={{ fontSize: 18 }}>⛵</Text>
+                  <View>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Text style={[styles.fleetVesselTitle, { color: colors.onSurface }]}>MV Sagar Samrat</Text>
+                      <View style={[styles.demoBadge, { backgroundColor: "rgba(245, 158, 11, 0.2)", borderColor: colors.warning }]}>
+                        <Text style={[styles.demoBadgeText, { color: colors.warning }]}>DEMO DATA</Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.fleetVesselSub, { color: colors.muted }]}>Deep Sea Trawler • Active Trawling</Text>
+                  </View>
+                </View>
+                <View style={[styles.speedTag, { backgroundColor: "rgba(16, 185, 129, 0.15)" }]}>
+                  <Text style={{ color: "#10B981", fontSize: 11, fontWeight: "800" }}>9.2 kts</Text>
+                </View>
+              </View>
+
+              <View style={styles.fleetCardBottom}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <Text style={[styles.fleetMetaText, { color: colors.muted }]}>📻 VHF Ch 16</Text>
+                  <Text style={[styles.fleetMetaText, { color: colors.dataBlue }]}>📍 17.0491°N, 82.4275°E</Text>
+                </View>
+                <Pressable
+                  onPress={() => handleLocateVessel("MV Sagar Samrat")}
+                  style={[styles.fleetLocateAction, locatingVessel === "MV Sagar Samrat" && { backgroundColor: "rgba(31, 166, 160, 0.3)" }]}
+                >
+                  <Ionicons name={locatingVessel === "MV Sagar Samrat" ? "sync" : "locate"} size={14} color={colors.brand} />
+                  <Text style={{ color: colors.brand, fontSize: 11, fontWeight: "800" }}>
+                    {locatingVessel === "MV Sagar Samrat" ? "Locating..." : "Locate"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Vessel 2: FV Matsya Prabha */}
+            <View style={[styles.fleetSeedCard, { backgroundColor: isDark ? "rgba(24, 28, 32, 0.88)" : "#FFFFFF", borderColor: isDark ? "rgba(16, 185, 129, 0.35)" : colors.borderStrong }]}>
+              <View style={styles.fleetCardTop}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Text style={{ fontSize: 18 }}>⛵</Text>
+                  <View>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Text style={[styles.fleetVesselTitle, { color: colors.onSurface }]}>FV Matsya Prabha</Text>
+                      <View style={[styles.demoBadge, { backgroundColor: "rgba(245, 158, 11, 0.2)", borderColor: colors.warning }]}>
+                        <Text style={[styles.demoBadgeText, { color: colors.warning }]}>DEMO DATA</Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.fleetVesselSub, { color: colors.muted }]}>Mechanized Gillnetter • Drift Netting</Text>
+                  </View>
+                </View>
+                <View style={[styles.speedTag, { backgroundColor: "rgba(16, 185, 129, 0.15)" }]}>
+                  <Text style={{ color: "#10B981", fontSize: 11, fontWeight: "800" }}>7.8 kts</Text>
+                </View>
+              </View>
+
+              <View style={styles.fleetCardBottom}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <Text style={[styles.fleetMetaText, { color: colors.muted }]}>📻 VHF Ch 16</Text>
+                  <Text style={[styles.fleetMetaText, { color: colors.dataBlue }]}>📍 16.9491°N, 82.4975°E</Text>
+                </View>
+                <Pressable
+                  onPress={() => handleLocateVessel("FV Matsya Prabha")}
+                  style={[styles.fleetLocateAction, locatingVessel === "FV Matsya Prabha" && { backgroundColor: "rgba(31, 166, 160, 0.3)" }]}
+                >
+                  <Ionicons name={locatingVessel === "FV Matsya Prabha" ? "sync" : "locate"} size={14} color={colors.brand} />
+                  <Text style={{ color: colors.brand, fontSize: 11, fontWeight: "800" }}>
+                    {locatingVessel === "FV Matsya Prabha" ? "Locating..." : "Locate"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Vessel 3: Kakinada Pilot Station */}
+            <View style={[styles.fleetSeedCard, { backgroundColor: isDark ? "rgba(24, 28, 32, 0.88)" : "#FFFFFF", borderColor: isDark ? "rgba(16, 185, 129, 0.35)" : colors.borderStrong }]}>
+              <View style={styles.fleetCardTop}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Text style={{ fontSize: 18 }}>⚓</Text>
+                  <View>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Text style={[styles.fleetVesselTitle, { color: colors.onSurface }]}>Kakinada Pilot Station</Text>
+                      <View style={[styles.demoBadge, { backgroundColor: "rgba(245, 158, 11, 0.2)", borderColor: colors.warning }]}>
+                        <Text style={[styles.demoBadgeText, { color: colors.warning }]}>DEMO DATA</Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.fleetVesselSub, { color: colors.muted }]}>Pilot & Port Support • Harbour Watch</Text>
+                  </View>
+                </View>
+                <View style={[styles.speedTag, { backgroundColor: "rgba(56, 189, 248, 0.15)" }]}>
+                  <Text style={{ color: colors.dataBlue, fontSize: 11, fontWeight: "800" }}>0 kts</Text>
+                </View>
+              </View>
+
+              <View style={styles.fleetCardBottom}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <Text style={[styles.fleetMetaText, { color: colors.muted }]}>📻 VHF Ch 16</Text>
+                  <Text style={[styles.fleetMetaText, { color: colors.dataBlue }]}>📍 16.9091°N, 82.3675°E</Text>
+                </View>
+                <Pressable
+                  onPress={() => handleLocateVessel("Kakinada Pilot Station")}
+                  style={[styles.fleetLocateAction, locatingVessel === "Kakinada Pilot Station" && { backgroundColor: "rgba(31, 166, 160, 0.3)" }]}
+                >
+                  <Ionicons name={locatingVessel === "Kakinada Pilot Station" ? "sync" : "locate"} size={14} color={colors.brand} />
+                  <Text style={{ color: colors.brand, fontSize: 11, fontWeight: "800" }}>
+                    {locatingVessel === "Kakinada Pilot Station" ? "Locating..." : "Locate"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* Interactive Tactical ECDIS Plotter (Module 4.1) */}
         <View style={styles.radarSection}>
           <View style={styles.sectionHeader}>
@@ -495,7 +647,7 @@ export default function HomeScreen() {
               {region.name} {t("sector", lang)} • AIS Fleet & Fairway Station
             </Text>
           </View>
-          <MapWidget widget={homeMapWidget} />
+          <MapWidget ref={mapRef} widget={homeMapWidget} />
         </View>
 
         {/* Live Sector Radar Widget */}
@@ -531,6 +683,68 @@ export default function HomeScreen() {
         visible={langModalVisible}
         onClose={() => setLangModalVisible(false)}
       />
+
+      {/* View All Fleet Operations Modal (Module 4.4) */}
+      <Modal visible={fleetModalVisible} animationType="slide" transparent onRequestClose={() => setFleetModalVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.75)", justifyContent: "flex-end" }}>
+          <View style={{ backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: "80%" }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <View>
+                <Text style={{ fontSize: 16, fontWeight: "900", color: colors.onSurface }}>ACTIVE FLEET ROSTER</Text>
+                <Text style={{ fontSize: 11, color: colors.muted }}>3 Tracked Craft • Kakinada Roadstead Sector</Text>
+              </View>
+              <Pressable onPress={() => setFleetModalVisible(false)} style={{ padding: 4 }}>
+                <Ionicons name="close" size={24} color={colors.onSurface} />
+              </Pressable>
+            </View>
+
+            <View style={{ flexDirection: "row", alignItems: "center", backgroundColor: isDark ? "#111417" : "#F1F5F9", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 14, borderWidth: 1, borderColor: colors.border }}>
+              <Ionicons name="search" size={16} color={colors.muted} />
+              <TextInput
+                value={fleetSearch}
+                onChangeText={setFleetSearch}
+                placeholder="Search by vessel name or callsign..."
+                placeholderTextColor={colors.muted}
+                style={{ flex: 1, marginLeft: 8, color: colors.onSurface, fontSize: 13 }}
+              />
+            </View>
+
+            <ScrollView contentContainerStyle={{ gap: 10, paddingBottom: 20 }}>
+              {[
+                { name: "MV Sagar Samrat", type: "Deep Sea Trawler", status: "Active Trawling", speed: "9.2 kn", vhf: "Ch 16", lat: 17.0491, lon: 82.4275 },
+                { name: "FV Matsya Prabha", type: "Mechanized Gillnetter", status: "Active Drift Netting", speed: "7.8 kn", vhf: "Ch 16", lat: 16.9491, lon: 82.4975 },
+                { name: "Kakinada Pilot Station", type: "Pilot & Harbour Watch", status: "Available", speed: "0 kn", vhf: "Ch 16", lat: 16.9091, lon: 82.3675 },
+              ]
+                .filter(v => !fleetSearch || v.name.toLowerCase().includes(fleetSearch.toLowerCase()))
+                .map((v, i) => (
+                  <View key={i} style={{ padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: isDark ? "#1E2428" : "#F8FAFC" }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                      <Text style={{ fontWeight: "800", fontSize: 14, color: colors.onSurface }}>⛵ {v.name}</Text>
+                      <View style={[styles.demoBadge, { backgroundColor: "rgba(245, 158, 11, 0.2)", borderColor: colors.warning }]}>
+                        <Text style={[styles.demoBadgeText, { color: colors.warning }]}>DEMO DATA</Text>
+                      </View>
+                    </View>
+                    <Text style={{ fontSize: 11, color: colors.muted, marginTop: 2 }}>{v.type} • {v.status} • {v.speed}</Text>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+                      <Text style={{ fontSize: 11, color: colors.brand }}>📻 {v.vhf} • {v.lat.toFixed(4)}°N, {v.lon.toFixed(4)}°E</Text>
+                      <Pressable
+                        onPress={() => {
+                          setFleetModalVisible(false);
+                          handleLocateVessel(v.name);
+                        }}
+                        style={[styles.fleetLocateAction, { backgroundColor: "rgba(31, 166, 160, 0.15)" }]}
+                      >
+                        <Ionicons name="locate" size={13} color={colors.brand} />
+                        <Text style={{ color: colors.brand, fontSize: 11, fontWeight: "800" }}>Locate on Map</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
@@ -539,6 +753,74 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+
+  viewAllBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+  },
+  fleetSeedCard: {
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    padding: spacing.md,
+    gap: 10,
+  },
+  fleetCardTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  fleetVesselTitle: {
+    fontSize: type.base,
+    fontWeight: "800",
+  },
+  fleetVesselSub: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  demoBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 4,
+    borderWidth: 1,
+  },
+  demoBadgeText: {
+    fontFamily: fonts.mono,
+    fontSize: 8.5,
+    fontWeight: "900",
+  },
+  speedTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+  },
+  fleetCardBottom: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255, 255, 255, 0.06)",
+    paddingTop: 8,
+  },
+  fleetMetaText: {
+    fontFamily: fonts.mono,
+    fontSize: 10.5,
+    fontWeight: "600",
+  },
+  fleetLocateAction: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.sm,
+    backgroundColor: "rgba(31, 166, 160, 0.12)",
+  },
+
 
   fishermanBar: {
     marginHorizontal: spacing.md,

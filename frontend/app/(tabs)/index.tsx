@@ -158,11 +158,12 @@ export default function ChatScreen() {
     [loading, sessionId, lang, activeLoc, region, userId, scrollEnd, voice],
   );
 
-  // Handle deep-link / param from Saved screen
+  // Handle deep-link / param from Saved screen or Homepage quick actions
   useEffect(() => {
     if (sessionId === "boot") return;
-    if (params.q && sentParam.current !== params.q) {
-      sentParam.current = params.q;
+    const targetQ = params.q || (params as any).query;
+    if (targetQ && sentParam.current !== targetQ) {
+      sentParam.current = targetQ;
       const loc =
         params.lat && params.lon
           ? {
@@ -172,10 +173,10 @@ export default function ChatScreen() {
             }
           : null;
       if (loc) setActiveLoc(loc);
-      const analysis = detectQueryLanguageAndIntent(params.q, lang, region.id);
-      send(params.q, loc, true, analysis.detectedLang);
+      const analysis = detectQueryLanguageAndIntent(targetQ, lang, region.id);
+      send(targetQ, loc, true, analysis.detectedLang);
     }
-  }, [params.q, params.lat, params.lon, params.locName, sessionId, send, lang, region.id]);
+  }, [params, sessionId, send, lang, region.id]);
 
   const onMicPress = useCallback(async () => {
     if (voice.state === "recording") {

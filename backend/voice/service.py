@@ -45,15 +45,14 @@ _ELEVEN_KEY = os.environ.get("ELEVENLABS_API_KEY")
 _EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
 _eleven_client = None
 
-# "Adam" — a friendly, neutral premade voice available on all ElevenLabs
-# plans (Rachel's ID is blocked for free-tier API access — "library
-# voices" restriction — Adam works fine and is cross-lingual with eleven_v3).
-DEFAULT_VOICE_ID = "pNInz6obpgDQGcFmaJgB"
-FALLBACK_OPENAI_VOICE = "echo"  # calm, smooth — fits a marine copilot tone
+# "Bella" — a warm, natural human multilingual voice available on ElevenLabs,
+# highly fluent in Telugu, Hindi, and English without robotic American accent.
+DEFAULT_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"
+FALLBACK_OPENAI_VOICE = "nova"  # warm, natural female voice
 
 STT_MODEL = "scribe_v1"
-TTS_MODEL_PRIMARY = "eleven_v3"
-TTS_MODEL_FALLBACK = "eleven_multilingual_v2"  # no Telugu support
+TTS_MODEL_PRIMARY = "eleven_multilingual_v2"
+TTS_MODEL_FALLBACK = "eleven_turbo_v2_5"
 
 
 class VoiceUnavailable(Exception):
@@ -139,9 +138,51 @@ async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.m4a",
         raise VoiceUnavailable(f"transcription failed on both providers: {e2}") from e2
 
 
+def clean_text_for_speech(text: str, language_code: str = "en") -> str:
+    """Prepares natural, conversational spoken text without markdown, raw coordinates, or English acronyms."""
+    import re
+    # Remove citations / metadata lines
+    text = re.sub(r'(?i)(డేటా మూలం|విడుదల సమయం|Data Source|Advisory Timestamp|Published time|COORDS|STATUS|CREW|MMSI|CALLSIGN).*', '', text)
+    # Remove raw coordinates e.g. 17.0290°N, 82.3980°E
+    text = re.sub(r'\d+\.\d+°[NSEW],\s*\d+\.\d+°[NSEW]', '', text)
+    text = re.sub(r'[\d.]+°[NSEW]', '', text)
+    # Remove parenthetical acronyms
+    text = re.sub(r'\((Heading|ETA|SAFE|PFZ|SST|Chl|AIS|AIS Telemetrics|కోఆర్డినేట్స్|Coordinates|SOG|COG|Active Trawling|Drift Netting|Trawling Outer Shelf|Valid 24h|PFZ సమాచారం|UNSAFE/CAUTION|CAUTION)\)', '', text, flags=re.I)
+
+    if language_code == "te" or re.search(r'[\u0C00-\u0C7F]', text):
+        replacements = [
+            (r'\bKakinada\b', 'కాకినాడ'), (r'\bVisakhapatnam\b|\bVizag\b', 'విశాఖపట్నం'),
+            (r'\bChennai\b', 'చెన్నై'), (r'\bMumbai\b', 'ముంబై'), (r'\bKochi\b', 'కొచ్చి'),
+            (r'\bGujarat\b', 'గుజరాత్'), (r'Indian Mackerel, Sardine, Tuna', 'కానగంతలు, కవళ్లు మరియు సూర చేపలు'),
+            (r'Indian Mackerel, Sardine', 'కానగంతలు మరియు కవళ్లు'), (r'Yellowfin Tuna, Seer Fish', 'వంజరం మరియు ట్యూనా చేపలు'),
+            (r'\bENE\b', 'ఈశాన్యం వైపు'), (r'\bESE\b', 'తూర్పు ఆగ్నేయం వైపు'), (r'\bSSE\b', 'దక్షిణ ఆగ్నేయం వైపు'),
+            (r'\bVHF\s*Ch(?:annel)?\s*16\b', 'వైర్‌లెస్ రేడియో ఛానల్ పదహారు'),
+            (r'\bNM\b|\bNautical Miles\b', ' నాటికల్ మైళ్ళు '), (r'\bkts\b|\bknots\b|\bkn\b', ' నాట్లు '),
+            (r'\bkm\b', ' కిలోమీటర్లు '), (r'°C', ' డిగ్రీల సెల్సియస్ '),
+        ]
+        for pat, repl in replacements:
+            text = re.sub(pat, repl, text, flags=re.I)
+    elif language_code == "hi" or re.search(r'[\u0900-\u097F]', text):
+        replacements = [
+            (r'\bKakinada\b', 'काकीनाडा'), (r'\bVisakhapatnam\b|\bVizag\b', 'विशाखापट्टनम'),
+            (r'\bChennai\b', 'चेन्नई'), (r'\bMumbai\b', 'मुंबई'), (r'\bKochi\b', 'कोच्चि'),
+            (r'\bGujarat\b', 'गुजरात'), (r'\bNM\b|\bNautical Miles\b', ' नॉटिकल मील '),
+            (r'\bkts\b|\bknots\b|\bkn\b', ' नॉट '), (r'\bkm\b', ' किलोमीटर '), (r'°C', ' डिग्री सेल्सियस '),
+        ]
+        for pat, repl in replacements:
+            text = re.sub(pat, repl, text, flags=re.I)
+
+    text = re.sub(r'[*#_~`•|()\[\]]', ' ', text)
+    text = re.sub(r'[🧭🐟⚓⛵🌊★✅⚠️💡📍✓➔\-]', ' ', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+
 async def synthesize_speech(text: str, language_code: str = "en",
                              voice_id: str = DEFAULT_VOICE_ID) -> bytes:
     """Text -> speech (mp3 bytes). Tries ElevenLabs SDK first, falls back to direct REST."""
+    clean_text = clean_text_for_speech(text, language_code)
+    speech_text = clean_text if clean_text else text
     clean_lang = language_code.lower() if (language_code and language_code.lower() in ("en", "hi", "es", "fr", "de", "it", "pt", "pl")) else None
     key = _get_eleven_key()
     if key:
@@ -150,7 +191,7 @@ async def synthesize_speech(text: str, language_code: str = "en",
             try:
                 client = _get_eleven_client()
                 chunks = client.text_to_speech.convert(
-                    voice_id=voice_id, text=text, model_id=TTS_MODEL_PRIMARY,
+                    voice_id=voice_id, text=speech_text, model_id=TTS_MODEL_PRIMARY,
                     language_code=clean_lang, output_format="mp3_44100_128",
                 )
                 return b"".join(chunks)
@@ -159,7 +200,7 @@ async def synthesize_speech(text: str, language_code: str = "en",
 
         # 2. Try ElevenLabs REST API
         try:
-            return await _elevenlabs_rest_tts(text, TTS_MODEL_FALLBACK, voice_id, clean_lang)
+            return await _elevenlabs_rest_tts(speech_text, TTS_MODEL_PRIMARY, voice_id, clean_lang)
         except Exception as e:
             logger.warning("ElevenLabs REST TTS fallback failed: %s", e)
 
@@ -167,7 +208,7 @@ async def synthesize_speech(text: str, language_code: str = "en",
         raise VoiceUnavailable("TTS failed and no Emergent fallback key or provider available")
     try:
         tts = OpenAITextToSpeech(api_key=_EMERGENT_KEY)
-        return await tts.generate_speech(text=text, model="tts-1",
+        return await tts.generate_speech(text=speech_text, model="tts-1",
                                           voice=FALLBACK_OPENAI_VOICE)
     except Exception as e3:  # noqa: BLE001
         logger.error("OpenAI TTS fallback also failed: %s", e3)

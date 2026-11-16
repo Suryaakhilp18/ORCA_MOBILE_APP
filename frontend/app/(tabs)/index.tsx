@@ -24,6 +24,7 @@ import LanguagePicker from "@/src/components/LanguagePicker";
 import { useVoiceAgent } from "@/src/hooks/useVoiceAgent";
 import { useApp, t, trackingFor, Lang } from "@/src/context/AppContext";
 import { colors, fonts, radius, spacing, type } from "@/src/theme";
+import { detectQueryLanguageAndIntent } from "@/src/utils/navigation";
 
 const SUGGESTIONS: { en: string; te: string; hi: string }[] = [
   {
@@ -120,11 +121,9 @@ export default function ChatScreen() {
         lat: region.center.lat,
         lon: region.center.lon,
       };
-      // Determine effective language: if spoken query was detected as native script, use that
-      const isTe = /[\u0C00-\u0C7F]/.test(clean);
-      const isHi = /[\u0900-\u097F]/.test(clean);
-      const isTa = /[\u0B80-\u0BFF]/.test(clean);
-      const effectiveLang: Lang = queryLang || (isTe ? "te" : isHi ? "hi" : isTa ? "ta" : lang);
+      // Determine effective language and intent using multilingual & transliteration detection
+      const analysis = detectQueryLanguageAndIntent(clean, queryLang || lang, region.id);
+      const effectiveLang: Lang = queryLang || analysis.detectedLang;
 
       try {
         const resp = await api.chat({
@@ -173,30 +172,24 @@ export default function ChatScreen() {
             }
           : null;
       if (loc) setActiveLoc(loc);
-      const isTe = /[\u0C00-\u0C7F]/.test(params.q);
-      const isHi = /[\u0900-\u097F]/.test(params.q);
-      const isTa = /[\u0B80-\u0BFF]/.test(params.q);
-      const detectedLang: Lang = isTe ? "te" : isHi ? "hi" : isTa ? "ta" : lang;
-      send(params.q, loc, true, detectedLang);
+      const analysis = detectQueryLanguageAndIntent(params.q, lang, region.id);
+      send(params.q, loc, true, analysis.detectedLang);
     }
-  }, [params.q, params.lat, params.lon, params.locName, sessionId, send, lang]);
+  }, [params.q, params.lat, params.lon, params.locName, sessionId, send, lang, region.id]);
 
   const onMicPress = useCallback(async () => {
     if (voice.state === "recording") {
       const text = await voice.stopRecording();
       if (text) {
-        const isTe = /[\u0C00-\u0C7F]/.test(text);
-        const isHi = /[\u0900-\u097F]/.test(text);
-        const isTa = /[\u0B80-\u0BFF]/.test(text);
-        const detectedLang: Lang = isTe ? "te" : isHi ? "hi" : isTa ? "ta" : lang;
-        send(text, undefined, true, detectedLang);
+        const analysis = detectQueryLanguageAndIntent(text, lang, region.id);
+        send(text, undefined, true, analysis.detectedLang);
       }
     } else if (voice.state === "speaking") {
       voice.stopSpeaking();
     } else if (voice.state === "idle") {
-      await voice.startRecording();
+      await voice.startRecording(lang);
     }
-  }, [voice, send, lang]);
+  }, [voice, send, lang, region.id]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
@@ -353,6 +346,19 @@ export default function ChatScreen() {
               size={20}
               color={colors.onBrand}
             />
+          </Pressable>
+          <Pressable
+            testID="quick-lang-btn"
+            onPress={() => setShowLangPicker(true)}
+            style={[
+              styles.langPill,
+              { backgroundColor: colors.surfaceTertiary, borderColor: colors.border },
+            ]}
+            accessibilityLabel="Switch Voice Language"
+          >
+            <Text style={[styles.langPillText, { color: colors.brand }]}>
+              {lang.toUpperCase()}
+            </Text>
           </Pressable>
           <TextInput
             testID="chat-input"
@@ -632,6 +638,21 @@ const styles = StyleSheet.create({
   },
   micBtnSpeaking: {
     backgroundColor: colors.success,
+  },
+  langPill: {
+    height: 38,
+    paddingHorizontal: 9,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 3,
+  },
+  langPillText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 0.5,
   },
   voiceBar: {
     flexDirection: "row",

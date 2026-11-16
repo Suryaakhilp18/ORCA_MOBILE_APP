@@ -92,9 +92,11 @@ export function useVoiceAgent(lang: Lang) {
     return false;
   }, [isWeb, showSettingsPrompt]);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(async (overrideLang?: Lang) => {
     setLiveTranscript("");
     webTranscriptRef.current = "";
+
+    const activeLang = overrideLang || lang;
 
     if (isWeb) {
       if (typeof window === "undefined") return;
@@ -107,7 +109,7 @@ export function useVoiceAgent(lang: Lang) {
           const rec = new SpeechRecognition();
           rec.continuous = true;
           rec.interimResults = true;
-          rec.lang = BROWSER_LANG_MAP[lang] || "en-IN";
+          rec.lang = BROWSER_LANG_MAP[activeLang] || "en-IN";
           rec.maxAlternatives = 1;
 
           rec.onresult = (event: any) => {
@@ -211,8 +213,19 @@ export function useVoiceAgent(lang: Lang) {
     }
   }, [isWeb, recorder, lang]);
 
-  const speak = useCallback(async (text: string, language: Lang) => {
+  const speak = useCallback(async (text: string, language?: Lang) => {
     if (!text || !text.trim()) return;
+
+    // Auto-detect the actual script/language of the text so Telugu/Hindi text is never read with an English voice
+    let actualLang: Lang = language || lang;
+    if (/[\u0C00-\u0C7F]/.test(text)) actualLang = "te";
+    else if (/[\u0900-\u097F]/.test(text)) actualLang = "hi";
+    else if (/[\u0B80-\u0BFF]/.test(text)) actualLang = "ta";
+    else if (/[\u0D00-\u0D7F]/.test(text)) actualLang = "ml";
+    else if (/[\u0C80-\u0CFF]/.test(text)) actualLang = "kn";
+    else if (/[\u0A80-\u0AFF]/.test(text)) actualLang = "gu";
+    else if (/[\u0980-\u09FF]/.test(text)) actualLang = "bn";
+    else if (/[\u0B00-\u0B7F]/.test(text)) actualLang = "or";
 
     if (isWeb && typeof window !== "undefined") {
       if (window.speechSynthesis) {
@@ -221,16 +234,17 @@ export function useVoiceAgent(lang: Lang) {
           // Clean text of markdown, icons, asterisks for natural spoken delivery
           let cleanText = text
             .replace(/[*#_~`•]/g, " ")
-            .replace(/⛔|⚠️|✓|★|➔|->/g, " ")
-            .replace(/kts|knots|kn\b/gi, language === "te" ? " నాట్లు " : language === "hi" ? " नॉट " : " knots ")
-            .replace(/km\b/gi, language === "te" ? " కిలోమీటర్లు " : language === "hi" ? " किलोमीटर " : " km ")
-            .replace(/°C/g, language === "te" ? " డిగ్రీల సెల్సియస్ " : language === "hi" ? " डिग्री सेल्सियस " : " degrees ")
+            .replace(/⛔|⚠️|✓|★|➔|->|🧭|🐟|⚓|⛵/g, " ")
+            .replace(/NM\b/g, actualLang === "te" ? " నాటికల్ మైళ్ళు " : actualLang === "hi" ? " नॉटिकल मील " : " nautical miles ")
+            .replace(/kts|knots|kn\b/gi, actualLang === "te" ? " నాట్లు " : actualLang === "hi" ? " नॉट " : " knots ")
+            .replace(/km\b/gi, actualLang === "te" ? " కిలోమీటర్లు " : actualLang === "hi" ? " किलोमीटर " : " km ")
+            .replace(/°C/g, actualLang === "te" ? " డిగ్రీల సెల్సియస్ " : actualLang === "hi" ? " डिग्री सेल्सियस " : " degrees ")
             .replace(/\s+/g, " ")
             .trim();
 
           const utterance = new SpeechSynthesisUtterance(cleanText);
-          const targetLang = BROWSER_LANG_MAP[language] || "en-IN";
-          const langPrefix = language.toLowerCase();
+          const targetLang = BROWSER_LANG_MAP[actualLang] || "en-IN";
+          const langPrefix = actualLang.toLowerCase();
           
           // Match the most authentic native voice
           const voices = window.speechSynthesis.getVoices() || [];
@@ -284,7 +298,7 @@ export function useVoiceAgent(lang: Lang) {
     }
 
     try {
-      const buf = await api.voiceSpeak(text, language);
+      const buf = await api.voiceSpeak(text, actualLang);
       if (!isWeb) {
         await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
         const file = new File(Paths.cache, `orca-speak-${Date.now()}.mp3`);

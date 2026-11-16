@@ -42,27 +42,29 @@ INTENTS = [
 import asyncio
 
 async def _chat_with_fallback(session_id: str, system: str, prompt: str) -> str:
-    """Call the LLM with strict timeout for sub-second responsiveness."""
-    if not GEMINI_API_KEY and not EMERGENT_LLM_KEY:
+    """Call the LLM with fallback for responsive synthesis."""
+    gemini_key = os.environ.get("GEMINI_API_KEY", "") or GEMINI_API_KEY
+    emergent_key = os.environ.get("EMERGENT_LLM_KEY", "") or EMERGENT_LLM_KEY
+    if not gemini_key and not emergent_key:
         return ""
-    if GEMINI_API_KEY:
+    if gemini_key:
         try:
-            chat = LlmChat(api_key=GEMINI_API_KEY, session_id=session_id,
+            chat = LlmChat(api_key=gemini_key, session_id=session_id,
                            system_message=system).with_model(*GEMINI_MODEL)
-            resp = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout=0.8)
+            resp = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout=4.5)
             if resp and resp.strip():
                 return resp.strip()
-        except Exception:
-            pass
-    if EMERGENT_LLM_KEY:
+        except Exception as e:
+            logger.info("Gemini call fell back to deterministic rules: %s", e)
+    if emergent_key:
         try:
-            chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"{session_id}-fb",
+            chat = LlmChat(api_key=emergent_key, session_id=f"{session_id}-fb",
                            system_message=system).with_model(*FALLBACK_MODEL)
-            resp = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout=0.8)
+            resp = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout=4.5)
             if resp and resp.strip():
                 return resp.strip()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.info("Emergent fallback error: %s", e)
     return ""
 
 

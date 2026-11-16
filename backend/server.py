@@ -6,11 +6,15 @@ All safety verdicts are deterministic; the LLM only explains them.
 """
 import asyncio
 import logging
+import os
 import time
 import json
 import uuid
 from collections import defaultdict
 from datetime import datetime, timezone
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import httpx
 from fastapi import APIRouter, FastAPI, HTTPException, Query, Request, UploadFile, File

@@ -17,7 +17,7 @@ class LlmChat:
         self.session_id = session_id
         self.system_message = system_message
         self.provider = "gemini"
-        self.model = "gemini-1.5-flash"
+        self.model = "gemini-3.5-flash"
 
     def with_model(self, provider: str, model: str):
         self.provider = provider
@@ -31,12 +31,17 @@ class LlmChat:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=self.api_key)
-                model_name = "gemini-1.5-flash" if "flash" in self.model else "gemini-1.5-pro"
+                model_name = self.model or "gemini-3.5-flash"
+                if any(old in model_name for old in ["1.5", "2.0", "2.5"]):
+                    model_name = "gemini-3.5-flash"
                 m = genai.GenerativeModel(
                     model_name=model_name,
                     system_instruction=self.system_message if self.system_message else None
                 )
-                response = m.generate_content(prompt)
+                try:
+                    response = await m.generate_content_async(prompt)
+                except Exception:
+                    response = m.generate_content(prompt)
                 if response and response.text:
                     return response.text
             except Exception as e:

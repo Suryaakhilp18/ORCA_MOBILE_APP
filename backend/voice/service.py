@@ -24,6 +24,7 @@ Design notes (read before touching):
 import io
 import logging
 import os
+import httpx
 
 from dotenv import load_dotenv
 try:
@@ -57,13 +58,47 @@ class VoiceUnavailable(Exception):
     flow."""
 
 
+def _get_eleven_key() -> str:
+    return os.environ.get("ELEVENLABS_API_KEY") or _ELEVEN_KEY or ""
+
+
 def _get_eleven_client() -> ElevenLabs:
     global _eleven_client
-    if not _ELEVEN_KEY:
+    key = _get_eleven_key()
+    if not key:
         raise VoiceUnavailable("ELEVENLABS_API_KEY not configured")
+    if ElevenLabs is None:
+        raise VoiceUnavailable("ElevenLabs SDK not installed, using REST fallback")
     if _eleven_client is None:
-        _eleven_client = ElevenLabs(api_key=_ELEVEN_KEY)
+        _eleven_client = ElevenLabs(api_key=key)
     return _eleven_client
+
+
+async def _elevenlabs_rest_tts(text: str, model_id: str, voice_id: str, language_code: str = "en") -> bytes:
+    key = _get_eleven_key()
+    if not key:
+        raise VoiceUnavailable("ELEVENLABS_API_KEY not configured")
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    body = {
+        "text": text,
+        "model_id": model_id,
+        "voice_settings": {"stability": 0.5, "similarity_boost": 0.8}
+    }
+    if language_code:
+        body["language_code"] = language_code
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        resp = await client.post(
+            url,
+            headers={
+                "xi-api-key": key,
+                "Content-Type": "application/json",
+                "Accept": "audio/mpeg"
+            },
+            json=body
+        )
+        if resp.status_code == 200:
+            return resp.content
+        raise VoiceUnavailable(f"ElevenLabs REST HTTP {resp.status_code}: {resp.text}")
 
 
 async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.m4a",
@@ -100,28 +135,26 @@ async def transcribe_audio(audio_bytes: bytes, filename: str = "voice.m4a",
 
 async def synthesize_speech(text: str, language_code: str = "en",
                              voice_id: str = DEFAULT_VOICE_ID) -> bytes:
-    """Text -> speech (mp3 bytes). Tries ElevenLabs eleven_v3 first
-    (required for Telugu), then eleven_multilingual_v2 (en/hi only), then
-    finally OpenAI TTS via the Emergent key (any language, English accent)."""
-    try:
-        client = _get_eleven_client()
-        chunks = client.text_to_speech.convert(
-            voice_id=voice_id, text=text, model_id=TTS_MODEL_PRIMARY,
-            language_code=language_code, output_format="mp3_44100_128",
-        )
-        return b"".join(chunks)
-    except Exception as e:  # noqa: BLE001
-        logger.warning("eleven_v3 TTS failed (%s)", e)
-        if language_code != "te":
+    """Text -> speech (mp3 bytes). Tries ElevenLabs SDK first, falls back to direct REST."""
+    key = _get_eleven_key()
+    if key:
+        # 1. Try ElevenLabs SDK if installed
+        if ElevenLabs is not None:
             try:
                 client = _get_eleven_client()
                 chunks = client.text_to_speech.convert(
-                    voice_id=voice_id, text=text, model_id=TTS_MODEL_FALLBACK,
-                    output_format="mp3_44100_128",
+                    voice_id=voice_id, text=text, model_id=TTS_MODEL_PRIMARY,
+                    language_code=language_code, output_format="mp3_44100_128",
                 )
                 return b"".join(chunks)
-            except Exception as e2:  # noqa: BLE001
-                logger.warning("ElevenLabs multilingual_v2 fallback also failed: %s", e2)
+            except Exception as e:
+                logger.warning("ElevenLabs SDK TTS failed (%s), trying REST fallback", e)
+
+        # 2. Try ElevenLabs REST API
+        try:
+            return await _elevenlabs_rest_tts(text, TTS_MODEL_FALLBACK, voice_id, language_code)
+        except Exception as e:
+            logger.warning("ElevenLabs REST TTS fallback failed: %s", e)
 
     if not _EMERGENT_KEY:
         raise VoiceUnavailable("TTS failed and no Emergent fallback key configured")

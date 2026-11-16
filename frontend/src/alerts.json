@@ -1,0 +1,239 @@
+{
+  "kakinada": {
+    "region": "Kakinada, Andhra Pradesh",
+    "region_id": "kakinada",
+    "alerts": [
+      {
+        "key": "alert-cyclone-bob04",
+        "type": "cyclone",
+        "severity": "high",
+        "title": "Cyclone Warning — Deep Depression BOB-04",
+        "body": "Deep Depression over west-central Bay of Bengal likely to intensify into a cyclonic storm. Squally winds 45-55 kmph gusting 65 kmph expected. Fishermen advised NOT to venture into sea.",
+        "source": "IMD Cyclone Bulletin",
+        "issued_hours_ago": 2,
+        "valid_hours": 36
+      },
+      {
+        "key": "alert-lightning-01",
+        "type": "lightning",
+        "severity": "moderate",
+        "title": "Lightning Alert — Offshore Kakinada",
+        "body": "Thunderstorms with frequent lightning likely offshore Kakinada. Avoid open-sea activity.",
+        "source": "IMD Nowcast",
+        "issued_hours_ago": 1,
+        "valid_hours": 18
+      }
+    ]
+  },
+  "visakhapatnam": {
+    "region": "Visakhapatnam, Andhra Pradesh",
+    "region_id": "visakhapatnam",
+    "alerts": [
+      {
+        "key": "alert-vizag-01",
+        "type": "cyclone",
+        "severity": "high",
+        "title": "Squally Wind Alert — Visakhapatnam Coast",
+        "body": "Winds 45-55 kmph gusting to 65 kmph off Vizag. Sea condition rough.",
+        "source": "IMD Cyclone Warning Centre",
+        "issued_hours_ago": 2,
+        "valid_hours": 36
+      }
+    ]
+  },
+  "machilipatnam": {
+    "region": "Machilipatnam, Andhra Pradesh",
+    "region_id": "machilipatnam",
+    "alerts": []
+  },
+  "chennai": {
+    "region": "Chennai, Tamil Nadu",
+    "region_id": "chennai",
+    "alerts": [
+      {
+        "key": "alert-highwave-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "High Wave Advisory — Chennai Coast",
+        "body": "Sea condition rough to very rough with wave heights of 1.8-2.2 m off Chennai coast.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 3,
+        "valid_hours": 24
+      }
+    ]
+  },
+  "tuticorin": {
+    "region": "Tuticorin (Thoothukudi), Tamil Nadu",
+    "region_id": "tuticorin",
+    "alerts": []
+  },
+  "rameswaram": {
+    "region": "Rameswaram, Tamil Nadu",
+    "region_id": "rameswaram",
+    "alerts": []
+  },
+  "kanyakumari": {
+    "region": "Kanyakumari, Tamil Nadu",
+    "region_id": "kanyakumari",
+    "alerts": [
+      {
+        "key": "alert-currents-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "Strong Cross-Current Advisory — Wadge Bank",
+        "body": "Rapid confluence currents at Cape Comorin. Small vessels exercise extreme caution.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 3,
+        "valid_hours": 24
+      }
+    ]
+  },
+  "kochi": {
+    "region": "Kochi, Kerala",
+    "region_id": "kochi",
+    "alerts": []
+  },
+  "kozhikode": {
+    "region": "Kozhikode (Calicut), Kerala",
+    "region_id": "kozhikode",
+    "alerts": []
+  },
+  "vizhinjam": {
+    "region": "Vizhinjam (Trivandrum), Kerala",
+    "region_id": "vizhinjam",
+    "alerts": []
+  },
+  "mangalore": {
+    "region": "Mangalore, Karnataka",
+    "region_id": "mangalore",
+    "alerts": []
+  },
+  "karwar": {
+    "region": "Karwar, Karnataka",
+    "region_id": "karwar",
+    "alerts": []
+  },
+  "goa": {
+    "region": "Goa (Mormugao), Goa",
+    "region_id": "goa",
+    "alerts": []
+  },
+  "mumbai": {
+    "region": "Mumbai, Maharashtra",
+    "region_id": "mumbai",
+    "alerts": [
+      {
+        "key": "alert-roughsea-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "Rough Sea Advisory — Mumbai Coast",
+        "body": "Rough sea conditions with wave heights up to 2.1 m off Mumbai tomorrow. Fishermen advised caution.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 4,
+        "valid_hours": 30
+      }
+    ]
+  },
+  "ratnagiri": {
+    "region": "Ratnagiri, Maharashtra",
+    "region_id": "ratnagiri",
+    "alerts": []
+  },
+  "malvan": {
+    "region": "Malvan, Maharashtra",
+    "region_id": "malvan",
+    "alerts": []
+  },
+  "veraval": {
+    "region": "Veraval, Gujarat",
+    "region_id": "veraval",
+    "alerts": []
+  },
+  "porbandar": {
+    "region": "Porbandar, Gujarat",
+    "region_id": "porbandar",
+    "alerts": []
+  },
+  "okha": {
+    "region": "Okha, Gujarat",
+    "region_id": "okha",
+    "alerts": []
+  },
+  "kandla": {
+    "region": "Kandla (Gulf of Kutch), Gujarat",
+    "region_id": "kandla",
+    "alerts": []
+  },
+  "paradip": {
+    "region": "Paradip, Odisha",
+    "region_id": "paradip",
+    "alerts": [
+      {
+        "key": "alert-cyclone-01",
+        "type": "cyclone",
+        "severity": "high",
+        "title": "Cyclone Warning — Odisha Coast",
+        "body": "Very Severe Cyclonic Storm tracking towards Odisha coast. Winds 90-100 kmph gusting 115 kmph. All fishing suspended.",
+        "source": "IMD Cyclone Bulletin",
+        "issued_hours_ago": 3,
+        "valid_hours": 48
+      },
+      {
+        "key": "alert-lightning-01",
+        "type": "lightning",
+        "severity": "high",
+        "title": "Lightning Alert — Paradip Coast",
+        "body": "Heavy rain with frequent lightning likely offshore Paradip. Avoid all open-sea activity.",
+        "source": "IMD Nowcast",
+        "issued_hours_ago": 1,
+        "valid_hours": 24
+      }
+    ]
+  },
+  "puri": {
+    "region": "Puri, Odisha",
+    "region_id": "puri",
+    "alerts": []
+  },
+  "gopalpur": {
+    "region": "Gopalpur, Odisha",
+    "region_id": "gopalpur",
+    "alerts": []
+  },
+  "digha": {
+    "region": "Digha, West Bengal",
+    "region_id": "digha",
+    "alerts": []
+  },
+  "sundarbans": {
+    "region": "Sundarbans (Canning), West Bengal",
+    "region_id": "sundarbans",
+    "alerts": [
+      {
+        "key": "alert-sundarban-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "Tidal Inundation Advisory — Sundarbans",
+        "body": "Spring tides combined with 2.5 m waves likely to cause surge in estuarine channels.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 2,
+        "valid_hours": 30
+      }
+    ]
+  },
+  "portblair": {
+    "region": "Port Blair, Andaman & Nicobar",
+    "region_id": "portblair",
+    "alerts": []
+  },
+  "kavaratti": {
+    "region": "Kavaratti, Lakshadweep",
+    "region_id": "kavaratti",
+    "alerts": []
+  },
+  "puducherry": {
+    "region": "Puducherry, Puducherry",
+    "region_id": "puducherry",
+    "alerts": []
+  }
+}

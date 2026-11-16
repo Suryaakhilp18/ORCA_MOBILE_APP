@@ -1,0 +1,3349 @@
+{
+  "kakinada": {
+    "region": "Kakinada, Andhra Pradesh",
+    "region_id": "kakinada",
+    "severity": "critical",
+    "verdict": "UNSAFE",
+    "reasons": [
+      "Cyclone Warning — Deep Depression BOB-04",
+      "Lightning Alert — Offshore Kakinada"
+    ],
+    "weather_today": {
+      "wind_kn": 14,
+      "gust_kn": 20,
+      "wave_m": 1.2,
+      "condition": "Partly cloudy",
+      "lightning_pct": 15,
+      "cyclone": "Deep Depression BOB-04 (Squally winds 45-55 kmph)",
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 32,
+      "gust_kn": 45,
+      "wave_m": 3.1,
+      "condition": "Squally thunderstorms",
+      "lightning_pct": 70,
+      "cyclone": "Deep Depression 'BOB-04' intensifying, approaching coast",
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-cyclone-bob04",
+        "type": "cyclone",
+        "severity": "high",
+        "title": "Cyclone Warning — Deep Depression BOB-04",
+        "body": "Deep Depression over west-central Bay of Bengal likely to intensify into a cyclonic storm. Squally winds 45-55 kmph gusting 65 kmph expected. Fishermen advised NOT to venture into sea.",
+        "source": "IMD Cyclone Bulletin",
+        "issued_hours_ago": 2,
+        "valid_hours": 36
+      },
+      {
+        "key": "alert-lightning-01",
+        "type": "lightning",
+        "severity": "moderate",
+        "title": "Lightning Alert — Offshore Kakinada",
+        "body": "Thunderstorms with frequent lightning likely offshore Kakinada. Avoid open-sea activity.",
+        "source": "IMD Nowcast",
+        "issued_hours_ago": 1,
+        "valid_hours": 18
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:42 IST",
+        "height_m": 1.4
+      },
+      {
+        "type": "Low",
+        "time": "11:58 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "18:10 IST",
+        "height_m": 1.6
+      },
+      {
+        "type": "Low",
+        "time": "23:47 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          11,
+          12,
+          13,
+          13,
+          14,
+          14
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.9,
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.2,
+          1.2
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.9,
+          28.7,
+          28.6,
+          28.5,
+          28.4,
+          28.3,
+          28.4
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "visakhapatnam": {
+    "region": "Visakhapatnam, Andhra Pradesh",
+    "region_id": "visakhapatnam",
+    "severity": "critical",
+    "verdict": "UNSAFE",
+    "reasons": [
+      "Squally Wind Alert — Visakhapatnam Coast"
+    ],
+    "weather_today": {
+      "wind_kn": 13,
+      "gust_kn": 18,
+      "wave_m": 1.1,
+      "condition": "Partly cloudy",
+      "lightning_pct": 12,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 28,
+      "gust_kn": 40,
+      "wave_m": 2.8,
+      "condition": "Squally weather",
+      "lightning_pct": 60,
+      "cyclone": "Deep Depression BOB-04",
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-vizag-01",
+        "type": "cyclone",
+        "severity": "high",
+        "title": "Squally Wind Alert — Visakhapatnam Coast",
+        "body": "Winds 45-55 kmph gusting to 65 kmph off Vizag. Sea condition rough.",
+        "source": "IMD Cyclone Warning Centre",
+        "issued_hours_ago": 2,
+        "valid_hours": 36
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:20 IST",
+        "height_m": 1.5
+      },
+      {
+        "type": "Low",
+        "time": "11:35 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "17:50 IST",
+        "height_m": 1.7
+      },
+      {
+        "type": "Low",
+        "time": "23:25 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          12,
+          12,
+          13,
+          13,
+          13,
+          14
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.2
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.6,
+          28.5,
+          28.4,
+          28.3,
+          28.2,
+          28.2,
+          28.3
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "machilipatnam": {
+    "region": "Machilipatnam, Andhra Pradesh",
+    "region_id": "machilipatnam",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Clear",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 22,
+      "gust_kn": 30,
+      "wave_m": 2.0,
+      "condition": "Cloudy with swells",
+      "lightning_pct": 35,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:10 IST",
+        "height_m": 1.3
+      },
+      {
+        "type": "Low",
+        "time": "11:20 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "17:40 IST",
+        "height_m": 1.5
+      },
+      {
+        "type": "Low",
+        "time": "23:15 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          10,
+          11,
+          11,
+          12,
+          12,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.9,
+          28.8,
+          28.7,
+          28.6,
+          28.5,
+          28.5,
+          28.6
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "chennai": {
+    "region": "Chennai, Tamil Nadu",
+    "region_id": "chennai",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "High Wave Advisory — Chennai Coast"
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Clear",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 20,
+      "gust_kn": 28,
+      "wave_m": 2.0,
+      "condition": "Moderate swell",
+      "lightning_pct": 35,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-highwave-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "High Wave Advisory — Chennai Coast",
+        "body": "Sea condition rough to very rough with wave heights of 1.8-2.2 m off Chennai coast.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 3,
+        "valid_hours": 24
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:58 IST",
+        "height_m": 1.1
+      },
+      {
+        "type": "Low",
+        "time": "10:40 IST",
+        "height_m": 0.2
+      },
+      {
+        "type": "High",
+        "time": "17:20 IST",
+        "height_m": 1.2
+      },
+      {
+        "type": "Low",
+        "time": "23:05 IST",
+        "height_m": 0.3
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          10,
+          11,
+          11,
+          12,
+          12,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.8,
+          29.7,
+          29.6,
+          29.5,
+          29.5,
+          29.4,
+          29.5
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "tuticorin": {
+    "region": "Tuticorin (Thoothukudi), Tamil Nadu",
+    "region_id": "tuticorin",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 14,
+      "gust_kn": 19,
+      "wave_m": 1.1,
+      "condition": "Breezy",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 18,
+      "gust_kn": 25,
+      "wave_m": 1.5,
+      "condition": "Moderate chop",
+      "lightning_pct": 20,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:30 IST",
+        "height_m": 1.0
+      },
+      {
+        "type": "Low",
+        "time": "10:15 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "16:50 IST",
+        "height_m": 1.1
+      },
+      {
+        "type": "Low",
+        "time": "22:40 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          13,
+          13,
+          14,
+          14,
+          14,
+          15,
+          14
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.1,
+          1.2,
+          1.1
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.2,
+          29.1,
+          29.1,
+          29.0,
+          29.0,
+          29.1,
+          29.1
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "rameswaram": {
+    "region": "Rameswaram, Tamil Nadu",
+    "region_id": "rameswaram",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 0.8,
+      "condition": "Fair",
+      "lightning_pct": 8,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.2,
+      "condition": "Moderate chop",
+      "lightning_pct": 15,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:00 IST",
+        "height_m": 0.9
+      },
+      {
+        "type": "Low",
+        "time": "11:10 IST",
+        "height_m": 0.2
+      },
+      {
+        "type": "High",
+        "time": "17:20 IST",
+        "height_m": 1.0
+      },
+      {
+        "type": "Low",
+        "time": "23:15 IST",
+        "height_m": 0.3
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          11,
+          12,
+          12,
+          12,
+          13,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.7,
+          0.7,
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.8
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.1,
+          29.0,
+          29.0,
+          28.9,
+          28.9,
+          29.0,
+          29.0
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "kanyakumari": {
+    "region": "Kanyakumari, Tamil Nadu",
+    "region_id": "kanyakumari",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Strong Cross-Current Advisory — Wadge Bank"
+    ],
+    "weather_today": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.4,
+      "condition": "Breezy with strong currents",
+      "lightning_pct": 15,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 22,
+      "gust_kn": 32,
+      "wave_m": 2.2,
+      "condition": "Rough seas — tri-sea confluence",
+      "lightning_pct": 30,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-currents-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "Strong Cross-Current Advisory — Wadge Bank",
+        "body": "Rapid confluence currents at Cape Comorin. Small vessels exercise extreme caution.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 3,
+        "valid_hours": 24
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:15 IST",
+        "height_m": 1.2
+      },
+      {
+        "type": "Low",
+        "time": "10:30 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "16:45 IST",
+        "height_m": 1.3
+      },
+      {
+        "type": "Low",
+        "time": "22:50 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          15,
+          15,
+          16,
+          16,
+          17,
+          17,
+          16
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.3,
+          1.3,
+          1.4,
+          1.4,
+          1.5,
+          1.5,
+          1.4
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.6,
+          28.5,
+          28.5,
+          28.4,
+          28.4,
+          28.5,
+          28.5
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "kochi": {
+    "region": "Kochi, Kerala",
+    "region_id": "kochi",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 10,
+      "gust_kn": 14,
+      "wave_m": 0.8,
+      "condition": "Fair, light breeze",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 13,
+      "gust_kn": 17,
+      "wave_m": 1.0,
+      "condition": "Fair",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "06:10 IST",
+        "height_m": 1.0
+      },
+      {
+        "type": "Low",
+        "time": "12:20 IST",
+        "height_m": 0.2
+      },
+      {
+        "type": "High",
+        "time": "18:40 IST",
+        "height_m": 1.1
+      },
+      {
+        "type": "Low",
+        "time": "00:15 IST",
+        "height_m": 0.3
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          9,
+          9,
+          9,
+          10,
+          10,
+          10,
+          10
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.7,
+          0.7,
+          0.7,
+          0.8,
+          0.8,
+          0.8,
+          0.8
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.5,
+          28.4,
+          28.3,
+          28.2,
+          28.1,
+          28.0,
+          28.1
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "kozhikode": {
+    "region": "Kozhikode (Calicut), Kerala",
+    "region_id": "kozhikode",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 11,
+      "gust_kn": 15,
+      "wave_m": 0.9,
+      "condition": "Fair",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 14,
+      "gust_kn": 19,
+      "wave_m": 1.1,
+      "condition": "Scattered clouds",
+      "lightning_pct": 12,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "06:25 IST",
+        "height_m": 1.1
+      },
+      {
+        "type": "Low",
+        "time": "12:35 IST",
+        "height_m": 0.2
+      },
+      {
+        "type": "High",
+        "time": "18:55 IST",
+        "height_m": 1.2
+      },
+      {
+        "type": "Low",
+        "time": "00:30 IST",
+        "height_m": 0.3
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          10,
+          11,
+          11,
+          11,
+          12,
+          11
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.4,
+          28.3,
+          28.2,
+          28.1,
+          28.1,
+          28.0,
+          28.1
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "vizhinjam": {
+    "region": "Vizhinjam (Trivandrum), Kerala",
+    "region_id": "vizhinjam",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 17,
+      "wave_m": 1.1,
+      "condition": "Partly cloudy",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 17,
+      "gust_kn": 24,
+      "wave_m": 1.6,
+      "condition": "Moderate swell",
+      "lightning_pct": 25,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:40 IST",
+        "height_m": 1.0
+      },
+      {
+        "type": "Low",
+        "time": "11:50 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "18:00 IST",
+        "height_m": 1.1
+      },
+      {
+        "type": "Low",
+        "time": "23:55 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          11,
+          12,
+          12,
+          13,
+          13,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.2,
+          1.2,
+          1.1
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.6,
+          28.5,
+          28.4,
+          28.4,
+          28.3,
+          28.3,
+          28.4
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "mangalore": {
+    "region": "Mangalore, Karnataka",
+    "region_id": "mangalore",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Clear",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 15,
+      "gust_kn": 21,
+      "wave_m": 1.3,
+      "condition": "Fair",
+      "lightning_pct": 15,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:15 IST",
+        "height_m": 1.3
+      },
+      {
+        "type": "Low",
+        "time": "11:25 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "17:45 IST",
+        "height_m": 1.4
+      },
+      {
+        "type": "Low",
+        "time": "23:35 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          11,
+          11,
+          12,
+          12,
+          12,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.3,
+          28.2,
+          28.1,
+          28.0,
+          28.0,
+          27.9,
+          28.0
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "karwar": {
+    "region": "Karwar, Karnataka",
+    "region_id": "karwar",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 11,
+      "gust_kn": 15,
+      "wave_m": 0.9,
+      "condition": "Fair",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 14,
+      "gust_kn": 19,
+      "wave_m": 1.1,
+      "condition": "Fair",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:05 IST",
+        "height_m": 1.4
+      },
+      {
+        "type": "Low",
+        "time": "11:15 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:35 IST",
+        "height_m": 1.5
+      },
+      {
+        "type": "Low",
+        "time": "23:25 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          9,
+          10,
+          10,
+          11,
+          11,
+          11,
+          11
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.1,
+          28.0,
+          27.9,
+          27.8,
+          27.8,
+          27.7,
+          27.8
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "goa": {
+    "region": "Goa (Mormugao), Goa",
+    "region_id": "goa",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Clear",
+      "lightning_pct": 8,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.4,
+      "condition": "Fair with afternoon breeze",
+      "lightning_pct": 18,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:55 IST",
+        "height_m": 1.6
+      },
+      {
+        "type": "Low",
+        "time": "11:05 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:25 IST",
+        "height_m": 1.7
+      },
+      {
+        "type": "Low",
+        "time": "23:15 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          11,
+          11,
+          12,
+          12,
+          12,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.2,
+          28.1,
+          28.0,
+          27.9,
+          27.9,
+          27.8,
+          27.9
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "mumbai": {
+    "region": "Mumbai, Maharashtra",
+    "region_id": "mumbai",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Rough Sea Advisory — Mumbai Coast"
+    ],
+    "weather_today": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.5,
+      "condition": "Cloudy",
+      "lightning_pct": 20,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 22,
+      "gust_kn": 30,
+      "wave_m": 2.1,
+      "condition": "Rough seas",
+      "lightning_pct": 40,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-roughsea-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "Rough Sea Advisory — Mumbai Coast",
+        "body": "Rough sea conditions with wave heights up to 2.1 m off Mumbai tomorrow. Fishermen advised caution.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 4,
+        "valid_hours": 30
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:20 IST",
+        "height_m": 2.1
+      },
+      {
+        "type": "Low",
+        "time": "11:35 IST",
+        "height_m": 0.5
+      },
+      {
+        "type": "High",
+        "time": "17:50 IST",
+        "height_m": 2.3
+      },
+      {
+        "type": "Low",
+        "time": "23:55 IST",
+        "height_m": 0.6
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          13,
+          14,
+          14,
+          15,
+          15,
+          16,
+          16
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.2,
+          1.3,
+          1.3,
+          1.4,
+          1.4,
+          1.5,
+          1.5
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          27.9,
+          27.8,
+          27.7,
+          27.6,
+          27.5,
+          27.5,
+          27.6
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "ratnagiri": {
+    "region": "Ratnagiri, Maharashtra",
+    "region_id": "ratnagiri",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 13,
+      "gust_kn": 17,
+      "wave_m": 1.1,
+      "condition": "Fair",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 17,
+      "gust_kn": 23,
+      "wave_m": 1.5,
+      "condition": "Moderate chop",
+      "lightning_pct": 20,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:00 IST",
+        "height_m": 1.8
+      },
+      {
+        "type": "Low",
+        "time": "11:10 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:30 IST",
+        "height_m": 1.9
+      },
+      {
+        "type": "Low",
+        "time": "23:30 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          12,
+          12,
+          13,
+          13,
+          13,
+          13
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.9,
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          27.8,
+          27.7,
+          27.6,
+          27.6,
+          27.5,
+          27.5,
+          27.6
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "malvan": {
+    "region": "Malvan, Maharashtra",
+    "region_id": "malvan",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 11,
+      "gust_kn": 15,
+      "wave_m": 0.9,
+      "condition": "Clear",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 15,
+      "gust_kn": 20,
+      "wave_m": 1.2,
+      "condition": "Fair",
+      "lightning_pct": 12,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:50 IST",
+        "height_m": 1.7
+      },
+      {
+        "type": "Low",
+        "time": "11:00 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:20 IST",
+        "height_m": 1.8
+      },
+      {
+        "type": "Low",
+        "time": "23:20 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          10,
+          11,
+          11,
+          11,
+          12,
+          11
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          27.9,
+          27.8,
+          27.7,
+          27.7,
+          27.6,
+          27.6,
+          27.7
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "veraval": {
+    "region": "Veraval, Gujarat",
+    "region_id": "veraval",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 11,
+      "gust_kn": 15,
+      "wave_m": 0.9,
+      "condition": "Clear",
+      "lightning_pct": 8,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 15,
+      "gust_kn": 20,
+      "wave_m": 1.1,
+      "condition": "Fair",
+      "lightning_pct": 12,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:40 IST",
+        "height_m": 1.9
+      },
+      {
+        "type": "Low",
+        "time": "10:55 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:05 IST",
+        "height_m": 2.0
+      },
+      {
+        "type": "Low",
+        "time": "23:10 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          9,
+          9,
+          10,
+          10,
+          10,
+          11,
+          11
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.7,
+          0.7,
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.9
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          26.9,
+          26.8,
+          26.7,
+          26.6,
+          26.5,
+          26.5,
+          26.6
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "porbandar": {
+    "region": "Porbandar, Gujarat",
+    "region_id": "porbandar",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Clear",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.3,
+      "condition": "Fair",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:30 IST",
+        "height_m": 2.0
+      },
+      {
+        "type": "Low",
+        "time": "10:45 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "16:55 IST",
+        "height_m": 2.1
+      },
+      {
+        "type": "Low",
+        "time": "23:00 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          11,
+          11,
+          12,
+          12,
+          12,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          26.6,
+          26.5,
+          26.4,
+          26.3,
+          26.3,
+          26.4,
+          26.4
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "okha": {
+    "region": "Okha, Gujarat",
+    "region_id": "okha",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 13,
+      "gust_kn": 18,
+      "wave_m": 1.1,
+      "condition": "Clear",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 17,
+      "gust_kn": 24,
+      "wave_m": 1.5,
+      "condition": "Breezy",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:15 IST",
+        "height_m": 2.4
+      },
+      {
+        "type": "Low",
+        "time": "10:30 IST",
+        "height_m": 0.5
+      },
+      {
+        "type": "High",
+        "time": "16:40 IST",
+        "height_m": 2.6
+      },
+      {
+        "type": "Low",
+        "time": "22:45 IST",
+        "height_m": 0.6
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          12,
+          12,
+          13,
+          13,
+          13,
+          13
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          26.4,
+          26.3,
+          26.2,
+          26.1,
+          26.1,
+          26.2,
+          26.2
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "kandla": {
+    "region": "Kandla (Gulf of Kutch), Gujarat",
+    "region_id": "kandla",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 0.8,
+      "condition": "Clear",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.1,
+      "condition": "Fair",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:00 IST",
+        "height_m": 4.5
+      },
+      {
+        "type": "Low",
+        "time": "10:15 IST",
+        "height_m": 0.8
+      },
+      {
+        "type": "High",
+        "time": "16:20 IST",
+        "height_m": 4.8
+      },
+      {
+        "type": "Low",
+        "time": "22:30 IST",
+        "height_m": 0.9
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          10,
+          11,
+          11,
+          12,
+          12,
+          12,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.7,
+          0.7,
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.8
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          26.7,
+          26.6,
+          26.5,
+          26.4,
+          26.4,
+          26.5,
+          26.5
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "paradip": {
+    "region": "Paradip, Odisha",
+    "region_id": "paradip",
+    "severity": "critical",
+    "verdict": "UNSAFE",
+    "reasons": [
+      "Cyclone Warning — Odisha Coast",
+      "Lightning Alert — Paradip Coast"
+    ],
+    "weather_today": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.4,
+      "condition": "Partly cloudy",
+      "lightning_pct": 20,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 38,
+      "gust_kn": 55,
+      "wave_m": 3.6,
+      "condition": "Severe cyclonic storm conditions",
+      "lightning_pct": 75,
+      "cyclone": "Very Severe Cyclonic Storm approaching Odisha coast",
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-cyclone-01",
+        "type": "cyclone",
+        "severity": "high",
+        "title": "Cyclone Warning — Odisha Coast",
+        "body": "Very Severe Cyclonic Storm tracking towards Odisha coast. Winds 90-100 kmph gusting 115 kmph. All fishing suspended.",
+        "source": "IMD Cyclone Bulletin",
+        "issued_hours_ago": 3,
+        "valid_hours": 48
+      },
+      {
+        "key": "alert-lightning-01",
+        "type": "lightning",
+        "severity": "high",
+        "title": "Lightning Alert — Paradip Coast",
+        "body": "Heavy rain with frequent lightning likely offshore Paradip. Avoid all open-sea activity.",
+        "source": "IMD Nowcast",
+        "issued_hours_ago": 1,
+        "valid_hours": 24
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:05 IST",
+        "height_m": 1.6
+      },
+      {
+        "type": "Low",
+        "time": "11:15 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:35 IST",
+        "height_m": 1.8
+      },
+      {
+        "type": "Low",
+        "time": "23:25 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          12,
+          13,
+          14,
+          15,
+          15,
+          16,
+          16
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.0,
+          1.1,
+          1.2,
+          1.3,
+          1.3,
+          1.4,
+          1.4
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.0,
+          28.9,
+          28.8,
+          28.7,
+          28.6,
+          28.6,
+          28.7
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "puri": {
+    "region": "Puri, Odisha",
+    "region_id": "puri",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 14,
+      "gust_kn": 19,
+      "wave_m": 1.2,
+      "condition": "Partly cloudy",
+      "lightning_pct": 15,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 25,
+      "gust_kn": 36,
+      "wave_m": 2.4,
+      "condition": "Squally showers",
+      "lightning_pct": 50,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:15 IST",
+        "height_m": 1.5
+      },
+      {
+        "type": "Low",
+        "time": "11:25 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "17:45 IST",
+        "height_m": 1.7
+      },
+      {
+        "type": "Low",
+        "time": "23:35 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          12,
+          12,
+          13,
+          13,
+          14,
+          14,
+          14
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.8,
+          28.7,
+          28.6,
+          28.5,
+          28.5,
+          28.6,
+          28.6
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "gopalpur": {
+    "region": "Gopalpur, Odisha",
+    "region_id": "gopalpur",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 13,
+      "gust_kn": 18,
+      "wave_m": 1.1,
+      "condition": "Partly cloudy",
+      "lightning_pct": 12,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 22,
+      "gust_kn": 32,
+      "wave_m": 2.1,
+      "condition": "Squally showers",
+      "lightning_pct": 45,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:25 IST",
+        "height_m": 1.4
+      },
+      {
+        "type": "Low",
+        "time": "11:35 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "17:55 IST",
+        "height_m": 1.6
+      },
+      {
+        "type": "Low",
+        "time": "23:45 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          12,
+          12,
+          13,
+          13,
+          13,
+          13
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.9,
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.1,
+          1.1
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          28.7,
+          28.6,
+          28.5,
+          28.4,
+          28.4,
+          28.5,
+          28.5
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "digha": {
+    "region": "Digha, West Bengal",
+    "region_id": "digha",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 14,
+      "gust_kn": 19,
+      "wave_m": 1.2,
+      "condition": "Partly cloudy",
+      "lightning_pct": 18,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 26,
+      "gust_kn": 38,
+      "wave_m": 2.5,
+      "condition": "Heavy rain & high swell",
+      "lightning_pct": 60,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:45 IST",
+        "height_m": 2.5
+      },
+      {
+        "type": "Low",
+        "time": "10:55 IST",
+        "height_m": 0.5
+      },
+      {
+        "type": "High",
+        "time": "17:05 IST",
+        "height_m": 2.8
+      },
+      {
+        "type": "Low",
+        "time": "23:05 IST",
+        "height_m": 0.6
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          12,
+          13,
+          13,
+          14,
+          14,
+          14,
+          14
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.0,
+          1.0,
+          1.1,
+          1.1,
+          1.2,
+          1.2,
+          1.2
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.1,
+          29.0,
+          28.9,
+          28.8,
+          28.8,
+          28.7,
+          28.8
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "sundarbans": {
+    "region": "Sundarbans (Canning), West Bengal",
+    "region_id": "sundarbans",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Tidal Inundation Advisory — Sundarbans"
+    ],
+    "weather_today": {
+      "wind_kn": 15,
+      "gust_kn": 21,
+      "wave_m": 1.3,
+      "condition": "Cloudy",
+      "lightning_pct": 25,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 28,
+      "gust_kn": 42,
+      "wave_m": 2.7,
+      "condition": "Squally winds & thunderstorms",
+      "lightning_pct": 65,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [
+      {
+        "key": "alert-sundarban-01",
+        "type": "high_wave",
+        "severity": "moderate",
+        "title": "Tidal Inundation Advisory — Sundarbans",
+        "body": "Spring tides combined with 2.5 m waves likely to cause surge in estuarine channels.",
+        "source": "INCOIS Ocean State Forecast",
+        "issued_hours_ago": 2,
+        "valid_hours": 30
+      }
+    ],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:30 IST",
+        "height_m": 3.2
+      },
+      {
+        "type": "Low",
+        "time": "10:45 IST",
+        "height_m": 0.6
+      },
+      {
+        "type": "High",
+        "time": "16:50 IST",
+        "height_m": 3.6
+      },
+      {
+        "type": "Low",
+        "time": "22:50 IST",
+        "height_m": 0.7
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          13,
+          14,
+          14,
+          15,
+          15,
+          15,
+          15
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          1.1,
+          1.1,
+          1.2,
+          1.2,
+          1.3,
+          1.3,
+          1.3
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.2,
+          29.1,
+          29.0,
+          28.9,
+          28.9,
+          28.8,
+          28.9
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "portblair": {
+    "region": "Port Blair, Andaman & Nicobar",
+    "region_id": "portblair",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Passing showers",
+      "lightning_pct": 15,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 16,
+      "gust_kn": 22,
+      "wave_m": 1.4,
+      "condition": "Scattered thunderstorms",
+      "lightning_pct": 35,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:10 IST",
+        "height_m": 1.8
+      },
+      {
+        "type": "Low",
+        "time": "10:20 IST",
+        "height_m": 0.4
+      },
+      {
+        "type": "High",
+        "time": "16:30 IST",
+        "height_m": 2.0
+      },
+      {
+        "type": "Low",
+        "time": "22:35 IST",
+        "height_m": 0.5
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          11,
+          12,
+          12,
+          12,
+          13,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0,
+          1.1,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.4,
+          29.3,
+          29.2,
+          29.2,
+          29.1,
+          29.1,
+          29.2
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "kavaratti": {
+    "region": "Kavaratti, Lakshadweep",
+    "region_id": "kavaratti",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 10,
+      "gust_kn": 14,
+      "wave_m": 0.9,
+      "condition": "Clear",
+      "lightning_pct": 5,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 13,
+      "gust_kn": 18,
+      "wave_m": 1.1,
+      "condition": "Fair",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "05:30 IST",
+        "height_m": 1.2
+      },
+      {
+        "type": "Low",
+        "time": "11:40 IST",
+        "height_m": 0.3
+      },
+      {
+        "type": "High",
+        "time": "17:50 IST",
+        "height_m": 1.3
+      },
+      {
+        "type": "Low",
+        "time": "23:45 IST",
+        "height_m": 0.4
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          9,
+          9,
+          10,
+          10,
+          10,
+          11,
+          10
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.8,
+          0.8,
+          0.9,
+          0.9,
+          0.9,
+          0.9
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.0,
+          28.9,
+          28.8,
+          28.8,
+          28.7,
+          28.7,
+          28.8
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  },
+  "puducherry": {
+    "region": "Puducherry, Puducherry",
+    "region_id": "puducherry",
+    "severity": "advisory",
+    "verdict": "SAFE",
+    "reasons": [
+      "Wind, swell, and meteorological conditions are within safe navigation thresholds."
+    ],
+    "weather_today": {
+      "wind_kn": 12,
+      "gust_kn": 16,
+      "wave_m": 1.0,
+      "condition": "Clear",
+      "lightning_pct": 10,
+      "cyclone": null,
+      "timeframe": "today"
+    },
+    "weather_tomorrow": {
+      "wind_kn": 18,
+      "gust_kn": 26,
+      "wave_m": 1.8,
+      "condition": "Moderate swell",
+      "lightning_pct": 30,
+      "cyclone": null,
+      "timeframe": "tomorrow"
+    },
+    "alerts": [],
+    "tide": [
+      {
+        "type": "High",
+        "time": "04:50 IST",
+        "height_m": 1.1
+      },
+      {
+        "type": "Low",
+        "time": "10:35 IST",
+        "height_m": 0.2
+      },
+      {
+        "type": "High",
+        "time": "17:15 IST",
+        "height_m": 1.2
+      },
+      {
+        "type": "Low",
+        "time": "23:00 IST",
+        "height_m": 0.3
+      }
+    ],
+    "trends": {
+      "wind": {
+        "unit": "kn",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          11,
+          11,
+          12,
+          12,
+          12,
+          13,
+          12
+        ]
+      },
+      "wave": {
+        "unit": "m",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          0.8,
+          0.9,
+          0.9,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "sst": {
+        "unit": "°C",
+        "labels": [
+          "10 Nov",
+          "11 Nov",
+          "12 Nov",
+          "13 Nov",
+          "14 Nov",
+          "15 Nov",
+          "16 Nov"
+        ],
+        "values": [
+          29.7,
+          29.6,
+          29.5,
+          29.4,
+          29.4,
+          29.5,
+          29.5
+        ]
+      }
+    },
+    "generated_at": "2026-11-16T05:30:00Z"
+  }
+}

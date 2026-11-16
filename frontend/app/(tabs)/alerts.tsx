@@ -2,9 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   Pressable,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -30,25 +30,31 @@ const CACHE_KEY = "orca_alerts_cache";
 export default function AlertsScreen() {
   const { lang, userId, region, colors, isDark, toggleTheme } = useApp();
   const insets = useSafeAreaInsets();
-  const [situation, setSituation] = useState<Situation | null>(null);
-  const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  
+  const regId = region?.id || "kakinada";
+  const defaultSit: Situation = (mockSituationsData as any)[regId] || (mockSituationsData as any)["kakinada"];
+  const defaultAlerts: AlertItem[] = (mockAlertsData as any)[regId]?.alerts || (mockAlertsData as any)["kakinada"]?.alerts || [];
+
+  const [situation, setSituation] = useState<Situation>(defaultSit);
+  const [alerts, setAlerts] = useState<AlertItem[]>(defaultAlerts);
   const [notifs, setNotifs] = useState<AlertItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [stale, setStale] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
+      const activeRegId = region?.id || "kakinada";
       const [s, a, n] = await Promise.all([
-        api.getSituation(region.id, lang),
-        api.getAlerts(region.id, lang),
+        api.getSituation(activeRegId, lang),
+        api.getAlerts(activeRegId, lang),
         api.getNotifications(userId),
       ]);
-      const fallbackSit = (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"];
+      const fallbackSit = (mockSituationsData as any)[activeRegId] || (mockSituationsData as any)["kakinada"];
       const resolvedSit = s || fallbackSit;
       setSituation(resolvedSit);
 
-      const aList = Array.isArray(a) ? a : (a?.alerts || (mockAlertsData as any)[region.id]?.alerts || []);
+      const aList = Array.isArray(a) ? a : (a?.alerts || (mockAlertsData as any)[activeRegId]?.alerts || []);
       setAlerts(Array.isArray(aList) ? aList : []);
       setNotifs(Array.isArray(n) ? n : []);
       setStale(null);
@@ -63,22 +69,23 @@ export default function AlertsScreen() {
         }),
       );
     } catch {
+      const activeRegId = region?.id || "kakinada";
       const raw = (await storage.getItem(`${CACHE_KEY}_${lang}`, "")) as string;
       if (raw) {
         try {
           const c = typeof raw === "string" ? JSON.parse(raw) : raw;
-          setSituation(c.situation || (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"]);
+          setSituation(c.situation || (mockSituationsData as any)[activeRegId] || (mockSituationsData as any)["kakinada"]);
           const storedAlerts = Array.isArray(c.alerts) ? c.alerts : (c.alerts?.alerts || []);
           setAlerts(storedAlerts);
           setNotifs(Array.isArray(c.notifs) ? c.notifs : []);
           setStale(c.ts);
         } catch {
-          const fallbackSit = (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"];
+          const fallbackSit = (mockSituationsData as any)[activeRegId] || (mockSituationsData as any)["kakinada"];
           setSituation(fallbackSit);
         }
       } else {
-        const fallbackSit = (mockSituationsData as any)[region.id] || (mockSituationsData as any)["kakinada"];
-        const fallbackAlerts = (mockAlertsData as any)[region.id]?.alerts || (mockAlertsData as any)["kakinada"]?.alerts || [];
+        const fallbackSit = (mockSituationsData as any)[activeRegId] || (mockSituationsData as any)["kakinada"];
+        const fallbackAlerts = (mockAlertsData as any)[activeRegId]?.alerts || (mockAlertsData as any)["kakinada"]?.alerts || [];
         setSituation(fallbackSit);
         setAlerts(fallbackAlerts);
       }
@@ -86,7 +93,7 @@ export default function AlertsScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [userId, region.id, lang]);
+  }, [userId, region?.id, lang]);
 
   useEffect(() => {
     load();
@@ -98,28 +105,30 @@ export default function AlertsScreen() {
     }, [load]),
   );
 
-  const safeAlerts = Array.isArray(alerts) ? alerts : [];
-  const safeNotifs = Array.isArray(notifs) ? notifs : [];
-
-  const data = [
-    { header: t("activeAlerts", lang), items: safeAlerts },
-    { header: t("notifications", lang), items: safeNotifs },
-  ];
+  const safeAlerts = (Array.isArray(alerts) ? alerts : []).filter(
+    (item) => item && typeof item === "object" && (item.title || item.body)
+  );
+  const safeNotifs = (Array.isArray(notifs) ? notifs : []).filter(
+    (item) => item && typeof item === "object" && (item.title || item.body)
+  );
 
   const sc = severityColor(situation?.severity, isDark);
-
   const sstVals = situation?.trends?.sst?.values ?? [28.4];
   const lastSst = sstVals.length > 0 ? sstVals[sstVals.length - 1] : 28.4;
 
+  const regName = region?.name || "Kakinada";
+  const regState = region?.state || "Andhra Pradesh";
+
   return (
     <View style={[styles.container, { backgroundColor: colors.surfaceSecondary, paddingTop: insets.top }]}>
-      <View style={[styles.header, { backgroundColor: colors.surfaceGlass, borderBottomColor: sc.bg }]}>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderBottomColor: sc.bg }]}>
         <View>
           <Text style={[styles.title, { color: colors.onSurface, letterSpacing: trackingFor(lang, 2) }]}>
             {t("alerts", lang).toUpperCase()}
           </Text>
           <Text style={[styles.regionText, { color: colors.muted }]}>
-            {region.name}, {region.state}
+            {regName}, {regState}
           </Text>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
@@ -138,14 +147,14 @@ export default function AlertsScreen() {
 
       {stale && <StaleBanner message={t("offline", lang)} updatedAt={stale} />}
 
-      {loading ? (
+      {loading && !situation ? (
         <View style={styles.center}>
-          <ActivityIndicator color={colors.brand} />
+          <ActivityIndicator color={colors.brand} size="large" />
         </View>
       ) : (
-        <FlatList
-          data={data}
-          keyExtractor={(s) => s.header}
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -156,87 +165,111 @@ export default function AlertsScreen() {
               tintColor={colors.brand}
             />
           }
-          contentContainerStyle={styles.listContent}
-          ListHeaderComponent={
-            situation ? (
-              <View>
-                <SituationCard situation={situation} lang={lang} />
-                <RadarCard
-                  region={region}
-                  severity={situation.severity}
-                  windKn={situation.weather_today?.wind_kn ?? 10}
-                  waveM={situation.weather_today?.wave_m ?? 0.8}
-                  sstC={lastSst}
-                  lang={lang}
-                />
-                {situation.trends?.wind?.values && situation.trends.wind.values.length > 0 && (
-                  <ChartWidget
-                    widget={{
-                      type: "chart",
-                      title: t("windTrendTitle", lang),
-                      unit: situation.trends.wind.unit || "kn",
-                      labels: situation.trends.wind.labels || [],
-                      values: situation.trends.wind.values || [],
-                      color: colors.warning,
-                    }}
-                    forceColor={colors.warning}
-                  />
-                )}
-                {situation.trends?.wave?.values && situation.trends.wave.values.length > 0 && (
-                  <ChartWidget
-                    widget={{
-                      type: "chart",
-                      title: t("waveTrendTitle", lang),
-                      unit: situation.trends.wave.unit || "m",
-                      labels: situation.trends.wave.labels || [],
-                      values: situation.trends.wave.values || [],
-                      color: colors.dataBlue,
-                    }}
-                    forceColor={colors.dataBlue}
-                  />
-                )}
-                {situation.trends?.sst?.values && situation.trends.sst.values.length > 0 && (
-                  <ChartWidget
-                    widget={{
-                      type: "chart",
-                      title: t("sstTrendTitle", lang),
-                      unit: situation.trends.sst.unit || "°C",
-                      labels: situation.trends.sst.labels || [],
-                      values: situation.trends.sst.values || [],
-                      color: colors.error,
-                    }}
-                    forceColor={colors.error}
-                  />
-                )}
-                <View style={{ height: spacing.md }} />
+        >
+          {/* Situation Card */}
+          {situation && <SituationCard situation={situation} lang={lang} />}
+
+          {/* Radar Sweep Card */}
+          <RadarCard
+            region={region}
+            severity={situation?.severity || "advisory"}
+            windKn={situation?.weather_today?.wind_kn ?? 10}
+            waveM={situation?.weather_today?.wave_m ?? 0.8}
+            sstC={lastSst}
+            lang={lang}
+          />
+
+          {/* Trends Charts */}
+          {situation?.trends?.wind?.values && situation.trends.wind.values.length > 0 && (
+            <ChartWidget
+              widget={{
+                type: "chart",
+                title: t("windTrendTitle", lang),
+                unit: situation.trends.wind.unit || "kn",
+                labels: situation.trends.wind.labels || [],
+                values: situation.trends.wind.values || [],
+                color: colors.warning,
+              }}
+              forceColor={colors.warning}
+            />
+          )}
+
+          {situation?.trends?.wave?.values && situation.trends.wave.values.length > 0 && (
+            <ChartWidget
+              widget={{
+                type: "chart",
+                title: t("waveTrendTitle", lang),
+                unit: situation.trends.wave.unit || "m",
+                labels: situation.trends.wave.labels || [],
+                values: situation.trends.wave.values || [],
+                color: colors.dataBlue,
+              }}
+              forceColor={colors.dataBlue}
+            />
+          )}
+
+          {situation?.trends?.sst?.values && situation.trends.sst.values.length > 0 && (
+            <ChartWidget
+              widget={{
+                type: "chart",
+                title: t("sstTrendTitle", lang),
+                unit: situation.trends.sst.unit || "°C",
+                labels: situation.trends.sst.labels || [],
+                values: situation.trends.sst.values || [],
+                color: colors.error,
+              }}
+              forceColor={colors.error}
+            />
+          )}
+
+          <View style={{ height: spacing.lg }} />
+
+          {/* Active Alerts Section */}
+          <View style={{ marginBottom: spacing.lg }}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
+                {t("activeAlerts", lang).toUpperCase()}
+              </Text>
+              <View style={[styles.badgePill, { backgroundColor: sc.bg }]}>
+                <Text style={[styles.badgePillText, { color: sc.fg }]}>{safeAlerts.length}</Text>
               </View>
-            ) : null
-          }
-          renderItem={({ item: section }) => {
-            const sectionItems = Array.isArray(section.items) ? section.items : [];
-            return (
-              <View style={{ marginBottom: spacing.lg }}>
-                <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
-                  {section.header}
-                </Text>
-                {sectionItems.length === 0 ? (
-                  <View testID="no-hazards" style={[styles.emptyBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={18}
-                      color={colors.success}
-                    />
-                    <Text style={styles.emptyText}>{t("noHazards", lang)}</Text>
-                  </View>
-                ) : (
-                  sectionItems.map((it, i) => (
-                    <AlertCard key={i} item={it} lang={lang} />
-                  ))
-                )}
+            </View>
+
+            {safeAlerts.length === 0 ? (
+              <View testID="no-hazards" style={[styles.emptyBox, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
+                <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+                <Text style={styles.emptyText}>{t("noHazards", lang)}</Text>
               </View>
-            );
-          }}
-        />
+            ) : (
+              safeAlerts.map((it, i) => (
+                <AlertCard key={(it as any).key || `alert-${i}`} item={it} lang={lang} />
+              ))
+            )}
+          </View>
+
+          {/* Notifications Section */}
+          <View style={{ marginBottom: spacing.xl }}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1) }]}>
+                {t("notifications", lang).toUpperCase()}
+              </Text>
+              <View style={[styles.badgePill, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border, borderWidth: 1 }]}>
+                <Text style={[styles.badgePillText, { color: colors.brand }]}>{safeNotifs.length}</Text>
+              </View>
+            </View>
+
+            {safeNotifs.length === 0 ? (
+              <View style={[styles.emptyBox, { backgroundColor: isDark ? "#181C20" : "#FFFFFF", borderColor: colors.border }]}>
+                <Ionicons name="notifications-off-outline" size={18} color={colors.muted} />
+                <Text style={[styles.emptyText, { color: colors.muted }]}>{t("noHazards", lang)}</Text>
+              </View>
+            ) : (
+              safeNotifs.map((it, i) => (
+                <AlertCard key={(it as any).key || `notif-${i}`} item={it} lang={lang} />
+              ))
+            )}
+          </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -244,6 +277,7 @@ export default function AlertsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.surfaceSecondary },
+  scroll: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -274,14 +308,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  listContent: { padding: spacing.lg },
+  listContent: { padding: spacing.lg, paddingBottom: spacing.xxl * 2 },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.md,
+  },
   sectionTitle: {
     fontFamily: fonts.mono,
     fontSize: type.sm,
-    fontWeight: "700",
+    fontWeight: "800",
     letterSpacing: 1,
     color: colors.onSurface,
-    marginBottom: spacing.md,
+  },
+  badgePill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radius.pill,
+  },
+  badgePillText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    fontWeight: "800",
   },
   emptyBox: {
     flexDirection: "row",

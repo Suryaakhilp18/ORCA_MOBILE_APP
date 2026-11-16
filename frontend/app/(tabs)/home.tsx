@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -12,12 +12,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { api, Situation } from "@/src/api";
+import { api, Situation, MapWidgetT, Marker } from "@/src/api";
 import LanguagePicker from "@/src/components/LanguagePicker";
+import MapWidget from "@/src/components/MapWidget";
 import RadarCard from "@/src/components/RadarCard";
 import RegionSwitcher from "@/src/components/RegionSwitcher";
 import { Lang, t, trackingFor, useApp } from "@/src/context/AppContext";
 import { fonts, radius, severityColor, spacing, type, verdictColor } from "@/src/theme";
+import { PORTS_REGISTRY } from "@/src/utils/navigation";
 import { storage } from "@/src/utils/storage";
 
 const HOME_CACHE_KEY = "orca_home_situation_cache";
@@ -32,6 +34,74 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [regionModalVisible, setRegionModalVisible] = useState(false);
   const [langModalVisible, setLangModalVisible] = useState(false);
+
+  const homeMapWidget: MapWidgetT = useMemo(() => {
+    const activePort = PORTS_REGISTRY[region?.id] || {
+      id: region?.id || "kakinada",
+      name: region?.name || "Kakinada",
+      state: region?.state || "Andhra Pradesh",
+      lat: region?.center?.lat ?? 16.9891,
+      lon: region?.center?.lon ?? 82.2475,
+      sea: region?.sea || "Bay of Bengal",
+      aliases: [],
+    };
+
+    const markers: Marker[] = [
+      {
+        lat: activePort.lat,
+        lon: activePort.lon,
+        name: `${activePort.name} Coastal Station`,
+        label: `📍 BASE: ${activePort.name.toUpperCase()} HARBOUR`,
+        kind: "user",
+      },
+      {
+        lat: activePort.lat - 0.08,
+        lon: activePort.lon + 0.12,
+        name: `${activePort.name} Pilot Station`,
+        label: `⚓ ${activePort.name} Pilot Station (VHF 16)`,
+        kind: "fleet",
+        speed_kn: 0,
+        status: "Navigational Buoy",
+      },
+      {
+        lat: activePort.lat + 0.06,
+        lon: activePort.lon + 0.18,
+        name: "MV Sagar Samrat",
+        label: "⛵ MV Sagar Samrat (9.2 kn)",
+        kind: "fleet",
+        speed_kn: 9.2,
+        status: "Active Trawling",
+      },
+      {
+        lat: activePort.lat - 0.04,
+        lon: activePort.lon + 0.25,
+        name: "FV Matsya Prabha",
+        label: "⛵ FV Matsya Prabha (7.8 kn)",
+        kind: "fleet",
+        speed_kn: 7.8,
+        status: "Drift Netting",
+      },
+      {
+        lat: activePort.lat + 0.15,
+        lon: activePort.lon + 0.35,
+        name: "High Biomass Zone",
+        label: "★ PFZ: High Pelagic Biomass (SST 28.4°C)",
+        kind: "pfz_recommended",
+        confidence: 88,
+      },
+    ];
+
+    return {
+      type: "map",
+      center: { lat: activePort.lat, lon: activePort.lon },
+      markers,
+      layers: [],
+      fleet_info: {
+        sector: activePort.name,
+        total_vessels: 4,
+      },
+    };
+  }, [region]);
 
   const loadData = useCallback(async () => {
     try {
@@ -344,6 +414,22 @@ export default function HomeScreen() {
               <Text style={[styles.moduleActionLink, { color: colors.dataBlue }]}>{t("switchPort", lang)}</Text>
             </View>
           </Pressable>
+        </View>
+
+        {/* Interactive Tactical ECDIS Plotter (Module 4.1) */}
+        <View style={styles.radarSection}>
+          <View style={styles.sectionHeader}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Ionicons name="map" size={16} color={colors.brand} />
+              <Text style={[styles.sectionTitle, { color: colors.onSurface, letterSpacing: trackingFor(lang, 1.5) }]}>
+                {lang === "te" ? "వ్యూహాత్మక ECDIS ప్లాటర్" : lang === "hi" ? "रणनीतिक ECDIS नौवहन नक्शा" : "TACTICAL ECDIS PLOTTER"}
+              </Text>
+            </View>
+            <Text style={[styles.sectionSubtitle, { color: colors.muted }]}>
+              {region.name} {t("sector", lang)} • AIS Fleet & Fairway Station
+            </Text>
+          </View>
+          <MapWidget widget={homeMapWidget} />
         </View>
 
         {/* Live Sector Radar Widget */}

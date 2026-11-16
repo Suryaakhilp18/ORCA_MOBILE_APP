@@ -442,9 +442,11 @@ export function detectQueryLanguageAndIntent(
   defaultRegionId = "kakinada"
 ): {
   detectedLang: Lang;
-  intent: "route_safety" | "pfz_nearest" | "weather_safety" | "general";
+  intent: "route_safety" | "pfz_nearest" | "weather_safety" | "greeting" | "capabilities" | "explain_domain" | "port_focus" | "general";
   startPort: PortCoordinate;
   endPort?: PortCoordinate;
+  domainTopic?: "ais" | "pfz" | "ecdis" | "map" | "sst";
+  focusPort?: PortCoordinate;
 } {
   const q = query.trim().toLowerCase();
 
@@ -462,19 +464,18 @@ export function detectQueryLanguageAndIntent(
   else if (/[\u0B00-\u0B7F]/.test(query)) detectedLang = "or"; // Odia
   else {
     // Phonetic / Romanized transliteration markers
-    // Telugu transliteration markers: nandi, nundi, ninchi, chiptawah, cheppu, ela undi, etc.
-    if (/\b(nandi|nundi|ninchi|nunchi|chiptawah|cheppu|cheppandi|dhaari|samudram|ela|undi|ledu|kadha)\b/i.test(q)) {
+    if (/\b(nandi|nundi|ninchi|nunchi|chiptawah|cheppu|cheppandi|dhaari|samudram|ela|undi|ledu|kadha|cheyagalanu)\b/i.test(q)) {
       detectedLang = "te";
     }
-    // Hindi transliteration markers: se, tak, batao, kaisa, rasta, samundar, lehar, toofan
-    else if (/\b(batao|bataiye|rasta|samundar|kaisa|lehar|toofan|jaana|hawa|safar)\b/i.test(q)) {
+    else if (/\b(batao|bataiye|rasta|samundar|kaisa|lehar|toofan|jaana|hawa|safar|karein|karega)\b/i.test(q)) {
       detectedLang = "hi";
     }
-    // Tamil transliteration markers: irunthu, lerunthu, sollu, kaathu, alai
     else if (/\b(irunthu|lerunthu|sollu|solla|kaathu|alai|puyal|vazhi)\b/i.test(q)) {
       detectedLang = "ta";
     }
   }
+
+  const defaultPort = PORTS_REGISTRY[defaultRegionId] || PORTS_REGISTRY.kakinada;
 
   // 2. Identify Ports in query
   const foundPorts: PortCoordinate[] = [];
@@ -483,7 +484,6 @@ export function detectQueryLanguageAndIntent(
   for (const key of portKeys) {
     const port = PORTS_REGISTRY[key];
     for (const alias of port.aliases) {
-      // Check if alias is in query
       if (q.includes(alias.toLowerCase())) {
         if (!foundPorts.some((p) => p.id === port.id)) {
           foundPorts.push(port);
@@ -493,9 +493,65 @@ export function detectQueryLanguageAndIntent(
     }
   }
 
-  // 3. Determine Intent
-  const defaultPort = PORTS_REGISTRY[defaultRegionId] || PORTS_REGISTRY.kakinada;
   const isNavWords = /\b(navigate|navigation|route|root|way|fairway|rasta|dhaari|vazhi|cheppu|batao|to|nandi|nundi|se|lerunthu)\b/i.test(q);
+
+  // 3. Conversational Greetings & Capabilities (only if not asking for route/port)
+  const isGreeting = (foundPorts.length === 0 && !isNavWords) && (
+    /^(hi|hello|hey|namaste|vanakkam|namaskaram)[\s!.]*$/i.test(q) ||
+    /^(హాయ్|నమస్కారం|హలో|नमस्ते|नमस्कार|வணக்கம்|നമസ്കാരം|ನಮಸ್ಕಾರ)[\s!.]*$/i.test(query.trim())
+  );
+  if (isGreeting) {
+    return {
+      detectedLang,
+      intent: "greeting",
+      startPort: defaultPort,
+    };
+  }
+
+  const isCapabilities = (foundPorts.length === 0 && !isNavWords) && (
+    /^(what can you do|who are you|help me|capabilities|what you can do)[\s?.]*$/i.test(q) ||
+    /\b(what can you do|who are you|capabilities|what you can do)\b/i.test(q) ||
+    /^(help|help me)$/i.test(q) ||
+    /నువ్వు ఏమి చేయగలవు|నువ్వేం చేయగలవు|నువ్వు ఏం చేస్తావు|మీరు ఏమి చేయగలరు|మీరేం చేయగలరు|నీ సామర్థ్యాలు|आप क्या कर सकते हैं|तुम क्या कर सकते हो|आप क्या कर सकती हैं|तुम क्या करते हो|நீ என்ன செய்ய முடியும்/i.test(query)
+  );
+  if (isCapabilities) {
+    return {
+      detectedLang,
+      intent: "capabilities",
+      startPort: defaultPort,
+    };
+  }
+
+  // 4. Domain Explanations (AIS, PFZ, ECDIS, Map, SST)
+  if (/\b(what is ais|explain ais|about ais|ais meaning)\b/i.test(q) || /ais అంటే ఏమిటి|ais గురించి|ais क्या है|ais के बारे में/i.test(query)) {
+    return { detectedLang, intent: "explain_domain", domainTopic: "ais", startPort: defaultPort };
+  }
+  if (/\b(what is pfz|explain pfz|about pfz|pfz meaning)\b/i.test(q) || /pfz అంటే ఏమిటి|pfz గురించి|pfz क्या है/i.test(query)) {
+    return { detectedLang, intent: "explain_domain", domainTopic: "pfz", startPort: defaultPort };
+  }
+  if (/\b(what is ecdis|explain ecdis|about ecdis)\b/i.test(q) || /ecdis అంటే ఏమిటి|ecdis क्या है/i.test(query)) {
+    return { detectedLang, intent: "explain_domain", domainTopic: "ecdis", startPort: defaultPort };
+  }
+  if (/\b(explain (this )?map|show map|map explanation|explain the map)\b/i.test(q) || /ఈ మ్యాప్ను వివరించండి|మ్యాప్ వివరణ|మ్యాప్ గురించి|मुझे यह नक्शा समझाइए|इस नक्शे को समझाइए|नक्शा समझाइए|வரைபடத்தை விளக்கு/i.test(query)) {
+    return { detectedLang, intent: "explain_domain", domainTopic: "map", startPort: defaultPort };
+  }
+  if (/\b(what is sst|sea surface temperature)\b/i.test(q) || /sst అంటే ఏమిటి|sst क्या है/i.test(query)) {
+    return { detectedLang, intent: "explain_domain", domainTopic: "sst", startPort: defaultPort };
+  }
+
+  // 5. Port Focus / View Command ("Show me Kakinada Port", "విశాఖ పోర్టును చూపించు", "काकीनाडा बंदरगाह दिखाओ")
+  const isShowPortWords = /\b(show|view|focus|open|display|center)\b/i.test(q) || /చూపించు|దగ్గర|दिखाओ|दिखाइए|காட்டு/i.test(query);
+
+  if (foundPorts.length === 1 && isShowPortWords && !isNavWords) {
+    return {
+      detectedLang,
+      intent: "port_focus",
+      startPort: foundPorts[0],
+      focusPort: foundPorts[0],
+    };
+  }
+
+  // 6. Navigation Route Intent
   const isPfzWords = /\b(pfz|fish|fishing|chlorophyll|sst|catch|mackerel|sardine|machli|chepalu|meen)\b/i.test(q);
   const isWeatherWords = /\b(safe|safety|cyclone|wind|wave|storm|lightning|tide|toofan|gaali|ala|lehar)\b/i.test(q);
 
@@ -506,7 +562,6 @@ export function detectQueryLanguageAndIntent(
       start = foundPorts[0];
       end = foundPorts[1];
     } else {
-      // One port found: If current region matches found port, default destination to Visakhapatnam / Mumbai
       if (foundPorts[0].id === defaultPort.id) {
         end = defaultPort.id === "kakinada" ? PORTS_REGISTRY.visakhapatnam : PORTS_REGISTRY.kakinada;
       } else {
@@ -683,4 +738,157 @@ export function generateNauticalResponse(
 • **Navigation Advice:** Follow designated open-water fairway waypoints mapped below to maintain depth clearance and avoid shallow coastal headlands.
 • **Sea State Conditions:** Wind speed 12–14 kn, wave height 0.8–1.1 m. Current fairway condition: **SAFE**.`;
   }
+}
+
+
+/**
+ * Mandatory Greeting Responses
+ */
+export function generateGreetingResponse(lang: Lang): string {
+  switch (lang) {
+    case "te":
+      return "హలో! నేను ORCA, మీ మెరైన్ ఇంటెలిజెన్స్ అసిస్టెంట్‌ని. ఈరోజు మీకు ఎలా సహాయం చేయగలను?";
+    case "hi":
+      return "नमस्ते! मैं ORCA हूँ, आपका मरीन इंटेलिजेंस असिस्टेंट। आज मैं आपकी कैसे मदद कर सकता हूँ?";
+    case "ta":
+      return "வணக்கம்! நான் ORCA, உங்கள் கடல்சார் நுண்ணறிவு உதவியாளர். இன்று நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?";
+    case "ml":
+      return "ഹലോ! ഞാൻ ഓർക്ക, നിങ്ങളുടെ സമുദ്ര ഇന്റലിജൻസ് അസിസ്റ്റന്റാണ്. ഇന്ന് ഞാൻ നിങ്ങളെ എങ്ങനെ സഹായിക്കണം?";
+    case "kn":
+      return "ನಮಸ್ಕಾರ! ನಾನು ORCA, ನಿಮ್ಮ ಸಾಗರ ಗುಪ್ತಚರ ಸಹಾಯಕ. ಇಂದು ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?";
+    case "mr":
+      return "नमस्ते! मी ORCA आहे, आपला सागरी बुद्धिमत्ता सहाय्यक. आज मी आपल्याला कशी मदत करू शकतो?";
+    case "gu":
+      return "નમસ્તે! હું ORCA છું, તમારો દરિયાઈ ઈન્ટેલિજન્સ સહાયક. આજે હું તમને કેવી રીતે મદદ કરી શકું?";
+    case "bn":
+      return "নমস্কার! আমি ORCA, আপনার সামুদ্রিক গোয়েন্দা সহকারী। আজ আমি আপনাকে কীভাবে সাহায্য করতে পারি?";
+    case "or":
+      return "ନମସ୍କାର! ମୁଁ ORCA, ଆପଣଙ୍କ ସାମୁଦ୍ରିକ ଗୋଇନ୍ଦା ସହାୟକ। ଆଜି ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?";
+    case "en":
+    default:
+      return "Hello! This is ORCA, your Marine Intelligence Assistant. How may I help you today?";
+  }
+}
+
+/**
+ * Mandatory Capabilities Responses ("What can you do?")
+ */
+export function generateCapabilitiesResponse(lang: Lang): string {
+  switch (lang) {
+    case "te":
+      return "సముద్ర పరిస్థితులు, చేపల వేటకు అనుకూలమైన ప్రాంతాలు (PFZ), వాతావరణ సమాచారం, నౌకల వివరాలు (AIS), నావిగేషన్ మార్గాలు మరియు సముద్ర సంబంధిత సమాచారాన్ని తెలుసుకోవడంలో మీకు సహాయం చేయగలను. మీకు ఏ సమాచారం కావాలి?";
+    case "hi":
+      return "मैं समुद्र की स्थिति, मछली पकड़ने के संभावित क्षेत्र (PFZ), मौसम की जानकारी, जहाजों का विवरण (AIS), नौवहन मार्ग और समुद्री सुरक्षा संबंधी जानकारी में आपकी सहायता कर सकता हूँ। आप क्या जानना चाहते हैं?";
+    case "ta":
+      return "கடல் நிலைமைகள், சாத்தியமான மீன்பிடி மண்டலங்கள் (PFZ), வானிலை தகவல், கப்பல் விவரங்கள் (AIS), கடல்சார் வழிப்பாதைகள் மற்றும் கடல்சார் நுண்ணறிவு தகவல்களைப் பெற நான் உதவ முடியும். நீங்கள் என்ன தெரிந்து கொள்ள விரும்புகிறீர்கள்?";
+    case "ml":
+      return "സമുദ്രാവസ്ഥ, സാധ്യതയുള്ള മത്സ്യബന്ധന മേഖലകൾ (PFZ), കാലാവസ്ഥാ വിവരങ്ങൾ, കപ്പൽ വിവരങ്ങൾ (AIS), നാവിഗേഷൻ റൂട്ടുകൾ എന്നിവയിൽ ഞാൻ നിങ്ങളെ സഹായിക്കാം. നിങ്ങൾക്ക് എന്താണ് അറിയേണ്ടത്?";
+    case "kn":
+      return "ಸಾಗರ ಪರಿಸ್ಥಿತಿಗಳು, ಸಂಭಾವ್ಯ ಮೀನುಗಾರಿಕೆ ವಲಯಗಳು (PFZ), ಹವಾಮಾನ ಮಾಹಿತಿ, ಹಡಗುಗಳ ವಿವರಗಳು (AIS), ನೌಕಾಯಾನ ಮಾರ್ಗಗಳು ಮತ್ತು ಸಾಗರ ಭದ್ರತೆಯ ಬಗ್ಗೆ ನಾನು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ. ನೀವು ಏನನ್ನು ತಿಳಿಯಲು ಬಯಸುತ್ತೀರಿ?";
+    case "mr":
+      return "मी समुद्राची परिस्थिती, संभाव्य मत्स्य व्यवसाय क्षेत्र (PFZ), हवामान माहिती, जहाजांचे तपशील (AIS), सागरी नौवहन मार्ग आणि सागरी सुरक्षेबद्दल मदत करू शकतो. आपल्याला काय जाणून घ्यायचे आहे?";
+    case "gu":
+      return "હું દરિયાઈ પરિસ્થિતિઓ, માછીમારી ઝોન (PFZ), હવામાન માહિતી, જહાજની માહિતી (AIS), નેવિગેશન માર્ગો અને દરિયાઈ સુરક્ષા અંગે તમને મદદ કરી શકું છું. તમે શું જાણવા માગો છો?";
+    case "bn":
+      return "আমি সমুদ্রের পরিস্থিতি, সম্ভাব্য মাছ ধরার অঞ্চল (PFZ), আবহাওয়ার তথ্য, জাহাজের বিবরণ (AIS), নেভিগেশন রুট এবং সামুদ্রিক গোয়েন্দা তথ্য পেতে আপনাকে সাহায্য করতে পারি। আপনি কি জানতে চান?";
+    case "or":
+      return "ମୁଁ ସମୁଦ୍ର ସ୍ଥିତି, ସମ୍ଭାବ୍ୟ ମତ୍ସ୍ୟ ଧରିବା ଅଞ୍ଚଳ (PFZ), ପାଣିପାଗ ସୂଚନା, ଜାହାଜ ବିବରଣୀ (AIS) ଏବଂ ସାମୁଦ୍ରିକ ମାର୍ଗ ସମ୍ପର୍କରେ ସାହାଯ୍ୟ କରିପାରିବି। ଆପଣ କଣ ଜାଣିବାକୁ ଚାହାଁନ୍ତି?";
+    case "en":
+    default:
+      return "I can help you explore marine conditions, track available vessel information, analyse fishing zones, understand oceanographic data, assess maritime conditions, and explore marine intelligence. What would you like to know?";
+  }
+}
+
+/**
+ * Domain Explanations (AIS, PFZ, ECDIS, Map)
+ */
+export function generateDomainExplanation(topic: "ais" | "pfz" | "ecdis" | "map" | "sst", lang: Lang): string {
+  if (topic === "ais") {
+    switch (lang) {
+      case "te":
+        return "⚓ **ఆటోమేటిక్ ఐడెంటిఫికేషన్ సిస్టమ్ (AIS):**\n\nఇది ఓడలు మరియు తీరప్రాంత ట్రాఫిక్ సేవల (VTS) మధ్య ఎలక్ట్రానిక్ సమాచారాన్ని మార్పిడి చేసే ఆటోమేటెడ్ వ్యవస్థ. ఇది బోట్ యొక్క స్థానం (GPS), వేగం (SOG), ప్రయాణ దిశ (COG), మరియు MMSI గుర్తింపును VHF ఫ్రీక్వెన్సీ ద్వారా ప్రసారం చేయడం ద్వారా సముద్రంలో ప్రమాదాలు మరియు ఢీకొనడాన్ని నివారిస్తుంది.";
+      case "hi":
+        return "⚓ **ऑटोमैटिक आइडेंटिफिकेशन सिस्टम (AIS):**\n\nयह जहाजों और तटीय यातायात सेवाओं (VTS) के बीच डेटा साझा करने वाली स्वचालित ट्रैकिंग प्रणाली है। यह जीपीएस स्थान, गति (SOG), दिशा (COG) और जहाज पहचान प्रसारित करके समुद्र में जहाजों की टक्कर को रोकता है।";
+      case "en":
+      default:
+        return "⚓ **Automatic Identification System (AIS):**\n\nAIS is an automated autonomous tracking system used on ships and by vessel traffic services (VTS). By broadcasting VHF transponder signals with GPS coordinates, Speed Over Ground (SOG), Course Over Ground (COG), vessel callsign, and destination, AIS provides real-time situational awareness and prevents maritime collisions.";
+    }
+  }
+
+  if (topic === "pfz") {
+    switch (lang) {
+      case "te":
+        return "🐟 **సంభావ్య మత్స్య వేట జోన్లు (PFZ - Potential Fishing Zones):**\n\nభారత జాతీయ సముద్ర సమాచార సేవల కేంద్రం (INCOIS) ఉపగ్రహ సమాచారం (Oceansat & NOAA SST) ఆధారంగా సముద్ర ఉపరితల ఉష్ణోగ్రత మరియు క్లోరోఫిల్ సాంద్రతను విశ్లేషించి చేపల గుంపులు ఎక్కువగా లభ్యమయ్యే ప్రాంతాలను PFZ అడ్వైజరీ ద్వారా మత్స్యకారులకు అందజేస్తుంది.";
+      case "hi":
+        return "🐟 **संभावित मत्स्य क्षेत्र (PFZ - Potential Fishing Zones):**\n\nINCOIS सैटेलाइट डेटा के माध्यम से समुद्र की सतह के तापमान (SST) और महासागरीय क्लोरोफिल का विश्लेषण करके मछली पकड़ने के सबसे अनुकूल क्षेत्रों की पहचान करता है। इससे मछुआरों के ईंधन और समय की बचत होती है।";
+      case "en":
+      default:
+        return "🐟 **Potential Fishing Zones (PFZ):**\n\nPFZ advisories are generated by INCOIS using satellite remote sensing of Sea Surface Temperature (SST) gradients and Chlorophyll-a concentrations. Pelagic species aggregate near ocean thermal fronts and upwelling zones; following PFZ coordinates typically increases catch rates by 2–3x while saving 30% on fuel.";
+    }
+  }
+
+  if (topic === "ecdis" || topic === "map") {
+    switch (lang) {
+      case "te":
+        return "🗺️ **ORCA వ్యూహాత్మక ECDIS నావిగేషన్ మ్యాప్ వివరణ:**\n\n• **ప్రయాణ ప్రారంభం & గమ్యస్థానం:** హార్బర్ గుర్తులు మరియు లైట్‌హౌస్ బీకాన్‌లతో మార్క్ చేయబడ్డాయి.\n• **సముద్ర ఫెయిర్‌వే కారిడార్:** భారత ప్రధాన భూభాగం గుండా కాకుండా, కన్యాకుమారి ట్రాఫిక్ సెపరేషన్ స్కీమ్ (TSS) చుట్టూ సురక్షితమైన ఓపెన్ సీ వాటర్‌వేస్.\n• **నౌకల ట్రాఫిక్ (AIS):** సమీప బోట్ల వేగం, దిశ మరియు రేడియో ఛానల్ సమాచారం.\n• **చేపల వేట ప్రాంతాలు (PFZ):** అధిక క్లోరోఫిల్ మరియు ఉష్ణోగ్రత కలిగిన ప్రదేశాలు ఆకుపచ్చ/నీలం రంగులో చూపబడ్డాయి.";
+      case "hi":
+        return "🗺️ **ORCA रणनीतिक ECDIS नौवहन नक्शा विवरण:**\n\n• **प्रस्थान एवं गंतव्य:** स्पष्ट बंदरगाह बीकन मार्करों द्वारा चिह्नित।\n• **समुद्री नौवहन गलियारा (Fairway Route):** जमीनी भूभाग से दूर, कन्याकुमारी टीएसएस (TSS) के चारों ओर सुरक्षित खुला समुद्री मार्ग।\n• **जहाज यातायात (AIS):** वास्तविक समय में जहाजों की गति, स्थिति और दिशा।\n• **मत्स्य क्षेत्र (PFZ):** सैटेलाइट डेटा पर आधारित संभावित मछली पकड़ने के समृद्ध क्षेत्र।";
+      case "en":
+      default:
+        return "🗺️ **ORCA Tactical ECDIS Navigation Chart Overview:**\n\n• **Origin & Destination:** Highlighted with nautical beacons and port coordinates.\n• **Fairway Corridor:** Continuous open-sea navigational path passing through designated deep-water separation corridors (such as Kanyakumari TSS) with zero mainland crossings.\n• **AIS Traffic Layer:** Live nearby vessels displaying speed, heading, and VHF safety channel.\n• **PFZ Hotspots:** Certified satellite ocean thermal fronts indicating prime pelagic fish aggregation.";
+    }
+  }
+
+  // SST
+  switch (lang) {
+    case "te":
+      return "🌊 **సముద్ర ఉపరితల ఉష్ణోగ్రత (SST):**\n\nఉపగ్రహాల ద్వారా కొలవబడే సముద్రపు పై పొర ఉష్ణోగ్రత. సాధారణంగా 28°C నుండి 30°C మధ్య ఉండే ప్రాంతాలలో ఉష్ణోగ్రత తేడాలు (thermal fronts) ఏర్పడి, చేపల ఆహారమైన ప్లవాంగాలు (plankton) చేరతాయి.";
+    case "hi":
+      return "🌊 **समुद्र की सतह का तापमान (SST):**\n\nउपग्रह द्वारा मापा गया समुद्री सतह का तापमान। यह चक्रवात की संभावना और मछली पकड़ने के क्षेत्रों (PFZ) की पहचान के लिए सबसे महत्वपूर्ण कारक है।";
+    case "en":
+    default:
+      return "🌊 **Sea Surface Temperature (SST):**\n\nSST is measured via satellite radiometers (MODIS, NOAA AVHRR). Sharp SST gradients (thermal fronts) trigger upwelling of nutrient-rich water, directly driving phytoplankton growth and commercial fish schooling.";
+  }
+}
+
+/**
+ * Builds a single port focus MapWidget
+ */
+export function buildPortMapWidget(port: PortCoordinate): MapWidgetT {
+  return {
+    type: "map",
+    center: { lat: port.lat, lon: port.lon },
+    markers: [
+      {
+        lat: port.lat,
+        lon: port.lon,
+        name: `${port.name} Port`,
+        label: `⚓ ${port.name.toUpperCase()} HARBOUR`,
+        kind: "user",
+      },
+      {
+        lat: port.lat - 0.08,
+        lon: port.lon + 0.12,
+        name: `${port.name} Fairway Buoy`,
+        label: `📍 ${port.name} Pilot Station (VHF 16)`,
+        kind: "fleet",
+        speed_kn: 0,
+        status: "Navigational Buoy",
+      },
+      {
+        lat: port.lat + 0.05,
+        lon: port.lon + 0.22,
+        name: "MV Sagar Samrat",
+        label: "⛵ MV Sagar Samrat (9.2 kn)",
+        kind: "fleet",
+        speed_kn: 9.2,
+        status: "Active Trawling",
+      },
+    ],
+    layers: [],
+    fleet_info: {
+      sector: port.name,
+      total_vessels: 4,
+    },
+  };
 }

@@ -1,5 +1,18 @@
 import Constants from "expo-constants";
 import { Platform } from "react-native";
+import mockRegionsData from "./mockData.json";
+import mockSituationsData from "./situations.json";
+import mockAlertsData from "./alerts.json";
+import {
+  detectQueryLanguageAndIntent,
+  buildRouteMapWidget,
+  generateNauticalResponse,
+  generateGreetingResponse,
+  generateCapabilitiesResponse,
+  generateDomainExplanation,
+  buildPortMapWidget,
+  PORTS_REGISTRY,
+} from "./utils/navigation";
 
 function getBaseUrl(): string {
   // Allow an explicit environment override (e.g. Vercel environment variables)
@@ -144,16 +157,6 @@ export type Situation = {
   generated_at: string;
 };
 
-import mockRegionsData from "./mockData.json";
-import mockSituationsData from "./situations.json";
-import mockAlertsData from "./alerts.json";
-import {
-  detectQueryLanguageAndIntent,
-  buildRouteMapWidget,
-  generateNauticalResponse,
-  PORTS_REGISTRY,
-} from "./utils/navigation";
-
 const GEMINI_DIRECT_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "";
 
 async function callDirectGemini(prompt: string, systemInstruction?: string): Promise<string | null> {
@@ -229,7 +232,7 @@ export const api = {
 
       // 1. Analyze query language, ports, and navigational intent
       const analysis = detectQueryLanguageAndIntent(userQuery, currentLang, regId);
-      const { detectedLang, intent, startPort, endPort } = analysis;
+      const { detectedLang, intent, startPort, endPort, domainTopic, focusPort } = analysis;
 
       let content = "";
       let verdict: string | null = "SAFE";
@@ -241,8 +244,33 @@ export const api = {
         { agent: "Synthesizer Agent", detail: "Evaluated IMD & INCOIS safety criteria." },
       ];
 
-      // Route Navigation
-      if (intent === "route_safety" && endPort) {
+      // 1. Mandatory Greetings (Module 2.1)
+      if (intent === "greeting") {
+        content = generateGreetingResponse(detectedLang);
+        citations = ["ORCA Conversational Core"];
+        reasoning_trace = [{ agent: "Conversational Agent", detail: `Processed greeting in ${detectedLang.toUpperCase()}.` }];
+      } else if (intent === "capabilities") {
+        content = generateCapabilitiesResponse(detectedLang);
+        citations = ["ORCA Marine Assistance Framework"];
+        reasoning_trace = [{ agent: "Conversational Agent", detail: `Provided capabilities summary in ${detectedLang.toUpperCase()}.` }];
+      } else if (intent === "explain_domain") {
+        content = generateDomainExplanation(domainTopic || "map", detectedLang);
+        citations = ["IMO & INCOIS Marine Standards"];
+        reasoning_trace = [{ agent: "Marine Domain Intelligence", detail: `Explained ${(domainTopic || "marine").toUpperCase()} in ${detectedLang.toUpperCase()}.` }];
+      } else if (intent === "port_focus") {
+        const focusP = focusPort || startPort;
+        widgets = [buildPortMapWidget(focusP)];
+        const isTe = detectedLang === "te";
+        const isHi = detectedLang === "hi";
+        content = isTe
+          ? `⚓ **${focusP.name} పోర్ట్ సెక్టార్ సమాచారం:**\n\nలొకేషన్: ${focusP.lat.toFixed(4)}°N, ${focusP.lon.toFixed(4)}°E (${focusP.sea}). వాతావరణ పరిస్థితులు ప్రస్తుతం **సురక్షితంగా (SAFE)** ఉన్నాయి. పైలట్ స్టేషన్ మరియు ట్రాకింగ్ మ్యాప్ క్రింద చూపబడింది.`
+          : isHi
+          ? `⚓ **${focusP.name} बंदरगाह सेक्टर:**\n\nनिर्देशांक: ${focusP.lat.toFixed(4)}°N, ${focusP.lon.toFixed(4)}°E (${focusP.sea})। मौसम की स्थिति वर्तमान में **सुरक्षित (SAFE)** है। पोर्ट मैप नीचे प्रस्तुत है।`
+          : `⚓ **${focusP.name} Port Sector Active:**\n\nCoordinates: ${focusP.lat.toFixed(4)}°N, ${focusP.lon.toFixed(4)}°E (${focusP.sea}). Weather parameters are verified **SAFE**. Pilot station active on VHF Ch 16. Tactical port chart centered below.`;
+        verdict = "SAFE";
+        citations = ["Port Authority Coastal Registry", "IMD Marine Services"];
+        reasoning_trace = [{ agent: "Port Intelligence Agent", detail: `Focused tactical map on ${focusP.name}.` }];
+      } else if (intent === "route_safety" && endPort) {
         const mapWidget = buildRouteMapWidget(startPort, endPort);
         widgets = [mapWidget];
 

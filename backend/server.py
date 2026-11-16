@@ -45,6 +45,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/")
+async def root():
+    return {
+        "service": "ORCA",
+        "status": "ok",
+        "region": mr.REGION,
+        "coverage": "India-wide",
+        "regions_available": len(mr.REGIONS),
+        "time": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "orca-backend", "time": datetime.now(timezone.utc).isoformat()}
+
+
 api = APIRouter(prefix="/api")
 
 # ---- In-memory stores for standalone resilience ----

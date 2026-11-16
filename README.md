@@ -188,20 +188,25 @@ ORCA features pre-configured nautical stations across India's complete coastline
 
 ---
 
-## 🗣️ Multilingual Voice Copilot (10 Languages)
+## 🗣️ Multilingual Voice Copilot & Intelligence Upgrade
 
-ORCA bridges digital literacy barriers by operating fluently across **10 coastal languages**. All UI controls, meteorological telemetry, radar summaries, and voice advisories synchronize dynamically:
+ORCA bridges digital literacy and linguistic barriers across coastal India and international waters by operating fluently in multi-lingual voice mode with automatic language detection:
 
-1. **English (`en`)** — Default International Maritime Standard
-2. **Telugu (`te`)** — *తెలుగు (ఆంధ్రప్రదేశ్ & యానాం తీరం)*
-3. **Tamil (`ta`)** — *தமிழ் (தமிழ்நாடு & பாண்டிச்சேரி)*
-4. **Hindi (`hi`)** — *हिन्दी (अखिल भारतीय तटीय चेतावनी)*
-5. **Malayalam (`ml`)** — *മലയാളം (കേരള തീരം & ലക്ഷദ്വീപ്)*
-6. **Kannada (`kn`)** — *ಕನ್ನಡ (ಕರ್ನಾಟಕ ಕರಾವಳಿ)*
-7. **Marathi (`mr`)** — *मराठी (महाराष्ट्र & ಕೊಂಕಣ್ ತೀರ)*
-8. **Gujarati (`gu`)** — *ગુજરાતી (ગુજરાત દરિયાકાંઠો)*
-9. **Odia (`or`)** — *ଓଡ଼ିଆ (ଓଡ଼ିଶା ଉପକୂଳ)*
-10. **Bengali (`bn`)** — *বাংলা (পশ্চিমবঙ্গ & সুন্দরবন)*
+### 1. Language Prioritization & Zero-Barrier Voice AI
+- **Telugu (`te`) — Primary Focus**: Native script and Romanized phonetics (*e.g., "హాయ్ ఓర్కా", "కాకినాడ నుండి ముంబై రూట్ చెప్పు", "ఈ మ్యాప్ను వివరించండి"*).
+- **Hindi (`hi`) — Primary Focus**: Conversational Hindi with natural regional pronunciation (*e.g., "नमस्ते ORCA", "क्या आज समुद्र में जाना सुरक्षित है?", "मुझे यह नक्शा समझाइए"*).
+- **English (`en`) — Standard Maritime**: International standard maritime navigation and IMO phraseology.
+- **Extended Coastal & Global Languages**: Tamil (`ta`), Kannada (`kn`), Malayalam (`ml`), Bengali (`bn`), Marathi (`mr`), Gujarati (`gu`), Punjabi (`pa`), Odia (`or`), Urdu (`ur`), Spanish (`es`), French (`fr`), German (`de`), Arabic (`ar`), Japanese (`ja`), Chinese (`zh`).
+
+### 2. Conversational Intent & Maritime Intelligence
+- **Intelligent Automatic Language Identification**: Automatically detects spoken or typed language from input text or speech, maintaining language context seamlessly without requiring manual switching or resetting the session.
+- **Mandatory Greetings & Capability Inquiries**: Immediate conversational responses in the user's spoken language (*"హలో! నేను ORCA, మీ మెరైన్ ఇంటెలిజెన్స్ అసిస్టెంట్‌ని..."*, *"नमस्ते! मैं ORCA हूँ..."*).
+- **Technical Marine Explanations**: Deep domain breakdowns for **AIS** (Automatic Identification System), **PFZ** (Potential Fishing Zones), **ECDIS** (Electronic Chart Display & Information System), and real-time map telemetry (*"Explain this map"*).
+- **Interactive Map Widget Injection**: Navigation queries (*"Kakinada to Mumbai route"*, *"కాకినాడ పోర్టును చూపించు"*) immediately generate and render interactive Leaflet marine fairway corridors directly within the chat message stream.
+
+### 3. Tactical ECDIS Plotter & Alerts Center
+- **Home Tab Tactical Plotter**: Embedded interactive nautical chart displaying the active sector harbor, pilot station buoy (VHF 16), live AIS vessel fleet with headings and speeds, and high-yield PFZ hotspots.
+- **Bulletproof Marine Alerts Center (`/alerts`)**: Resilient ScrollView architecture with instant fallback telemetry and guarded data models to guarantee zero blank-screen regressions under any network or deployment condition.
 
 ---
 

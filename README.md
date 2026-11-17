@@ -14,14 +14,7 @@
     <a href="https://github.com/Suryaakhilp18/ORCA_MOBILE_APP">Source Repository</a>
   </p>
 
-  <p>
-    <img src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" alt="Expo SDK 54">
-    <img src="https://img.shields.io/badge/React%20Native-0.81.5-20232A?logo=react" alt="React Native 0.81.5">
-    <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript" alt="TypeScript 5.9">
-    <img src="https://img.shields.io/badge/Python-Backend-3776AB?logo=python" alt="Python backend">
-    <img src="https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi" alt="FastAPI">
-    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-informational" alt="Android iOS Web">
-  </p>
+  <p><strong>Stack:</strong> Expo 54 · React Native 0.81.5 · TypeScript 5.9 · Python · FastAPI</p>
 
 </div>
 

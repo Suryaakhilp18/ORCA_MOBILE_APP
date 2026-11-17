@@ -1,240 +1,239 @@
-<!--
-  ORCA — Ocean Risk & Coastal Advisory
-  Repository landing page.
-  Keep feature claims aligned with the implementation and documented data sources.
--->
+<!-- ORCA repository overview. Keep this file aligned with implementation. -->
 
 <div align="center">
 
-  <img src="frontend/assets/images/app-image.png" alt="ORCA application preview" width="180" />
-
-  <h1>🌊 ORCA</h1>
+  <h1>ORCA</h1>
   <h3>Ocean Risk &amp; Coastal Advisory</h3>
-
-  <p><strong>Marine intelligence. Safer decisions. More accessible information.</strong></p>
-
-  <p>
-    An AI-assisted maritime information platform combining marine data retrieval,
-    rule-based risk assessment, geospatial utilities and multilingual interaction.
-  </p>
+  <p><strong>AI-assisted marine intelligence for coastal awareness and decision support.</strong></p>
 
   <p>
-    <a href="https://orca-mobile-application.vercel.app"><strong>Open Live Application</strong></a>
-    ·
-    <a href="https://github.com/Suryaakhilp18/ORCA_MOBILE_APP">Source Code</a>
+    <a href="https://orca-mobile-application.vercel.app">Live Application</a>
     ·
     <a href="DOCUMENTATION.md">Technical Documentation</a>
+    ·
+    <a href="https://github.com/Suryaakhilp18/ORCA_MOBILE_APP">Source Repository</a>
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Frontend-Expo%2054-000020?logo=expo&logoColor=white" alt="Expo 54" />
-    <img src="https://img.shields.io/badge/React_Native-0.81-20232A?logo=react&logoColor=61DAFB" alt="React Native 0.81" />
-    <img src="https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI" />
-    <img src="https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
-    <img src="https://img.shields.io/badge/Language-Python-3776AB?logo=python&logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/Expo-SDK%2054-000020?logo=expo" alt="Expo SDK 54">
+    <img src="https://img.shields.io/badge/React%20Native-0.81.5-20232A?logo=react" alt="React Native 0.81.5">
+    <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript" alt="TypeScript 5.9">
+    <img src="https://img.shields.io/badge/Python-Backend-3776AB?logo=python" alt="Python backend">
+    <img src="https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi" alt="FastAPI">
+    <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-informational" alt="Android iOS Web">
   </p>
 
 </div>
 
 ---
 
-## At a glance
+## Project overview
 
-ORCA (Ocean Risk & Coastal Advisory) is built to make maritime information easier to access and interpret. It brings together a mobile-first interface, a FastAPI service, a multi-agent query workflow, geospatial utilities and a separate deterministic rules module for configured marine-condition assessments.
+ORCA (Ocean Risk & Coastal Advisory) is a mobile-first maritime information platform for exploring coastal conditions, marine alerts, geospatial context and fishing-related ocean indicators. It combines an Expo / React Native client with a Python FastAPI backend and a specialist-agent workflow.
 
-The project is focused on coastal users and maritime information workflows. It is an informational and decision-support application—not a certified navigation system or an official source of maritime warnings.
+The system is designed to turn marine information into explanations that are easier to understand, including multilingual text and voice interaction. A deterministic rules module evaluates configured sea-condition thresholds; generative AI is used for request interpretation and response synthesis, not as the authority for the safety verdict.
 
-<div align="center">
+> **Data transparency:** The repository contains both a live Open-Meteo marine/weather adapter and regional mock/demo datasets. The live adapter can return live weather when a request succeeds. Regional PFZ examples, parts of the coastal registry, alerts and boundary information are mock/demo data in the current implementation. A feature's presence in the interface does not mean its underlying data is live or independently verified.
 
-| 🧭 Navigation support | 🌦️ Marine context | 🤖 Agent workflow | 🎙️ Voice interaction |
-|:---:|:---:|:---:|:---:|
-| Route and spatial utilities | Available environmental data | Specialized processing roles | Speech-enabled experience |
+## Capability map
 
-</div>
+| Area | What the repository implements |
+|---|---|
+| Conversational marine assistant | Chat endpoint, session context, intent planning, specialist processing and response synthesis |
+| Sea-condition assessment | Deterministic `SAFE`, `CAUTION` and `UNSAFE` evaluations using configured wind, wave, lightning and severe-weather inputs |
+| Marine weather | Open-Meteo marine/weather adapter with fallback to regional demo data |
+| Regional information | Coastal-region registry and region-selection/detection support |
+| Fishing-related context | PFZ lookup and SST / chlorophyll-related demo indicators; availability and provenance vary by adapter |
+| Geospatial processing | Distance, bearing, spatial boundary checks, nearest PFZ lookup and route-risk utilities |
+| Alerts | Regional alert retrieval, notifications, and Server-Sent Events (SSE) endpoint |
+| Saved locations | Save, list and delete location records, with optional vessel metadata |
+| Voice | Audio transcription and speech generation service integration, with browser speech fallback in the client |
+| Localization | Language detection and response support for Indian languages |
 
-## What ORCA brings together
+## Application modules
 
-<table>
-  <tr>
-    <td width="50%">
-      <h3>🌊 Marine situation &amp; alerts</h3>
-      Regional situation views and alert information surfaced through the application and backend APIs.
-    </td>
-    <td width="50%">
-      <h3>🛟 Rule-based risk assessment</h3>
-      Configured environmental inputs are evaluated by deterministic backend rules, separate from generative response writing.
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🗺️ Geospatial navigation utilities</h3>
-      Location, distance, bearing and route-related utilities support maritime query context and map presentation.
-    </td>
-    <td width="50%">
-      <h3>🎣 Ocean &amp; fishing context</h3>
-      Oceanographic indicators and regional context can be used to provide indicative fishing-related information where data is available.
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🗣️ Multilingual voice experience</h3>
-      Voice-related services and language-aware interaction support a more accessible conversational workflow.
-    </td>
-    <td width="50%">
-      <h3>📡 Resilient application experience</h3>
-      Local reference data and fallback states help the interface remain useful when some network services are unavailable.
-    </td>
-  </tr>
-</table>
+The mobile client uses Expo Router and a tab-based navigation structure.
 
-## How the system works
+| Module | Purpose |
+|---|---|
+| Home / Marine assistant | Conversational interaction, marine summaries, verdicts and reasoning context |
+| Alerts | Regional alert cards, notifications and alert-stream connection |
+| Saved locations | Stored locations, location selection and related actions |
+| Shared components | Maps, situation cards, charts, radar-style presentation, language selection and verdict display |
 
-The application passes a user's request through an API and orchestration workflow. Relevant data and specialist processing are combined before the application presents a response.
+The web client uses the same Expo application with web-specific API and storage handling where required.
+
+## Agent workflow
+
+The backend orchestration module separates request planning, data retrieval, specialist analysis and final response synthesis.
 
 ```mermaid
 flowchart TD
-    U[User: text, voice or location] --> APP[Expo application]
-    APP --> API[FastAPI backend]
-    API --> PLAN[Intent and request planning]
-    PLAN --> DATA[Regional and marine data retrieval]
-    PLAN --> AGENTS[Specialist agent workflow]
-    DATA --> AGENTS
-    AGENTS --> GEO[Geospatial analysis]
-    AGENTS --> RULES[Deterministic safety rules]
-    GEO --> SYNTH[Response synthesis]
+    USER[User query / voice transcript] --> CLIENT[Expo client]
+    CLIENT --> API[FastAPI /api/chat]
+    API --> PLAN[Planner and intent detection]
+    PLAN --> DISCOVERY[Data discovery]
+    DISCOVERY --> WEATHER[Weather specialist]
+    DISCOVERY --> OCEAN[Ocean analytics specialist]
+    DISCOVERY --> GEO[Geospatial and risk specialist]
+    DISCOVERY --> FLEET[Fleet operations specialist]
+    WEATHER --> RULES[Deterministic safety rules]
+    OCEAN --> SYNTH[Response synthesizer]
+    GEO --> SYNTH
+    FLEET --> SYNTH
     RULES --> SYNTH
-    SYNTH --> OUT[Text, map context or voice response]
-    OUT --> APP
+    SYNTH --> RESULT[Answer, verdict, sources and reasoning trace]
+    RESULT --> CLIENT
 ```
 
-### Specialized agent roles
+### Specialist responsibilities
 
-The orchestration layer is organized around these documented responsibilities:
-
-| Role | Responsibility |
+| Specialist | Responsibility |
 |---|---|
-| Planner | Interprets the request and identifies the information needed. |
-| Data discovery | Locates relevant regional and source data. |
-| Weather intelligence | Handles available marine-weather context. |
-| Ocean analytics | Processes oceanographic and fishing-related indicators. |
-| Geospatial & risk | Handles spatial calculations and route-related context. |
-| Fleet operations | Handles vessel-related context when supported data is available. |
-| Synthesizer | Combines results into a user-facing response. |
+| Planner | Detects intent, language, region and query requirements |
+| Data discovery | Selects the regional and marine datasets needed |
+| Weather intelligence | Retrieves and interprets available weather information |
+| Ocean analytics | Processes SST, chlorophyll and fishing-related indicators |
+| Geospatial & risk | Performs spatial calculations and route / boundary checks |
+| Fleet operations | Handles vessel-related context when supported by available inputs |
+| Synthesizer | Produces the final user-facing explanation and structured context |
 
-### Safety logic is separate from generated language
+## Safety assessment
 
-The backend includes a rules module for configured marine-condition checks. The conversational model can explain a result, but should not be treated as the authority that establishes a safety verdict.
+The deterministic rules are implemented in `backend/orchestrator/rules.py`. Current configured thresholds include:
 
-A result is only as reliable as its input data, source freshness, geographic coverage and configured thresholds. Missing or stale observations must not be interpreted as safe conditions.
+| Factor | Caution threshold | Unsafe threshold |
+|---|---:|---:|
+| Wind speed | 18 kn | 25 kn |
+| Wave height | 1.8 m | 2.5 m |
+| Lightning probability | 30% | 60% |
 
-## Technology
+An active cyclonic condition can also affect the assessment. Thresholds are configuration choices in the code, not universal maritime safety limits. The result depends on the completeness, freshness and geographic relevance of the weather input.
 
-The versions below are taken from the repository's current dependency configuration where pinned.
+**Never interpret `SAFE` as official clearance to sail.** Missing, stale, demo or fallback data must not be treated as proof that conditions are safe.
 
-| Layer | Technology |
+## Data sources and provenance
+
+| Data / service | Repository behaviour |
 |---|---|
-| Mobile and web client | Expo SDK 54, React Native 0.81.5, React 19.1 |
-| Application language | TypeScript 5.9 |
-| Navigation | Expo Router 6 |
-| Backend API | Python, FastAPI, Uvicorn, Pydantic |
-| AI integration | Google Generative AI SDK; orchestration services |
-| Data and HTTP | HTTPX, Requests |
-| Persistence integration | MongoDB drivers (Motor / PyMongo) |
-| Voice and audio | Expo Audio, backend voice service |
-| Maps and visualization | MapLibre assets, React Native SVG, geospatial utilities |
-| Hosting configuration | Vercel |
+| Open-Meteo Marine / Weather | Live adapter in `backend/data_adapters/live_marine.py`; live data is used when retrieval succeeds |
+| Regional registry | `backend/data_adapters/mock_region.py`; includes demo/reference values |
+| PFZ, SST and chlorophyll examples | Regional demo values are present; do not present them as live satellite observations |
+| Alerts and hazard examples | Regional demo content is present in the mock-region adapter |
+| Geospatial boundaries | Served through the regional adapter and spatial utilities; validate source and freshness before operational use |
+| Google Generative AI | Optional model integration used by the orchestration layer |
+| Voice provider | Backend voice service; provider credentials/configuration are environment-dependent |
+| Mapping | MapLibre assets and OpenStreetMap-based map presentation in the client |
 
-External data providers and model services may require separate credentials and can have their own availability, quota and licensing conditions.
+Provider names in the application do not imply that every displayed layer is supplied live by that provider. Check source labels and mock/live metadata returned by the API.
 
-## Repository layout
+## Technology stack
+
+| Layer | Technology | Repository configuration |
+|---|---|---|
+| Client | Expo / React Native | Expo SDK 54, React Native 0.81.5 |
+| UI runtime | React | 19.1.0 |
+| Language | TypeScript | 5.9.3 |
+| Routing | Expo Router | 6.0.24 |
+| Backend | Python / FastAPI | FastAPI dependency in root requirements |
+| ASGI server | Uvicorn | Root requirements |
+| Validation | Pydantic | Pydantic 2 dependency |
+| Model integration | Google Generative AI SDK | Python dependency |
+| HTTP | HTTPX / Requests | Python dependencies |
+| Persistence | MongoDB drivers | Motor and PyMongo dependencies |
+| Audio | Expo Audio and browser speech APIs | Client and backend voice modules |
+| Maps | MapLibre assets / OpenStreetMap | Frontend assets and map component |
+| Hosting | Vercel configuration | Root and frontend Vercel configuration |
+
+## Repository structure
 
 ```text
 ORCA_MOBILE_APP/
-├── api/                         # Vercel API entry point
+├── api/
+│   └── index.py                 # Deployment entry point
 ├── backend/
-│   ├── data_adapters/           # Marine and regional data adapters
-│   ├── gis/                     # Spatial calculations
-│   ├── notifications/           # Alert and notification services
-│   ├── orchestrator/            # Agent workflow and safety rules
-│   ├── voice/                   # Voice service
-│   ├── server.py                # FastAPI application
-│   └── tests/                   # Backend tests
+│   ├── data_adapters/
+│   │   ├── live_marine.py       # Live marine/weather adapter
+│   │   └── mock_region.py       # Regional demo/reference data
+│   ├── gis/
+│   │   └── spatial.py           # Geospatial utilities
+│   ├── notifications/
+│   │   └── service.py           # Alerts, notifications and geofencing
+│   ├── orchestrator/
+│   │   ├── agents.py             # Planner, specialists and synthesis
+│   │   └── rules.py              # Deterministic safety rules
+│   ├── voice/
+│   │   └── service.py            # Voice service
+│   ├── tests/                    # Backend test modules
+│   ├── db.py                     # Persistence and fallback setup
+│   └── server.py                 # FastAPI application
 ├── frontend/
-│   ├── app/                     # Expo Router screens
-│   ├── assets/                  # Images, fonts and map assets
+│   ├── app/                      # Expo Router screens and tabs
+│   ├── assets/                   # Runtime assets, fonts and map resources
 │   └── src/
-│       ├── components/          # Reusable UI components
-│       ├── context/             # Application state
-│       ├── hooks/               # Reusable hooks
-│       ├── utils/               # Client utilities and storage
-│       └── api.ts               # API client
-├── documentation/               # Project report assets
-├── DOCUMENTATION.md             # Detailed project documentation
-├── requirements.txt             # Python dependencies
-├── vercel.json                  # Deployment routing
-└── README.md
+│       ├── components/           # Reusable interface components
+│       ├── context/              # Shared application state
+│       ├── hooks/                # Voice and alert hooks
+│       ├── utils/                # Navigation and storage utilities
+│       ├── api.ts                # API client
+│       └── i18n.ts               # Localization
+├── documentation/                # Generated project documents
+├── memory/                       # Product requirements notes
+├── tests/                        # Root test package
+├── DOCUMENTATION.md              # Detailed project documentation
+├── requirements.txt              # Python dependencies
+├── test_result.md                # Test-agent protocol / test state
+└── vercel.json                   # Root deployment routing
 ```
 
-## Run locally
+## Local development
 
 ### Prerequisites
 
 - Git
-- Node.js and npm (or the package manager indicated by the frontend lockfile)
-- Python and pip
-- API credentials for any external services you intend to use
+- Node.js and npm
+- Python 3.10 or newer (use the version supported by your deployment environment)
+- API credentials for optional external integrations
 
-### 1. Clone the repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/Suryaakhilp18/ORCA_MOBILE_APP.git
 cd ORCA_MOBILE_APP
 ```
 
-### 2. Configure the backend
-
-Install the Python dependencies from the repository root:
-
-```bash
-python -m venv .venv
-```
-
-Activate the environment:
+### 2. Create a Python environment
 
 **Windows PowerShell**
+
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-**macOS / Linux**
-```bash
-source .venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
-The FastAPI application is defined in `backend/server.py` and imported by `api/index.py` for the deployment entry point. For local development, start the application using the server module:
+**macOS / Linux**
 
 ```bash
-uvicorn backend.server:app --reload
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-If the local import path in your environment requires running from the backend directory, use:
+### 3. Start the backend
+
+The FastAPI application is defined in `backend/server.py`. Run it from the backend directory:
 
 ```bash
 cd backend
 uvicorn server:app --reload
 ```
 
-Open the API documentation at `http://127.0.0.1:8000/docs` when the server is running.
+When the server starts, the health route is available at `/health`, and the API routes are mounted under `/api`. Interactive API documentation is available at `/docs` on the local server.
 
-### 3. Configure the frontend
+### 4. Start the frontend
 
-In a second terminal:
+Open another terminal:
 
 ```bash
 cd frontend
@@ -242,7 +241,7 @@ npm install
 npm run web
 ```
 
-For a device or emulator, use the corresponding Expo script:
+For a native development target:
 
 ```bash
 npm run android
@@ -250,97 +249,95 @@ npm run android
 npm run ios
 ```
 
-### 4. Environment configuration
+The frontend's API client reads its service base URL from its runtime configuration. Configure the correct backend URL for your local, emulator or deployed environment before testing end-to-end flows.
 
-Check the backend and frontend source for the environment variables required by the integrations you enable. Common integrations in this repository include Google Generative AI and voice services.
+## Backend API reference
 
-- Keep secrets in local environment files or deployment environment settings.
-- Never commit API keys, access tokens or private credentials.
-- Do not place server-side secrets in variables bundled into the client.
-- Provide safe fallback behaviour when an external provider is unavailable.
+The backend mounts its primary router under `/api`. The implementation includes the following route groups:
 
-> **Configuration note:** Exact variable names and required values should be confirmed from the current source before deployment. Do not assume that every integration is enabled in every environment.
-
-## API surface
-
-The backend exposes endpoints for health, regional information, chat, marine situation, alerts, voice and saved locations. The exact request and response schemas are maintained by the FastAPI implementation.
-
-| Method | Route | Purpose |
+| Route | Methods | Purpose |
 |---|---|---|
-| `GET` | `/api/health` | Service health check |
-| `GET` | `/api/regions` | Regional registry |
-| `GET` | `/api/regions/detect` | Region detection |
-| `POST` | `/api/chat` | Conversational request |
-| `GET` | `/api/situation` | Regional marine situation |
-| `GET` | `/api/alerts` | Alert retrieval |
-| `GET` | `/api/alerts/stream` | Alert event stream |
-| `POST` | `/api/voice/speak` | Speech generation |
-| `POST` | `/api/voice/transcribe` | Audio transcription |
-| `GET` / `POST` | `/api/locations` | Saved locations |
-| `DELETE` | `/api/locations/{id}` | Remove a saved location |
-| `GET` | `/api/geocode` | Geocoding lookup |
+| `/api/health` | GET | API health check |
+| `/api/chat` | POST | Conversational marine query |
+| `/api/conversations/{session_id}` | GET | Retrieve session conversation |
+| `/api/alerts` | GET | Regional alerts |
+| `/api/alerts/stream` | GET | Server-Sent Events alert stream |
+| `/api/situation` | GET | Regional situation summary |
+| `/api/notifications` | GET | User notifications |
+| `/api/notifications/register-token` | POST | Register a push token |
+| `/api/locations` | GET, POST | List or save locations |
+| `/api/locations/{location_id}` | DELETE | Delete a saved location |
+| `/api/voice/speak` | POST | Generate speech |
+| `/api/voice/transcribe` | POST | Transcribe audio |
+| `/api/regions` | GET | List supported regions |
+| `/api/regions/detect` | GET | Detect a region from coordinates |
+| `/api/geocode` | GET | Geocoding lookup |
 
-For the authoritative route definitions and schemas, use the running API's Swagger UI at `/docs`.
+Additional route and schema details are available through FastAPI's Swagger interface at `/docs` when running locally. The table is a route overview; the running application is the source of truth for request schemas and availability.
 
-## Testing
+## Configuration and secrets
 
-Backend test modules are located in `backend/tests/`. The repository also includes test reports and a test-state record.
+External integrations are environment-dependent. Inspect the backend and frontend configuration before setting up a deployment. The repository's AI integration reads `GEMINI_API_KEY`; the voice service may require provider credentials depending on the selected voice path.
 
-Run the backend tests from the repository root:
+- Keep secrets in local environment files or deployment secret settings.
+- Never commit API keys, tokens or credentials.
+- Do not expose server-side secrets in client-side Expo configuration.
+- Configure the frontend API base URL for the environment being tested.
+- Treat external provider failures as unavailable data, not as safe conditions.
+
+## Tests and validation
+
+Backend test modules are in `backend/tests/`. From the repository root, run:
 
 ```bash
 pytest backend/tests
 ```
 
-Run frontend linting from the frontend directory:
+The frontend defines a lint script. From the frontend directory:
 
 ```bash
-cd frontend
 npm run lint
 ```
 
-Test results depend on the current code, dependencies, environment variables and external service availability. Run the checks locally or in CI before relying on a result.
+Test-report artifacts exist under `test_reports/pytest/`; results may correspond to earlier iterations. Re-run tests against the current commit before quoting a pass count or claiming a release is verified.
 
-## Data, safety & limitations
+## Safety, limitations and responsible use
 
-ORCA is a decision-support and information interface. It is not a certified navigation instrument, vessel traffic service, emergency communication system or official warning authority.
+ORCA is an informational and decision-support software project. It is **not** a certified navigation system, ECDIS, vessel traffic service, emergency communication system or official marine warning authority.
 
-- Verify marine conditions with current official bulletins and competent authorities.
-- Treat cached, mock, unavailable or stale data as unknown—not as evidence of safe conditions.
-- Validate routes against authoritative nautical charts, depth information, traffic schemes and local restrictions.
-- AI-generated explanations can be incomplete or incorrect.
-- Fishing indicators are estimates and do not guarantee catch outcomes.
-- Offline functionality does not provide live observations or live warnings.
+- Verify weather and sea conditions with current official bulletins and maritime authorities.
+- Never rely on cached, mock, stale or missing data for a departure decision.
+- Validate all routes against up-to-date nautical charts, depths, traffic separation schemes and local restrictions.
+- AI-generated text can be incorrect or incomplete; review source context and timestamps.
+- PFZ and ocean-productivity indicators are informational estimates, not guaranteed catch predictions.
+- Network-dependent data and AI features may be unavailable offshore.
+- The configured safety thresholds are software rules and are not a substitute for official maritime guidance.
 
-For operational decisions, consult official sources such as the India Meteorological Department (IMD), Indian National Centre for Ocean Information Services (INCOIS), port authorities and applicable maritime agencies.
+For operational decisions, consult relevant authorities and official sources such as the India Meteorological Department (IMD), Indian National Centre for Ocean Information Services (INCOIS), port authorities and applicable maritime agencies.
 
 ## Project documentation
 
 - [Detailed project documentation](DOCUMENTATION.md)
-- [Backend implementation](backend/)
-- [Frontend implementation](frontend/)
-- [Test modules](backend/tests/)
+- [Backend source](backend/)
+- [Frontend source](frontend/)
+- [Backend tests](backend/tests/)
+- [Deployment configuration](vercel.json)
 
 ## Contributing
 
-Contributions and technical feedback are welcome.
-
 1. Fork the repository.
 2. Create a focused feature branch.
-3. Keep changes scoped and documented.
-4. Run relevant tests and lint checks.
-5. Open a pull request describing the change and its verification.
+3. Keep changes scoped and document behaviour changes.
+4. Run relevant backend tests and frontend lint checks.
+5. Open a pull request with a summary and verification details.
 
 ## License
 
-No license is declared in this README. Review the repository's licensing terms before reusing, modifying or distributing the project.
+No license file is currently declared at the repository root. Contact the project owner before reusing, modifying or redistributing this project.
 
 ---
 
 <div align="center">
-
-  <h3>🌊 ORCA — Intelligence for Safer Seas</h3>
-  <p>Building more accessible maritime information experiences through software, data and AI.</p>
-  <p><a href="https://github.com/Suryaakhilp18/ORCA_MOBILE_APP">View ORCA on GitHub</a></p>
-
+  <strong>ORCA — Intelligence for Safer Seas</strong>
+  <p>Marine information and decision support, built with software, data and AI.</p>
 </div>

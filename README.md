@@ -1,521 +1,346 @@
-# 🌊 ORCA — Ocean Risk & Coastal Advisory
+<!--
+  ORCA — Ocean Risk & Coastal Advisory
+  Repository landing page.
+  Keep feature claims aligned with the implementation and documented data sources.
+-->
 
-### AI-Powered Marine Safety, Intelligent Navigation & Coastal Intelligence Platform
+<div align="center">
 
-\<p align="center">   \<strong>Making maritime intelligence accessible, understandable, and actionable.\</strong> \</p>
+  <img src="frontend/assets/images/app-image.png" alt="ORCA application preview" width="180" />
 
-\<p align="center">   \<a href="[https://orca-mobile-application.vercel.app](https://orca-mobile-application.vercel.app)">Live Application\</a> •   \<a href="[https://github.com/Suryaakhilp18/ORCA_MOBILE_APP](https://github.com/Suryaakhilp18/ORCA_MOBILE_APP)">GitHub Repository\</a> \</p>
+  <h1>🌊 ORCA</h1>
+  <h3>Ocean Risk &amp; Coastal Advisory</h3>
 
----
+  <p><strong>Marine intelligence. Safer decisions. More accessible information.</strong></p>
 
-## 1. Overview
+  <p>
+    An AI-assisted maritime information platform combining marine data retrieval,
+    rule-based risk assessment, geospatial utilities and multilingual interaction.
+  </p>
 
-**ORCA (Ocean Risk & Coastal Advisory)** is an AI-powered maritime intelligence platform designed to improve marine safety, navigation awareness, and coastal decision-making.
+  <p>
+    <a href="https://orca-mobile-application.vercel.app"><strong>Open Live Application</strong></a>
+    ·
+    <a href="https://github.com/Suryaakhilp18/ORCA_MOBILE_APP">Source Code</a>
+    ·
+    <a href="DOCUMENTATION.md">Technical Documentation</a>
+  </p>
 
-The platform combines real-time marine weather information, geospatial analysis, deterministic safety assessments, and multi-agent AI orchestration to provide contextual maritime insights.
+  <p>
+    <img src="https://img.shields.io/badge/Frontend-Expo%2054-000020?logo=expo&logoColor=white" alt="Expo 54" />
+    <img src="https://img.shields.io/badge/React_Native-0.81-20232A?logo=react&logoColor=61DAFB" alt="React Native 0.81" />
+    <img src="https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white" alt="FastAPI" />
+    <img src="https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Language-Python-3776AB?logo=python&logoColor=white" alt="Python" />
+  </p>
 
-ORCA is designed with particular attention to the needs of fishermen, coastal communities, and maritime operators who require accessible and understandable information about changing sea conditions.
-
-Instead of presenting raw environmental data, ORCA aims to translate complex marine information into practical insights through an interactive dashboard and a multilingual conversational assistant.
-
-### Project Vision
-
-To make reliable maritime intelligence more accessible by combining oceanographic data, artificial intelligence, geospatial technologies, and multilingual communication.
-
-## 2. Problem Statement
-
-Maritime communities face several challenges when accessing and interpreting marine information.
-
-| Challenge                    | Impact                                                                                       |
-| ---------------------------- | -------------------------------------------------------------------------------------------- |
-| Unpredictable sea conditions | Cyclones, strong winds, and high waves increase operational risks.                           |
-| Information accessibility    | Technical weather bulletins can be difficult for local fishing communities to understand.    |
-| Language barriers            | Important marine advisories may not be available in users' preferred languages.              |
-| Limited connectivity         | Offshore connectivity can interrupt access to online services.                               |
-| Navigation uncertainty       | Straight-line navigation does not account for coastlines and potential geographical hazards. |
-| Fragmented information       | Weather, ocean conditions, and navigation information are often accessed separately.         |
-
-ORCA addresses these challenges through a unified platform that combines marine intelligence, safety analysis, navigation assistance, and conversational interaction.
-
-## 3. Core Features
-
-### 3.1 Marine Safety Intelligence
-
-ORCA evaluates marine conditions and provides three levels of safety assessment:
-
-- **SAFE:** No configured critical safety conditions have been detected.
-- **CAUTION:** Environmental conditions require additional attention.
-- **UNSAFE:** One or more configured critical safety conditions have been detected.
-
-The safety assessment uses deterministic rules implemented separately from generative AI.
-
-The assessment considers available parameters such as:
-
-- Wind speed and gusts.
-- Wave height.
-- Lightning probability.
-- Cyclone and severe weather warnings.
-- Regional marine conditions.
-
-Each assessment is intended to include the reasons behind its classification, helping users understand the factors influencing the result.
-
-### 3.2 Multi-Agent AI Orchestration
-
-ORCA uses a specialized seven-agent workflow to process maritime queries.
-
-| Agent                         | Responsibility                                                       |
-| ----------------------------- | -------------------------------------------------------------------- |
-| 1. Planner Agent              | Identifies user intent, locations, requested dates, and language.    |
-| 2. Data Discovery Agent       | Retrieves relevant information from the coastal region registry.     |
-| 3. Weather Intelligence Agent | Processes available marine weather information.                      |
-| 4. Ocean Analytics Agent      | Evaluates oceanographic indicators and potential fishing conditions. |
-| 5. Geospatial & Risk Agent    | Performs geographical analysis and route-related risk assessment.    |
-| 6. Fleet Operations Agent     | Handles vessel-related information when supported data is available. |
-| 7. Synthesizer Agent          | Combines the results into understandable, contextual responses.      |
-
-This architecture separates information retrieval, domain-specific analysis, safety evaluation, and response generation.
-
-### 3.3 Intelligent Maritime Navigation
-
-The navigation module provides geographical analysis to support maritime route planning.
-
-Key capabilities include:
-
-- Route generation between selected coastal locations.
-- Geospatial waypoint calculations.
-- Distance estimation in nautical miles.
-- Bearing and directional information.
-- Estimated journey duration.
-- Coastal boundary awareness.
-- Identification of potential route conflicts with configured restricted areas.
-- Consideration of relevant maritime separation zones.
-
-The system is designed to provide more meaningful geographical context than simple straight-line distance calculations.
-
-### 3.4 Potential Fishing Zone Intelligence
-
-ORCA incorporates oceanographic indicators to help identify potentially favourable fishing areas.
-
-The analysis considers:
-
-- Sea Surface Temperature (SST).
-- Chlorophyll-a concentration.
-- Ocean temperature gradients.
-- Potential biological convergence zones.
-- Distance from coastal reference locations.
-
-The system aims to transform these indicators into understandable fishing-related insights.
-
-Fishing recommendations are indicative estimates and should not be interpreted as guaranteed catch predictions.
-
-### 3.5 Multilingual Voice Assistant
-
-ORCA includes a conversational interface that supports text-based and voice-based interaction.
-
-**Supported languages:**
-
-- Telugu (తెలుగు)
-- Hindi (हिन्दी)
-- English
-
-Key capabilities:
-
-- Automatic language identification.
-- Natural-language maritime queries.
-- Speech-to-text interaction.
-- Text-to-speech responses.
-- Spoken-language text normalization.
-- Natural pronunciation of nautical terminology.
-- Contextual responses in the detected language.
-
-The voice subsystem integrates ElevenLabs speech synthesis and browser-based speech capabilities.
-
-### 3.6 Offline Resilience
-
-ORCA incorporates fallback mechanisms to improve usability when backend connectivity is unavailable.
-
-These include:
-
-- Bundled regional marine datasets.
-- Locally available situation information.
-- Cached or static dashboard information.
-- Client-side fallback handling.
-- Defensive handling of missing network responses.
-
-**Important:** Offline fallback information is not equivalent to live marine intelligence. Real-time weather updates, external AI services, and other network-dependent capabilities require connectivity.
-
-### 3.7 Interactive Marine Dashboard
-
-The application provides a dedicated dashboard for accessing important maritime information.
-
-Dashboard components include:
-
-- Marine condition indicators.
-- Weather and ocean telemetry.
-- Interactive geographical maps.
-- Radar-style visualizations.
-- Marine situation summaries.
-- Hazard and alert information.
-- Saved locations and waypoints.
-
-The interface is designed to present complex maritime information through a clear and accessible visual experience.
+</div>
 
 ---
 
-## 4. System Architecture
+## At a glance
 
-ORCA follows a modular architecture consisting of a frontend application, backend API services, specialized AI agents, geospatial processing, and external data integrations.
+ORCA (Ocean Risk & Coastal Advisory) is built to make maritime information easier to access and interpret. It brings together a mobile-first interface, a FastAPI service, a multi-agent query workflow, geospatial utilities and a separate deterministic rules module for configured marine-condition assessments.
 
-### High-Level Processing Workflow
+The project is focused on coastal users and maritime information workflows. It is an informational and decision-support application—not a certified navigation system or an official source of maritime warnings.
 
-**User Interaction → Intent Recognition → Data Discovery → Marine Intelligence Processing → Geospatial Analysis → Safety Assessment → Response Generation → Voice or Visual Output**
+<div align="center">
 
-### Architecture Components
+| 🧭 Navigation support | 🌦️ Marine context | 🤖 Agent workflow | 🎙️ Voice interaction |
+|:---:|:---:|:---:|:---:|
+| Route and spatial utilities | Available environmental data | Specialized processing roles | Speech-enabled experience |
 
-| Layer               | Responsibility                                                        |
-| ------------------- | --------------------------------------------------------------------- |
-| Presentation Layer  | Dashboard, conversational interface, maps, and visualizations.        |
-| API Layer           | Handles client requests and communication with backend services.      |
-| Orchestration Layer | Coordinates the seven specialized agents.                             |
-| Intelligence Layer  | Processes weather, oceanographic, and geographical information.       |
-| Safety Layer        | Applies deterministic rules to assess marine conditions.              |
-| Voice Layer         | Handles speech processing and audio generation.                       |
-| Persistence Layer   | Manages session information and supported saved data.                 |
-| External Services   | Provides marine weather, oceanographic, mapping, and AI capabilities. |
+</div>
 
-### Architecture Principles
+## What ORCA brings together
 
-- Separation of concerns between AI reasoning and safety evaluation.
-- Modular agent responsibilities.
-- Reusable frontend components.
-- Centralized API communication.
-- Resilient handling of network failures.
-- Clear distinction between live information and fallback datasets.
+<table>
+  <tr>
+    <td width="50%">
+      <h3>🌊 Marine situation &amp; alerts</h3>
+      Regional situation views and alert information surfaced through the application and backend APIs.
+    </td>
+    <td width="50%">
+      <h3>🛟 Rule-based risk assessment</h3>
+      Configured environmental inputs are evaluated by deterministic backend rules, separate from generative response writing.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🗺️ Geospatial navigation utilities</h3>
+      Location, distance, bearing and route-related utilities support maritime query context and map presentation.
+    </td>
+    <td width="50%">
+      <h3>🎣 Ocean &amp; fishing context</h3>
+      Oceanographic indicators and regional context can be used to provide indicative fishing-related information where data is available.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🗣️ Multilingual voice experience</h3>
+      Voice-related services and language-aware interaction support a more accessible conversational workflow.
+    </td>
+    <td width="50%">
+      <h3>📡 Resilient application experience</h3>
+      Local reference data and fallback states help the interface remain useful when some network services are unavailable.
+    </td>
+  </tr>
+</table>
 
----
+## How the system works
 
-## 5. Marine Safety Assessment Methodology
+The application passes a user's request through an API and orchestration workflow. Relevant data and specialist processing are combined before the application presents a response.
 
-A key architectural principle of ORCA is that safety classifications should not depend exclusively on generative AI.
+```mermaid
+flowchart TD
+    U[User: text, voice or location] --> APP[Expo application]
+    APP --> API[FastAPI backend]
+    API --> PLAN[Intent and request planning]
+    PLAN --> DATA[Regional and marine data retrieval]
+    PLAN --> AGENTS[Specialist agent workflow]
+    DATA --> AGENTS
+    AGENTS --> GEO[Geospatial analysis]
+    AGENTS --> RULES[Deterministic safety rules]
+    GEO --> SYNTH[Response synthesis]
+    RULES --> SYNTH
+    SYNTH --> OUT[Text, map context or voice response]
+    OUT --> APP
+```
 
-The backend includes a dedicated deterministic rules module responsible for evaluating available marine parameters.
+### Specialized agent roles
 
-The assessment process follows these stages:
+The orchestration layer is organized around these documented responsibilities:
 
-1. Retrieve available environmental information.
-2. Validate the relevant input parameters.
-3. Evaluate conditions against configured safety thresholds.
-4. Determine the applicable safety classification.
-5. Identify the factors contributing to the result.
-6. Pass the assessment and supporting context to the response-generation layer.
-7. Present the result in an understandable format.
+| Role | Responsibility |
+|---|---|
+| Planner | Interprets the request and identifies the information needed. |
+| Data discovery | Locates relevant regional and source data. |
+| Weather intelligence | Handles available marine-weather context. |
+| Ocean analytics | Processes oceanographic and fishing-related indicators. |
+| Geospatial & risk | Handles spatial calculations and route-related context. |
+| Fleet operations | Handles vessel-related context when supported data is available. |
+| Synthesizer | Combines results into a user-facing response. |
 
-The implementation is located in the backend safety rules module.
+### Safety logic is separate from generated language
 
-This approach improves transparency and makes safety decisions easier to inspect and test.
+The backend includes a rules module for configured marine-condition checks. The conversational model can explain a result, but should not be treated as the authority that establishes a safety verdict.
 
-Safety classifications are advisory outputs, not certified maritime clearance or a substitute for official warnings, nautical charts, professional navigation systems, or the judgement of qualified operators.
+A result is only as reliable as its input data, source freshness, geographic coverage and configured thresholds. Missing or stale observations must not be interpreted as safe conditions.
 
----
+## Technology
 
-## 6. Coastal Monitoring Registry
+The versions below are taken from the repository's current dependency configuration where pinned.
 
-ORCA includes a regional registry covering 28 coastal locations across mainland India and island territories.
+| Layer | Technology |
+|---|---|
+| Mobile and web client | Expo SDK 54, React Native 0.81.5, React 19.1 |
+| Application language | TypeScript 5.9 |
+| Navigation | Expo Router 6 |
+| Backend API | Python, FastAPI, Uvicorn, Pydantic |
+| AI integration | Google Generative AI SDK; orchestration services |
+| Data and HTTP | HTTPX, Requests |
+| Persistence integration | MongoDB drivers (Motor / PyMongo) |
+| Voice and audio | Expo Audio, backend voice service |
+| Maps and visualization | MapLibre assets, React Native SVG, geospatial utilities |
+| Hosting configuration | Vercel |
 
-| State / Union Territory   | Locations                                     |
-| ------------------------- | --------------------------------------------- |
-| Andhra Pradesh            | Kakinada, Visakhapatnam, Machilipatnam        |
-| Tamil Nadu                | Chennai, Thoothukudi, Rameswaram, Kanyakumari |
-| Kerala                    | Kochi, Kozhikode, Vizhinjam                   |
-| Karnataka                 | Mangalore, Karwar                             |
-| Goa                       | Mormugao                                      |
-| Maharashtra               | Mumbai, Ratnagiri, Malvan                     |
-| Gujarat                   | Veraval, Porbandar, Okha, Kandla              |
-| Odisha                    | Paradip, Puri, Gopalpur                       |
-| West Bengal               | Digha, Sundarbans                             |
-| Andaman & Nicobar Islands | Port Blair                                    |
-| Lakshadweep               | Kavaratti                                     |
-| Puducherry                | Puducherry                                    |
+External data providers and model services may require separate credentials and can have their own availability, quota and licensing conditions.
 
-The registry supports regional selection, location discovery, and access to location-specific marine information.
+## Repository layout
 
-The inclusion of a location in the registry does not imply that it has a dedicated live observation station or independently verified real-time sensor coverage.
+```text
+ORCA_MOBILE_APP/
+├── api/                         # Vercel API entry point
+├── backend/
+│   ├── data_adapters/           # Marine and regional data adapters
+│   ├── gis/                     # Spatial calculations
+│   ├── notifications/           # Alert and notification services
+│   ├── orchestrator/            # Agent workflow and safety rules
+│   ├── voice/                   # Voice service
+│   ├── server.py                # FastAPI application
+│   └── tests/                   # Backend tests
+├── frontend/
+│   ├── app/                     # Expo Router screens
+│   ├── assets/                  # Images, fonts and map assets
+│   └── src/
+│       ├── components/          # Reusable UI components
+│       ├── context/             # Application state
+│       ├── hooks/               # Reusable hooks
+│       ├── utils/               # Client utilities and storage
+│       └── api.ts               # API client
+├── documentation/               # Project report assets
+├── DOCUMENTATION.md             # Detailed project documentation
+├── requirements.txt             # Python dependencies
+├── vercel.json                  # Deployment routing
+└── README.md
+```
 
----
-
-## 7. Technology Stack
-
-| Category              | Technologies                              |
-| --------------------- | ----------------------------------------- |
-| Frontend              | React Native, Expo, React, TypeScript     |
-| Navigation            | Expo Router                               |
-| Backend               | Python, FastAPI, Uvicorn                  |
-| AI Integration        | Google Gemini API                         |
-| Agent Orchestration   | Python-based multi-agent architecture     |
-| Voice Synthesis       | ElevenLabs                                |
-| Speech Processing     | Web Speech API                            |
-| Marine Weather        | Open-Meteo Marine API                     |
-| Oceanographic Data    | INCOIS and ISRO-related data integrations |
-| Mapping               | Leaflet, OpenStreetMap                    |
-| Geospatial Processing | Turf.js, Haversine calculations           |
-| Visualization         | React Native SVG                          |
-| Database              | MongoDB, in-memory session storage        |
-| Deployment            | Vercel                                    |
-| Testing               | Pytest, TypeScript compiler               |
-
-Technology versions and external service availability should be verified against the current dependency configuration before deployment.
-
----
-
-## 8. Repository Structure
-
-The repository is organized into frontend, backend, API, and supporting documentation modules.
-
-| Directory / File           | Purpose                                            |
-| -------------------------- | -------------------------------------------------- |
-| `api/`                     | Deployment entry point for the backend.            |
-| `backend/`                 | Core backend application and services.             |
-| `backend/data_adapters/`   | Marine data retrieval and regional datasets.       |
-| `backend/gis/`             | Geospatial calculations and navigation logic.      |
-| `backend/orchestrator/`    | Agent coordination and deterministic safety rules. |
-| `backend/notifications/`   | Notification and alert services.                   |
-| `backend/voice/`           | Speech synthesis services.                         |
-| `backend/tests/`           | Backend unit and integration tests.                |
-| `frontend/`                | Expo and React Native application.                 |
-| `frontend/app/`            | Application screens and navigation.                |
-| `frontend/src/components/` | Reusable interface components.                     |
-| `frontend/src/context/`    | Shared application state.                          |
-| `frontend/src/hooks/`      | Reusable application hooks.                        |
-| `frontend/src/utils/`      | Navigation and supporting utilities.               |
-| `documentation/`           | Project documentation and supporting materials.    |
-| `tests/`                   | Additional project tests.                          |
-
-The root directory also contains dependency configuration, deployment settings, and project documentation.
-
----
-
-## 9. API Reference
-
-The backend exposes REST endpoints for marine intelligence, user interaction, navigation support, and voice processing.
-
-| Method | Endpoint                | Purpose                                               |
-| ------ | ----------------------- | ----------------------------------------------------- |
-| GET    | `/api/health`           | Checks backend service health.                        |
-| GET    | `/api/regions`          | Retrieves registered coastal locations.               |
-| GET    | `/api/regions/detect`   | Identifies a nearby coastal region using coordinates. |
-| POST   | `/api/chat`             | Processes conversational maritime queries.            |
-| GET    | `/api/situation`        | Retrieves regional marine situation information.      |
-| GET    | `/api/alerts`           | Retrieves regional alert information.                 |
-| GET    | `/api/alerts/stream`    | Provides alert updates through Server-Sent Events.    |
-| POST   | `/api/voice/speak`      | Generates spoken responses.                           |
-| POST   | `/api/voice/transcribe` | Processes audio transcription requests.               |
-| GET    | `/api/locations`        | Retrieves saved locations.                            |
-| POST   | `/api/locations`        | Saves a location or waypoint.                         |
-| DELETE | `/api/locations/{id}`   | Removes a saved location.                             |
-| GET    | `/api/geocode`          | Resolves geographical search queries.                 |
-
-### API Documentation
-
-The backend provides interactive API documentation through FastAPI's Swagger interface when the application is running locally.
-
-Endpoint availability and request schemas should be confirmed against the current backend implementation.
-
----
-
-## 10. Installation and Local Setup
+## Run locally
 
 ### Prerequisites
 
-Before setting up ORCA, ensure that the following tools are available:
-
 - Git
-- Node.js and npm
-- Python
-- A code editor such as Visual Studio Code
-- Required external API credentials
+- Node.js and npm (or the package manager indicated by the frontend lockfile)
+- Python and pip
+- API credentials for any external services you intend to use
 
-Use dependency versions compatible with the project's Expo and Python configurations.
+### 1. Clone the repository
 
-### Step 1: Clone the Repository
+```bash
+git clone https://github.com/Suryaakhilp18/ORCA_MOBILE_APP.git
+cd ORCA_MOBILE_APP
+```
 
-Clone the ORCA repository from GitHub and open the project directory in your development environment.
+### 2. Configure the backend
 
-Repository: [https://github.com/Suryaakhilp18/ORCA_MOBILE_APP](https://github.com/Suryaakhilp18/ORCA_MOBILE_APP)
+Install the Python dependencies from the repository root:
 
-### Step 2: Configure Environment Variables
+```bash
+python -m venv .venv
+```
 
-Configure the required environment variables according to the backend and frontend service configuration.
+Activate the environment:
 
-The documented integrations include:
+**Windows PowerShell**
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
-| Variable             | Purpose                                     |
-| -------------------- | ------------------------------------------- |
-| `GEMINI_API_KEY`     | Google Gemini API authentication.           |
-| `ELEVENLABS_API_KEY` | ElevenLabs speech synthesis authentication. |
-| `PORT`               | Backend server port configuration.          |
+**macOS / Linux**
+```bash
+source .venv/bin/activate
+```
 
-Use the appropriate environment file location for each service.
+Install dependencies:
 
-**Security requirements:**
+```bash
+pip install -r requirements.txt
+```
 
-- Never commit API keys or credentials.
-- Keep environment files excluded from version control.
-- Use deployment environment variables for production.
-- Do not expose private API keys through frontend bundles.
+The FastAPI application is defined in `backend/server.py` and imported by `api/index.py` for the deployment entry point. For local development, start the application using the server module:
 
-### Step 3: Configure the Backend
+```bash
+uvicorn backend.server:app --reload
+```
 
-Navigate to the backend directory.
+If the local import path in your environment requires running from the backend directory, use:
 
-Install the dependencies listed in its requirements configuration and start the FastAPI application using the project's development server configuration.
+```bash
+cd backend
+uvicorn server:app --reload
+```
 
-Once running, access the interactive API documentation through the local Swagger endpoint.
+Open the API documentation at `http://127.0.0.1:8000/docs` when the server is running.
 
-### Step 4: Configure the Frontend
+### 3. Configure the frontend
 
-Navigate to the frontend directory.
+In a second terminal:
 
-Install the dependencies defined in the frontend package configuration and start the Expo development environment in web mode.
+```bash
+cd frontend
+npm install
+npm run web
+```
 
-Open the local application address displayed by the development server.
+For a device or emulator, use the corresponding Expo script:
 
-### Step 5: Verify Integration
+```bash
+npm run android
+# or
+npm run ios
+```
 
-Confirm that:
+### 4. Environment configuration
 
-- The frontend loads successfully.
-- Backend health checks respond.
-- Coastal locations are accessible.
-- Marine situation information is returned.
-- Chat requests are processed.
-- Voice services work when credentials are configured.
-- Fallback handling works when external services are unavailable.
+Check the backend and frontend source for the environment variables required by the integrations you enable. Common integrations in this repository include Google Generative AI and voice services.
+
+- Keep secrets in local environment files or deployment environment settings.
+- Never commit API keys, access tokens or private credentials.
+- Do not place server-side secrets in variables bundled into the client.
+- Provide safe fallback behaviour when an external provider is unavailable.
+
+> **Configuration note:** Exact variable names and required values should be confirmed from the current source before deployment. Do not assume that every integration is enabled in every environment.
+
+## API surface
+
+The backend exposes endpoints for health, regional information, chat, marine situation, alerts, voice and saved locations. The exact request and response schemas are maintained by the FastAPI implementation.
+
+| Method | Route | Purpose |
+|---|---|---|
+| `GET` | `/api/health` | Service health check |
+| `GET` | `/api/regions` | Regional registry |
+| `GET` | `/api/regions/detect` | Region detection |
+| `POST` | `/api/chat` | Conversational request |
+| `GET` | `/api/situation` | Regional marine situation |
+| `GET` | `/api/alerts` | Alert retrieval |
+| `GET` | `/api/alerts/stream` | Alert event stream |
+| `POST` | `/api/voice/speak` | Speech generation |
+| `POST` | `/api/voice/transcribe` | Audio transcription |
+| `GET` / `POST` | `/api/locations` | Saved locations |
+| `DELETE` | `/api/locations/{id}` | Remove a saved location |
+| `GET` | `/api/geocode` | Geocoding lookup |
+
+For the authoritative route definitions and schemas, use the running API's Swagger UI at `/docs`.
+
+## Testing
+
+Backend test modules are located in `backend/tests/`. The repository also includes test reports and a test-state record.
+
+Run the backend tests from the repository root:
+
+```bash
+pytest backend/tests
+```
+
+Run frontend linting from the frontend directory:
+
+```bash
+cd frontend
+npm run lint
+```
+
+Test results depend on the current code, dependencies, environment variables and external service availability. Run the checks locally or in CI before relying on a result.
+
+## Data, safety & limitations
+
+ORCA is a decision-support and information interface. It is not a certified navigation instrument, vessel traffic service, emergency communication system or official warning authority.
+
+- Verify marine conditions with current official bulletins and competent authorities.
+- Treat cached, mock, unavailable or stale data as unknown—not as evidence of safe conditions.
+- Validate routes against authoritative nautical charts, depth information, traffic schemes and local restrictions.
+- AI-generated explanations can be incomplete or incorrect.
+- Fishing indicators are estimates and do not guarantee catch outcomes.
+- Offline functionality does not provide live observations or live warnings.
+
+For operational decisions, consult official sources such as the India Meteorological Department (IMD), Indian National Centre for Ocean Information Services (INCOIS), port authorities and applicable maritime agencies.
+
+## Project documentation
+
+- [Detailed project documentation](DOCUMENTATION.md)
+- [Backend implementation](backend/)
+- [Frontend implementation](frontend/)
+- [Test modules](backend/tests/)
+
+## Contributing
+
+Contributions and technical feedback are welcome.
+
+1. Fork the repository.
+2. Create a focused feature branch.
+3. Keep changes scoped and documented.
+4. Run relevant tests and lint checks.
+5. Open a pull request describing the change and its verification.
+
+## License
+
+No license is declared in this README. Review the repository's licensing terms before reusing, modifying or distributing the project.
 
 ---
 
-## 11. Testing and Verification
+<div align="center">
 
-ORCA includes backend testing and frontend type validation.
+  <h3>🌊 ORCA — Intelligence for Safer Seas</h3>
+  <p>Building more accessible maritime information experiences through software, data and AI.</p>
+  <p><a href="https://github.com/Suryaakhilp18/ORCA_MOBILE_APP">View ORCA on GitHub</a></p>
 
-### Backend Testing
-
-The documented test coverage includes:
-
-- Marine safety classification.
-- Safety threshold boundaries.
-- Geospatial calculations.
-- Distance and bearing calculations.
-- Regional data retrieval.
-- API endpoint integration.
-- Conversational request processing.
-- Saved-location operations.
-
-The repository's existing test report records 17 passing backend tests.
-
-This is a recorded test result, not a guarantee that every deployment or subsequent code revision will pass the same tests.
-
-### Frontend Validation
-
-The frontend uses TypeScript validation to identify type-related issues and improve development reliability.
-
-### Recommended Verification Areas
-
-- API availability and error handling.
-- Invalid or missing environmental inputs.
-- External service timeouts.
-- Voice permissions and audio playback.
-- Network interruption and recovery.
-- Accuracy of location and route calculations.
-- Mobile and desktop responsiveness.
-
----
-
-## 12. Security, Reliability and Operational Limitations
-
-Marine applications involve safety-sensitive information. ORCA should therefore distinguish between technical functionality and operationally verified capabilities.
-
-Important considerations include:
-
-1. Live marine data depends on external provider availability and geographic coverage.
-2. Offline datasets may be outdated and must not be treated as current weather observations.
-3. AI-generated explanations may contain errors and should not override verified source information.
-4. Navigation calculations are not a replacement for certified Electronic Chart Display and Information Systems (ECDIS).
-5. Route recommendations require validation against authoritative nautical charts, navigational restrictions, and current conditions.
-6. Vessel tracking and AIS-related functionality depend on the availability and reliability of the underlying data source.
-7. Fishing-zone indicators are estimates, not guaranteed catch predictions.
-8. Safety assessments depend on the completeness and quality of their input data.
-
-**Marine Safety Disclaimer**
-
-ORCA is a decision-support and informational platform developed to improve access to maritime intelligence. It is not a certified navigation system, official maritime warning service, or replacement for professional maritime judgement. Always consult official IMD, INCOIS, port authorities, and applicable maritime advisories before making operational decisions at sea.
-
----
-
-## 13. Future Development Roadmap
-
-The following enhancements represent potential future development directions.
-
-### 13.1 Expanded Language Support
-
-Extend voice and conversational capabilities to additional Indian coastal languages, including Tamil, Malayalam, Kannada, Bengali, Marathi, Gujarati, and Odia.
-
-### 13.2 On-Device AI and Offline Voice
-
-Explore lightweight speech recognition and synthesis models to improve accessibility in low-connectivity environments.
-
-### 13.3 Satellite and Navigation Integration
-
-Investigate integration with NavIC-compatible receivers and satellite communication systems for enhanced positioning and emergency communication.
-
-### 13.4 Advanced Bathymetric Intelligence
-
-Explore authoritative bathymetric datasets, tidal information, and depth-clearance calculations for more detailed navigational awareness.
-
-### 13.5 Computer Vision for Fishing Applications
-
-Investigate fish species identification, catch classification, and size estimation using computer vision.
-
-### 13.6 Advanced Marine Analytics
-
-Expand oceanographic analysis, historical marine trends, regional hazard forecasting, and data visualization.
-
----
-
-## 14. Project Information
-
-**Project Name:** ORCA – Ocean Risk & Coastal Advisory
-
-**Project Category:** Artificial Intelligence, Marine Technology, Geospatial Intelligence and Decision Support
-
-**Primary Focus:** Maritime safety, coastal intelligence, navigation assistance, and fishing-related insights.
-
-**Lead Developer:** P. Surya Akhil
-
-**GitHub Repository:** [https://github.com/Suryaakhilp18/ORCA_MOBILE_APP](https://github.com/Suryaakhilp18/ORCA_MOBILE_APP)
-
-**Live Application:** [https://orca-mobile-application.vercel.app](https://orca-mobile-application.vercel.app)
-
-### Acknowledgements
-
-ORCA builds upon technologies and publicly available resources from the broader developer and scientific ecosystem, including:
-
-- Google Gemini
-- Open-Meteo
-- INCOIS
-- ISRO
-- ElevenLabs
-- OpenStreetMap
-- Leaflet
-- React Native
-- Expo
-- FastAPI
-
-Refer to the respective providers' documentation and licensing terms for their data, APIs, and software.
-
-### License
-
-A license declaration should be added here only after the repository's actual license file and permissions have been verified. Until then, no open-source license is asserted.
-
----
-
-\<p align="center">   \<strong>ORCA — Intelligence for Safer Seas.\</strong>   \<br/>   Building a more accessible and informed maritime ecosystem through technology. \</p>
+</div>
